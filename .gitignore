@@ -7,6 +7,7 @@
 /storage/*.key
 /storage/pail
 /vendor
+/render.yaml
 .env
 .env.backup
 .env.production
