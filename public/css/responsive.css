@@ -1,0 +1,84 @@
+/* ========== Form Container ========== */
+.appointment-form {
+    max-width: 100% !important;
+    width: 100% !important;
+    background-color: #2D3748 !important;
+    color: white !important;
+    padding: 20px !important;
+    border-radius: 8px !important;
+    margin: 20px auto !important;
+}
+
+.pet-card {
+    border: 2px solid transparent; /* Default border */
+    transition: all 0.2s ease-in-out;
+}
+
+
+.pet-card.selected {
+    border: 2px solid white !important; /* Consistent border when selected */
+    transform: scale(1.05);
+}
+
+
+.pet-card:hover {
+    transform: scale(1.05);
+}
+
+
+.service-card {
+    margin-right: 8px; /* Adds space between buttons */
+}
+
+
+.service-selection {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px; /* Ensures consistent spacing */
+}
+
+/* ========== Responsive Adjustments ========== */
+@media (min-width: 1024px) { /* Large screens */
+    .appointment-form {
+        max-width: 750px !important;
+        width: 100% !important;
+    }
+}
+
+@media (max-width: 768px) { /* Tablets & small screens */
+    .appointment-form {
+        width: 95% !important;
+        padding: 15px !important;
+    }
+
+    .appointment-form h2 {
+        font-size: 1.8rem !important;
+        text-align: center !important;
+    }
+
+    .pet-card, .service-card {
+        width: 100% !important;
+    }
+
+    .appointment-time select, 
+    .appointment-date input {
+        width: 100% !important;
+    }
+}
+
+@media (max-width: 480px) { /* Phones */
+    .appointment-form {
+        width: 98% !important;
+        padding: 10px !important;
+    }
+
+    .appointment-form h2 {
+        font-size: 1.5rem !important;
+    }
+
+    .btn {
+        width: 100% !important;
+        padding: 12px !important;
+        font-size: 1rem !important;
+    }
+}
