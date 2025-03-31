@@ -154,7 +154,7 @@
         bottom: 0;
         height: 100px;
         will-change: transform;
-        z-index: 20; /* Ensure it's on top */
+        z-index: 1;
     }
     
     html, body {
@@ -216,7 +216,7 @@
     @keyframes slideUp {
         from { 
             opacity: 1; /* Keep visible */
-            transform: translateY(100px); /* Start lower */
+            transform: translateY(150px); /* Start lower */
         }
         to { 
             transform: translateY(0); /* Move to normal position */
@@ -224,13 +224,13 @@
     }
         h1 {
             font-size: 1.8rem;
-            padding: 0.8rem;
+            padding: 0.5rem;
         }
 
         h2 {
-            font-size: 1.6rem;
+            font-size: 1.5rem;
             color: white; 
-            padding: 1rem;
+            padding: .5rem;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4); /* Slight shadow for better readability */
         }
         
@@ -249,7 +249,7 @@
         }
         
         @keyframes moveDown {
-            from { transform: translateY(-30px); }
+            from { transform: translateY(-58px); }
             to { transform: translateY(4%); }
         }
         
