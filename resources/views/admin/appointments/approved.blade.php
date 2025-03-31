@@ -70,13 +70,7 @@
 
 
     
-    <!-- ✅ Status Filters -->
-    <div class="flex gap-2 mb-6">
-        <button class="filter-btn bg-orange-400 text-white px-4 py-2 rounded" data-status="pending">Pending</button>
-        <button class="filter-btn bg-orange-600 text-white px-4 py-2 rounded" data-status="approved">Approved</button>
-        <button class="filter-btn bg-gray-700 text-white px-4 py-2 rounded" data-status="rejected">Rejected</button>
-        <button class="filter-btn bg-gray-500 text-white px-4 py-2 rounded" data-status="all">All</button>
-    </div>
+   
 
     <!-- ✅ Pending Appointments List -->
 <div class="space-y-4">

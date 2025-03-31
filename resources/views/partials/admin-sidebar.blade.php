@@ -72,11 +72,15 @@
             Pets
         </a>
 
-        <a href="#" 
-           class="flex items-center px-4 py-3 rounded-md hover:bg-orange-400 transition duration-300 
-                  {{ request()->routeIs('admin.settings') ? 'bg-orange-500 shadow-md shadow-orange-900 text-white font-bold' : '' }}">
-            <i class="ph ph-gear w-5 h-5 mr-2"></i>
-            Settings
-        </a>
+        <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" 
+   class="flex items-center px-4 py-3 rounded-md hover:bg-orange-400 transition duration-300 
+          {{ request()->routeIs('admin.settings') ? 'bg-orange-500 shadow-md shadow-orange-900 text-white font-bold' : '' }}">
+    <i class="ph ph-sign-out w-5 h-5 mr-2"></i>
+    Logout
+</a>
+
+<form id="logout-form" method="POST" action="{{ route('logout') }}" class="hidden">
+    @csrf
+</form>
     </nav>
 </aside>

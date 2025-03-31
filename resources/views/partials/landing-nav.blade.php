@@ -1,10 +1,14 @@
 <nav class="bg-orange-500 text-white shadow-md">
-    <div class="max-w-7xl mx-auto px-6 flex justify-between items-center py-4">
+    <div class="max-w-7xl mx-auto px-6 flex justify-between items-center py-2">
 
-        <!-- ✅ Logo -->
-        <a href="{{ route('home') }}" class="text-3xl font-bold tracking-wide">
-            EVG Juico PetCare
-        </a>
+        <!-- ✅ Logo and Contact Info -->
+        <div>
+            <a href="{{ route('home') }}" class="text-3xl font-bold tracking-wide block">
+                EVG Juico PetCare
+            </a>
+            <p class="text-sm mt-1">NDM Juico Building, 1, San Pablo, Castillejos, Zambales</p>
+            <p class="text-sm">Contact: (0943) 677-4256</p>
+        </div>
 
         <!-- ✅ Desktop Navigation -->
         <div class="hidden md:flex space-x-6">
@@ -28,8 +32,6 @@
                       {{ request()->routeIs('services') ? 'bg-gray-700 text-white font-bold' : 'bg-orange-600 text-white hover:bg-gray-700' }}">
                 Services
             </a>
-
-            
 
             <!-- Inquiry -->
             <a href="{{ route('customer.inquiry') }}" 
@@ -76,7 +78,6 @@
                   {{ request()->routeIs('services') ? 'bg-gray-700 text-white font-bold' : 'text-white hover:bg-gray-700' }}">
             Services
         </a>
-        
         <a href="{{ route('customer.inquiry') }}" 
            class="block px-6 py-2 rounded-md text-center transition
                   {{ request()->routeIs('customer.inquiry') ? 'bg-gray-700 text-white font-bold' : 'text-white hover:bg-gray-700' }}">

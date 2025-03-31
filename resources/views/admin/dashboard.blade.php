@@ -144,7 +144,7 @@
     </form>
 
     <!-- 🔹 Recent Activity Log -->
-    <h3 class="text-xl font-semibold mt-8">📋 Recent Activity</h3>
+    {{-- <h3 class="text-xl font-semibold mt-8">📋 Recent Activity</h3>
     <ul class="bg-white p-4 rounded shadow mt-4">
         @foreach($recentActivities as $activity)
             <li class="border-b p-3">
@@ -152,7 +152,7 @@
                 <span class="text-gray-500">({{ $activity->created_at->format('M d, h:i A') }})</span>
             </li>
         @endforeach
-    </ul>
+    </ul> --}}
 </div>
 
 <!-- 🔹 FullCalendar.js for Closed Days -->
@@ -257,7 +257,7 @@
     // ✅ Update Max Appointments Without Reload
     document.getElementById("updateMaxAppointmentsBtn").addEventListener("click", function() {
         let newMax = document.getElementById("maxAppointmentsInput").value;
-
+        
         fetch("{{ route('admin.updateMaxAppointments') }}", {
             method: "POST",
             headers: {

@@ -88,14 +88,20 @@ class CustomerController extends Controller
             'phone' => 'required|string|max:20',
             'address' => 'required|string|max:255',
         ]);
-
+    
         $customer->update([
             'name' => trim($request->name),
             'email' => trim($request->email),
             'phone' => $request->phone ? trim($request->phone) : null,
             'address' => $request->address ? trim($request->address) : null,
         ]);
-
+    
+        // Return JSON response for AJAX requests
+        if($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Customer updated successfully.']);
+        }
+    
+        // Regular redirect for non-AJAX requests
         return redirect()->route('admin.customers.index')
                          ->with('success', 'Customer updated successfully.');
     }
@@ -104,10 +110,12 @@ class CustomerController extends Controller
      * ✅ Remove the specified customer.
      */
     public function destroy(User $customer)
-    {
-        $customer->delete();
+{
+    $customer->delete();
 
-        return redirect()->route('admin.customers.index')
-                         ->with('success', 'Customer deleted successfully.');
-    }
+    return response()->json([
+        'success' => true,
+        'message' => 'Customer deleted successfully.'
+    ]);
+}
 }

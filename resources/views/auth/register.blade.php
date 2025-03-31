@@ -27,11 +27,21 @@
                 </div>
 
                 <!-- Phone -->
-                <div>
-                    <x-input-label for="phone" :value="__('Phone (09xxxxxxxxx or +63xxxxxxxxxx)')" />
-                    <x-text-input id="phone" class="block mt-1 w-full border-gray-300 focus:border-orange-500 focus:ring-orange-500 rounded-md shadow-sm" 
-                        type="text" name="phone" :value="old('phone')" required pattern="^(09|\+63)\d{9}$" title="Must be 10 or 11 digits starting with 09 or +63" />
-                    <x-input-error :messages="$errors->get('phone')" class="mt-2" />
+                <div class="mb-4">
+                    <label class="text-gray-700 font-medium">Phone <span class="text-red-500">*</span></label>
+                    <input 
+                        type="text" 
+                        name="phone" 
+                        id="phone" 
+                        value="{{ old('phone') }}" 
+                        class="w-full p-2 border rounded @error('phone') border-red-500 @enderror"
+                        placeholder="09xxxxxxxxx or +63xxxxxxxxxx"
+                        required
+                        oninput="adjustMaxLength(this);"
+                    >
+                    @error('phone') 
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p> 
+                    @enderror
                 </div>
 
                 <!-- Address -->
@@ -69,5 +79,22 @@
                 </div>
             </form>
         </div>
+        <script>
+            function adjustMaxLength(input) {
+                const value = input.value;
+        
+                // Allow only numbers and the plus sign at the beginning
+                input.value = value.replace(/[^0-9+]/g, '');
+        
+                // Adjust max length dynamically
+                if (value.startsWith('+63')) {
+                    input.maxLength = 13; // +63 followed by 10 digits
+                } else if (value.startsWith('09')) {
+                    input.maxLength = 11; // 09 followed by 9 digits
+                } else {
+                    input.maxLength = 13; // Default max length (for unexpected formats)
+                }
+            }
+        </script>
     </main>
 </x-guest-layout>

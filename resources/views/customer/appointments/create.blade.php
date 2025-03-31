@@ -23,56 +23,60 @@
         @csrf
 
         <!-- Pet Selection Section -->
-        <div class="mb-6 border-b border-orange-500 pb-4">
-            <h3 class="text-lg sm:text-xl font-semibold mb-3 text-white flex items-center">
-                <span class="mr-2">1.</span> Select Pet(s)
-                <span class="ml-2 text-sm text-orange-300">*required</span>
-            </h3>
-            <div class="mt-2 p-4 rounded-lg bg-gray-700 text-white">
-                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3" id="petSelectionCards">
+<div class="mb-6 border-b border-orange-500 pb-4">
+    <h3 class="text-lg sm:text-xl font-semibold mb-3 text-white flex items-center">
+        <span class="mr-2">1.</span> Select Pet(s)
+        <span class="ml-2 text-sm text-orange-300">*required</span>
+    </h3>
+    <div class="mt-2 p-4 rounded-lg bg-gray-700 text-white">
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3" id="petSelectionCards">
 
-                    @foreach ($pets as $pet)
-                    <div class="pet-card border rounded-lg p-3 sm:p-4 cursor-pointer transition w-full text-center
-                                bg-secondary text-gray-800 hover:bg-white hover:text-orange-500"
-                         data-pet-id="{{ $pet->id }}">
-                        <input type="checkbox" name="pet_ids[]" value="{{ $pet->id }}" 
-                               id="pet_{{ $pet->id }}" class="hidden pet-checkbox">
-                
-                        <span class="pet-icon text-xl sm:text-2xl block">
-                            @if(strtolower($pet->type) == 'dog') 🐕 
-                            @elseif(strtolower($pet->type) == 'cat') 🐈
-                            @else 🐾
-                            @endif
-                        </span>
-                
-                        <span class="font-medium text-sm sm:text-base">{{ $pet->name }}</span>
-                        <span class="text-xs sm:text-sm block">({{ ucfirst($pet->type) }})</span>
-                    </div>
-                @endforeach
-                
-                </div>
-                
-                @if(count($pets) === 0)
-                    <div class="text-center p-4">
-                        <p>No pets found. Please add a pet first.</p>
-                        <a href="{{ route('customer.pets.create') }}" class="mt-2 inline-block px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600">
-                            Add a Pet
-                        </a>
-                    </div>
-                @endif
+            @foreach ($pets as $pet)
+            <div class="pet-card border rounded-lg p-3 sm:p-4 cursor-pointer transition w-full text-center
+                        bg-secondary text-gray-800 hover:bg-white hover:text-orange-500"
+                 data-pet-id="{{ $pet->id }}"
+                 data-pet-name="{{ $pet->name }}"
+                 data-pet-type="{{ strtolower($pet->type) }}">
+                <input type="checkbox" name="pet_ids[]" value="{{ $pet->id }}" 
+                       id="pet_{{ $pet->id }}" class="hidden pet-checkbox">
+
+                <span class="pet-icon text-xl sm:text-2xl block">
+                    @if(strtolower($pet->type) == 'dog') 🐕 
+                    @elseif(strtolower($pet->type) == 'cat') 🐈
+                    @else 🐾
+                    @endif
+                </span>
+
+                <span class="font-medium text-sm sm:text-base">{{ $pet->name }}</span>
+                <span class="text-xs sm:text-sm block">({{ ucfirst($pet->type) }})</span>
             </div>
+            @endforeach
+
         </div>
+
+        @if(count($pets) === 0)
+            <div class="text-center p-4">
+                <p>No pets found. Please add a pet first.</p>
+                <a href="{{ route('customer.pets.create') }}" class="mt-2 inline-block px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600">
+                    Add a Pet
+                </a>
+            </div>
+        @endif
+    </div>
+</div>
+
 
         <!-- Service Selection Section -->
-        <div class="mb-6 border-b border-orange-500 pb-4">
-            <h3 class="text-lg sm:text-xl font-semibold mb-3 text-white flex items-center">
-                <span class="mr-2">2.</span> Select Service(s)
-                <span class="ml-2 text-sm text-orange-300">*required</span>
-            </h3>
-            <div id="serviceSelectionArea" class="mt-2 p-4 rounded-lg bg-gray-700 text-white">
-                <p class="italic text-sm sm:text-base">Please select a pet first</p>
-            </div>
-        </div>
+<div class="mb-6 border-b border-orange-500 pb-4">
+    <h3 class="text-lg sm:text-xl font-semibold mb-3 text-white flex items-center">
+        <span class="mr-2">2.</span> Select Service(s)
+        <span class="ml-2 text-sm text-orange-300">*required</span>
+    </h3>
+    <div id="serviceSelectionArea" class="mt-2 p-4 rounded-lg bg-gray-700 text-white">
+        <p class="italic text-sm sm:text-base">Please select a pet first</p>
+    </div>
+</div>
+
 
         <!-- Date & Time Selection -->
         <div class="mb-6 border-b border-orange-500 pb-4">
@@ -155,82 +159,7 @@
 
 </div>
 
-@push('styles')
-<style>
-    /* Custom Styles for Calendar */
-    .flatpickr-calendar {
-        background: #333 !important;
-        border: none !important;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3) !important;
-    }
-    
-    .flatpickr-day {
-        border-radius: 50% !important;
-        color: #fff !important;
-        background: transparent !important;
-    }
-    
-    .flatpickr-day.selected {
-        background: #f97316 !important;
-        border-color: #f97316 !important;
-    }
-    
-    .flatpickr-day.today {
-        border-color: #f97316 !important;
-    }
-    
-    .flatpickr-day:hover {
-        background: rgba(249, 115, 22, 0.3) !important;
-    }
-    
-    .flatpickr-day.flatpickr-disabled, 
-    .flatpickr-day.flatpickr-disabled:hover,
-    .flatpickr-day.prevMonthDay, 
-    .flatpickr-day.nextMonthDay {
-        color: #666 !important;
-    }
-    
-    .flatpickr-day.closed-day {
-        background-color: rgba(255, 0, 0, 0.2) !important;
-        text-decoration: line-through;
-        color: #ff6b6b !important;
-        cursor: not-allowed !important;
-    }
 
-    .flatpickr-months .flatpickr-month,
-    .flatpickr-weekdays,
-    .flatpickr-current-month .flatpickr-monthDropdown-months,
-    span.flatpickr-weekday {
-        background: #444 !important;
-        color: #fff !important;  
-    }
-    
-    .flatpickr-current-month {
-        color: #fff !important;
-    }
-    
-    /* Tooltip for hover info */
-    [data-tooltip] {
-        position: relative;
-    }
-    
-    [data-tooltip]:hover:after {
-        content: attr(data-tooltip);
-        position: absolute;
-        bottom: 100%;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #333;
-        color: white;
-        padding: 5px 10px;
-        border-radius: 4px;
-        white-space: nowrap;
-        font-size: 14px;
-        margin-bottom: 5px;
-        z-index: 10;
-    }
-</style>
-@endpush
 
 <script>
     
@@ -314,61 +243,79 @@ fetch('/admin/closed-days')
         }
     }
     
-    /** ✅ 2️⃣ Pet Selection Handling */
-    document.querySelectorAll('.pet-card').forEach(card => {
-        card.addEventListener('click', function () {
-            const checkbox = this.querySelector('.pet-checkbox');
-            checkbox.checked = !checkbox.checked;
+    /** ✅ 2️⃣ Pet Selection Handling */ 
+document.querySelectorAll('.pet-card').forEach(card => {
+    card.addEventListener('click', function () {
+        const checkbox = this.querySelector('.pet-checkbox');
+        checkbox.checked = !checkbox.checked;
 
-            if (checkbox.checked) {
-                this.classList.remove('bg-secondary', 'hover:bg-white', 'hover:text-orange-500'); 
-                this.classList.add('bg-orange-500', 'text-white', 'border-white'); 
-            } else {
-                this.classList.remove('bg-orange-500', 'text-white', 'border-white'); 
-                this.classList.add('bg-secondary', 'hover:bg-white', 'hover:text-orange-500'); 
-            }
+        // Logging pet selection details
+        const petId = this.dataset.petId;
+        const petName = this.dataset.petName;
+        const petType = this.dataset.petType;
+        console.log(`[PET SELECTION] ID: ${petId}, Name: ${petName}, Type: ${petType}, Checked: ${checkbox.checked}`);
 
-            updateServiceSelection();
-            validateForm();
-        });
-    });
-
-
-    /** ✅ 3️⃣ Update Service Selection */
-    function updateServiceSelection() {
-        const selectedPets = document.querySelectorAll('.pet-checkbox:checked');
-        const serviceArea = document.getElementById('serviceSelectionArea');
-
-        if (selectedPets.length === 0) {
-            serviceArea.innerHTML = '<p class="text-gray-400 italic">Please select a pet first</p>';
-            return;
+        if (checkbox.checked) {
+            this.classList.remove('bg-secondary', 'hover:bg-white', 'hover:text-orange-500'); 
+            this.classList.add('bg-orange-500', 'text-white', 'border-white'); 
+        } else {
+            this.classList.remove('bg-orange-500', 'text-white', 'border-white'); 
+            this.classList.add('bg-secondary', 'hover:bg-white', 'hover:text-orange-500'); 
         }
 
-        let html = '';
-        selectedPets.forEach(pet => {
-            const petId = pet.value;
-            const petName = pet.parentElement.querySelector('.font-medium').textContent;
+        updateServiceSelection();
+        validateForm();
+    });
+});
 
-            html += `<div class="mb-4 p-3 border border-gray-600 rounded-lg">
-                        <div class="font-medium mb-3 text-orange-300">Services for ${petName}:</div>
-                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                            ${@json($services).map(service => `
-                                <label class="service-card border rounded-lg p-3 cursor-pointer transition  
-                                bg-secondary text-gray-800 hover:bg-white hover:text-orange-500 flex flex-col justify-between h-full">
-                                    <input type="checkbox" name="pet_services[${petId}][]" value="${service.id}" class="hidden service-checkbox">
-                                    <span class="font-medium mb-1">${service.name}</span>
-                                    <span class="text-xs">${service.description ? service.description : ''}</span>
-                                    <span class="mt-2 font-semibold">₱${service.price}</span>
-                                </label>
-                            `).join('')}
-                        </div>
-                    </div>`;
+/** ✅ 3️⃣ Update Service Selection */
+function updateServiceSelection() {
+    const selectedPets = document.querySelectorAll('.pet-checkbox:checked');
+    const serviceArea = document.getElementById('serviceSelectionArea');
+
+    if (selectedPets.length === 0) {
+        serviceArea.innerHTML = '<p class="text-gray-400 italic">Please select a pet first</p>';
+        return;
+    }
+
+    let html = '';
+    selectedPets.forEach(pet => {
+        const petId = pet.value;
+        const petName = pet.parentElement.querySelector('.font-medium').textContent;
+        const petType = pet.parentElement.querySelector('.text-xs').textContent.replace(/[()]/g, '').toLowerCase();
+
+        console.log(`[SERVICE SELECTION] Generating services for Pet ID: ${petId}, Name: ${petName}, Type: ${petType}`);
+
+        html += `<div class="mb-4 p-3 border border-gray-600 rounded-lg">
+                    <div class="font-medium mb-3 text-orange-300">Services for ${petName}:</div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">`;
+
+        @json($services).forEach(service => {
+            // Only include services that match the selected pet type
+            if (service.pet_type && service.pet_type.toLowerCase() === petType) {
+                console.log(`[SERVICE] Service ID: ${service.id}, Name: ${service.name}, Type: ${service.pet_type}, Price: ${service.price}`);
+                console.log(`[SERVICE] Service ID: ${service.id}, Name: ${service.name}, Type: ${service.pet_type}, Price: ${service.price}`);
+
+                html += `
+                    <label class="service-card border rounded-lg p-3 cursor-pointer transition  
+                        bg-secondary text-gray-800 hover:bg-white hover:text-orange-500 flex flex-col justify-between h-full"
+                        data-service-id="${service.id}" data-service-name="${service.name}" data-service-price="${service.price}">
+                        <input type="checkbox" name="pet_services[${petId}][]" value="${service.id}" class="hidden service-checkbox">
+                        <span class="font-medium mb-1">${service.name}</span>
+                        <span class="text-xs">${service.description ? service.description : ''}</span>
+                        <span class="mt-2 font-semibold">₱${service.price}</span>
+                    </label>`;
+            }
         });
 
-        serviceArea.innerHTML = html;
-        setupServiceClickHandlers();
-        validateForm();
-    }
+        html += `</div></div>`;
+    });
+
+    serviceArea.innerHTML = html;
+    setupServiceClickHandlers();
+    validateForm();
+}
+
 
     /** ✅ 4️⃣ Attach Click Events to Service Selection */
     function setupServiceClickHandlers() {
@@ -659,4 +606,81 @@ function fetchAvailableTimes(date) {
     });
 });
 </script>
+
+@push('styles')
+<style>
+    /* Custom Styles for Calendar */
+    .flatpickr-calendar {
+        background: #333 !important;
+        border: none !important;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3) !important;
+    }
+    
+    .flatpickr-day {
+        border-radius: 50% !important;
+        color: #fff !important;
+        background: transparent !important;
+    }
+    
+    .flatpickr-day.selected {
+        background: #f97316 !important;
+        border-color: #f97316 !important;
+    }
+    
+    .flatpickr-day.today {
+        border-color: #f97316 !important;
+    }
+    
+    .flatpickr-day:hover {
+        background: rgba(249, 115, 22, 0.3) !important;
+    }
+    
+    .flatpickr-day.flatpickr-disabled, 
+    .flatpickr-day.flatpickr-disabled:hover,
+    .flatpickr-day.prevMonthDay, 
+    .flatpickr-day.nextMonthDay {
+        color: #666 !important;
+    }
+    
+    .flatpickr-day.closed-day {
+        background-color: rgba(255, 0, 0, 0.2) !important;
+        text-decoration: line-through;
+        color: #ff6b6b !important;
+        cursor: not-allowed !important;
+    }
+
+    .flatpickr-months .flatpickr-month,
+    .flatpickr-weekdays,
+    .flatpickr-current-month .flatpickr-monthDropdown-months,
+    span.flatpickr-weekday {
+        background: #444 !important;
+        color: #fff !important;  
+    }
+    
+    .flatpickr-current-month {
+        color: #fff !important;
+    }
+    
+    /* Tooltip for hover info */
+    [data-tooltip] {
+        position: relative;
+    }
+    
+    [data-tooltip]:hover:after {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #333;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 4px;
+        white-space: nowrap;
+        font-size: 14px;
+        margin-bottom: 5px;
+        z-index: 10;
+    }
+</style>
+@endpush
 @endsection

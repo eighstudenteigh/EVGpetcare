@@ -35,18 +35,10 @@
                     <td class="p-3">{{ $admin->name }}</td>
                     <td class="p-3">{{ $admin->email }}</td>
                     <td class="p-3 flex gap-2">
-                        <!-- ✏️ Edit Button -->
-                        <a href="#" class="bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 rounded">
-                            Edit
-                        </a>
-
-                        <!-- ❌ Delete Button -->
-                        <form action="#" method="POST" onsubmit="return confirm('Delete this admin?');">
-                            @csrf @method('DELETE')
-                            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded">
-                                Delete
-                            </button>
-                        </form>
+                        <!--  Delete Button -->
+                        <button data-id="{{ $admin->id }}" class="delete-admin-btn bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded">
+                            Delete
+                        </button>
                     </td>
                 </tr>
                 @endforeach
@@ -60,15 +52,42 @@
     </div>
 </div>
 
-<!-- 🔍 Search Function -->
 <script>
-document.getElementById("searchBox").addEventListener("keyup", function () {
-    let query = this.value.toLowerCase();
-    document.querySelectorAll(".admin-row").forEach(row => {
-        let name = row.children[0].textContent.toLowerCase();
-        let email = row.children[1].textContent.toLowerCase();
-        row.style.display = name.includes(query) || email.includes(query) ? "" : "none";
+    document.querySelectorAll(".delete-admin-btn").forEach(button => {
+        button.addEventListener("click", function () {
+            const adminId = this.dataset.id;
+            const confirmed = confirm("Are you sure you want to delete this admin?");
+            
+            if (confirmed) {
+                fetch(`/admin/${adminId}`, {
+                    method: "DELETE",
+                    headers: {
+                        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
+                        "Accept": "application/json"
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    if (data.success) {
+                        // Remove the deleted admin row from the DOM
+                        this.closest("tr").remove();
+                    }
+                })
+                .catch(error => console.error("Error:", error));
+            }
+        });
     });
-});
+
+    // 🔍 Search Function
+    document.getElementById("searchBox").addEventListener("keyup", function () {
+        let query = this.value.toLowerCase();
+        document.querySelectorAll(".admin-row").forEach(row => {
+            let name = row.children[0].textContent.toLowerCase();
+            let email = row.children[1].textContent.toLowerCase();
+            row.style.display = name.includes(query) || email.includes(query) ? "" : "none";
+        });
+    });
 </script>
+
 @endsection

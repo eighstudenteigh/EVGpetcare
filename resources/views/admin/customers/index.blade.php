@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container mx-auto px-4 py-6">
-    <h2 class="text-3xl font-bold mb-6 text-gray-800">👤 Manage Customers</h2>
+    <h2 class="text-3xl font-bold mb-6 text-gray-800"> Manage Customers</h2>
 
     <!-- ✅ Success Message -->
     @if(session('success'))
@@ -184,11 +184,10 @@ document.addEventListener("DOMContentLoaded", function () {
             row.style.display = row.textContent.toLowerCase().includes(input) ? "" : "none";
         });
     });
-    // ✅ Delete Customer
-const deleteButtons = document.querySelectorAll(".delete-customer-btn");
+    const deleteButtons = document.querySelectorAll(".delete-customer-btn");
 
 deleteButtons.forEach(button => {
-    button.addEventListener("click", function () {
+    button.addEventListener("click", function() {
         const customerId = this.dataset.id;
         const confirmed = confirm("Are you sure you want to delete this customer?");
         
@@ -200,23 +199,26 @@ deleteButtons.forEach(button => {
                     "Accept": "application/json"
                 }
             })
-            .then(response => {
-                if (!response.ok) throw new Error("Failed to delete customer.");
-                return response.json();
-            })
+            .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert("Customer deleted successfully.");
-                    location.reload();
+                    // Remove the customer row from the DOM
+                    const customerRow = document.querySelector(`.customer-row[data-id="${customerId}"]`);
+                    if (customerRow) {
+                        customerRow.remove();
+                        alert(data.message || "Customer deleted successfully.");
+                    }
                 } else {
-                    alert("Failed to delete customer.");
+                    alert(data.message || "Failed to delete customer.");
                 }
             })
-            .catch(error => console.error("Error:", error));
+            .catch(error => {
+                console.error("Error:", error);
+                alert("Error deleting customer. Please try again.");
+            });
         }
     });
 });
-
 
 });
 </script>

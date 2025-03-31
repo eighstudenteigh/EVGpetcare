@@ -7,6 +7,8 @@ use App\Models\Appointment;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\Setting;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\AppointmentApproved;
 
 class AppointmentController extends Controller
 {
@@ -94,33 +96,29 @@ public function all(Request $request)
 }
 
     // ✅ Approve an appointment
-     public function approve(Appointment $appointment)
-{
-    // Check if max limit has been reached
-    $maxAppointments = Setting::first()->max_appointments_per_day ?? 10;
-    $approvedToday = Appointment::whereDate('appointment_date', Carbon::today())
-                                ->where('status', 'approved')
-                                ->count();
-
-    if ($approvedToday >= $maxAppointments) {
-        return redirect()->route('admin.appointments')
-            ->with('error', 'Max appointments limit reached for today. Approval denied.');
+    public function approve(Appointment $appointment)
+    {
+        $maxAppointments = Setting::first()->max_appointments_per_day ?? 10;
+        $approvedToday = Appointment::whereDate('appointment_date', now())->where('status', 'approved')->count();
+    
+        if ($approvedToday >= $maxAppointments) {
+            return redirect()->route('admin.appointments')->with('error', 'Max appointments reached for today.');
+        }
+    
+        if ($appointment->status !== 'pending') {
+            return redirect()->route('admin.appointments')->with('error', 'Only pending appointments can be approved.');
+        }
+    
+        $appointment->update([
+            'status' => 'approved',
+            'approved_at' => now(),
+        ]);
+    
+        // ✅ Send Email Notification
+        Mail::to($appointment->user->email)->send(new AppointmentApproved($appointment));
+    
+        return redirect()->route('admin.appointments')->with('success', 'Appointment approved and email sent.');
     }
-
-    if ($appointment->status !== 'pending') {
-        return redirect()->route('admin.appointments')
-            ->with('error', 'Only pending appointments can be approved.');
-    }
-
-    // Approve the appointment
-    $appointment->update([
-        'status' => 'approved',
-        'approved_at' => Carbon::now(),
-    ]);
-
-    return redirect()->route('admin.appointments')
-        ->with('success', 'Appointment approved successfully.');
-}
 
     // ✅ Reject an appointment
     public function reject(Appointment $appointment)

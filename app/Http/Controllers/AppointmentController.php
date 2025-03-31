@@ -10,42 +10,27 @@ use App\Models\Pet;
 use App\Models\ClosedDay;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class AppointmentController extends Controller
 {
     // ✅ Show user's appointments
     public function index()
-    {
-        $appointments = Appointment::where('user_id', Auth::id())
-            ->with(['pets', 'services'])
-            ->orderBy('appointment_date', 'asc')
-            ->get();
+{
+    $userId = Auth::id();
+    $appointments = Appointment::where('user_id', $userId)
+        ->with(['pets', 'services'])
+        ->orderBy('appointment_date', 'asc')
+        ->get();
 
-        return view('customer.appointments.index', compact('appointments'));
-    }
+    // ✅ Count the number of pets for the logged-in user
+    $petsCount = Pet::where('customer_id', $userId)->count();
 
-    // ✅ Show appointment booking page
-    public function create()
-    {
-        $userId = Auth::id();
+    return view('customer.appointments.index', compact('appointments', 'petsCount'));
+}
 
-        $pets = Pet::where('customer_id', $userId)->with('services')->get();
-        $services = Service::all(); 
-        $closedDays = ClosedDay::pluck('date')->toArray();
 
-        $acceptedAppointmentsToday = Appointment::where('appointment_date', now()->toDateString())
-                                                 ->where('status', 'accepted')
-                                                 ->count();
-
-        $maxAppointments = 10;
-
-        if ($pets->isEmpty()) {
-            return redirect()->route('customer.dashboard')
-                             ->with('error', 'You must add a pet before booking an appointment.');
-        }
-
-        return view('customer.appointments.create', compact('pets', 'services', 'acceptedAppointmentsToday', 'maxAppointments'));
-    }
+    
 
     // ✅ Get available time slots (FIXED)
     public function getAvailability(Request $request)
@@ -96,6 +81,36 @@ class AppointmentController extends Controller
         }
     
         return response()->json(['times' => $timeSlots]);
+    }
+    
+    // ✅ Show appointment booking page
+    public function create()
+    {
+        $userId = Auth::id();
+    
+        $pets = Pet::where('customer_id', $userId)->with('services')->get();
+        $services = DB::table('services')
+    ->join('service_pet_type', 'services.id', '=', 'service_pet_type.service_id')
+    ->join('pet_types', 'service_pet_type.pet_type_id', '=', 'pet_types.id')
+    ->select('services.id', 'services.name', 'services.description', 'service_pet_type.price', 'pet_types.name as pet_type')
+    ->get();
+        $closedDays = ClosedDay::pluck('date')->toArray();
+    
+        $acceptedAppointmentsToday = Appointment::where('appointment_date', now()->toDateString())
+                                                 ->where('status', 'accepted')
+                                                 ->count();
+    
+        $maxAppointments = 10;
+    
+        if ($pets->isEmpty()) {
+            return redirect()->route('customer.dashboard')
+                             ->with('error', 'You must add a pet before booking an appointment.');
+        }
+    
+        
+        Log::info('Fetched services with prices: ', $services->toArray());
+    
+        return view('customer.appointments.create', compact('pets', 'services', 'acceptedAppointmentsToday', 'maxAppointments'));
     }
     
     // ✅ Store a new appointment with a hard booking limit

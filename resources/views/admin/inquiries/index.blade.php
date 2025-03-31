@@ -40,29 +40,29 @@
     </div>
 
     <!-- 📩 Inquiries Table -->
-    <div class="overflow-x-auto bg-white shadow-md rounded-lg p-4">
-        <table class="w-full">
+    <div class="overflow-x-auto bg-white shadow-md rounded-lg">
+        <table class="w-full border-collapse">
             <thead class="bg-gray-700 text-white">
                 <tr>
-                    <th class="p-3 text-left">Name</th>
-                    <th class="p-3 text-left">Email</th>
-                    <th class="p-3 text-left">Contact</th>
-                    <th class="p-3 text-left">Pet Type</th>
-                    <th class="p-3 text-left">Service</th>
-                    <th class="p-3 text-left">Message</th>
-                    <th class="p-3 text-left">Status</th>
-                    <th class="p-3 text-left">Actions</th>
+                    <th class="p-3 text-left w-1/6">Name</th>
+                    <th class="p-3 text-left w-1/6">Email</th>
+                    <th class="p-3 text-left w-1/6">Contact</th>
+                    <th class="p-3 text-left w-1/6">Pet Type</th>
+                    <th class="p-3 text-left w-1/6">Service</th>
+                    <th class="p-3 text-left w-1/6">Message</th>
+                    <th class="p-3 text-left w-1/12">Status</th>
+                    <th class="p-3 text-left w-1/6">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach ($inquiries as $inquiry)
                 <tr class="border-b inquiry-row" data-id="{{ $inquiry->id }}">
-                    <td class="p-3">{{ $inquiry->name }}</td>
-                    <td class="p-3">{{ $inquiry->email }}</td>
-                    <td class="p-3">{{ $inquiry->contact_number ?? 'N/A' }}</td>
-                    <td class="p-3">{{ optional($inquiry->petType)->name ?? 'Not specified' }}</td>
-                    <td class="p-3">{{ optional($inquiry->service)->name ?? 'Not specified' }}</td>
-                    <td class="p-3 truncate max-w-xs">{{ \Illuminate\Support\Str::limit($inquiry->message, 30) }}</td>
+                    <td class="p-3 truncate max-w-[120px]" title="{{ $inquiry->name }}">{{ $inquiry->name }}</td>
+                    <td class="p-3 truncate max-w-[150px]" title="{{ $inquiry->email }}">{{ $inquiry->email }}</td>
+                    <td class="p-3 truncate max-w-[120px]" title="{{ $inquiry->contact_number }}">{{ $inquiry->contact_number ?? 'N/A' }}</td>
+                    <td class="p-3 truncate max-w-[120px]">{{ optional($inquiry->petType)->name ?? 'Not specified' }}</td>
+                    <td class="p-3 truncate max-w-[120px]">{{ optional($inquiry->service)->name ?? 'Not specified' }}</td>
+                    <td class="p-3 truncate max-w-[150px]" title="{{ $inquiry->message }}">{{ \Illuminate\Support\Str::limit($inquiry->message, 25) }}</td>
                     <td class="p-3">
                         <span class="px-2 py-1 rounded {{ $inquiry->status == 'unread' ? 'bg-red-500 text-white' : 'bg-green-500 text-white' }}">
                             {{ ucfirst($inquiry->status) }}
@@ -95,6 +95,8 @@
     </div>
 </div>
 
+
+
 <script>document.addEventListener("DOMContentLoaded", function () {
     const viewButtons = document.querySelectorAll(".view-inquiry-btn");
     const inquiryDetailsModal = document.getElementById("inquiryDetailsModal");
@@ -125,8 +127,10 @@
             // ✅ Add correct status classes separately
             if (this.dataset.status === "unread") {
                 statusElement.classList.add("bg-red-500", "text-white");
+                markAsReadBtn.style.display = "inline-block"; // Show button if unread
             } else {
                 statusElement.classList.add("bg-green-500", "text-white");
+                markAsReadBtn.style.display = "none"; // Hide if already read
             }
 
             inquiryDetailsModal.style.display = "flex";
@@ -145,22 +149,37 @@
         }
     });
 
-    // ✅ Handle AJAX Mark as Read (Update Table Instantly)
+    // ✅ Handle AJAX Mark as Read
     markAsReadBtn.addEventListener("click", function () {
-        if (!currentInquiryId) return; // Prevent errors if no ID is stored
+        if (!currentInquiryId) return;
+
+        // Alternative approach: Create an actual form and submit it
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/admin/inquiries/${currentInquiryId}/read`;
+        form.style.display = 'none';
         
-        fetch(`/admin/inquiries/${currentInquiryId}/read`, {
-            method: "POST",
+        // Add CSRF token
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = '_token';
+        csrfInput.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        form.appendChild(csrfInput);
+        
+        // Add to document and submit
+        document.body.appendChild(form);
+        
+        // Use fetch for AJAX behavior
+        fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form),
             headers: {
-                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
-                "Accept": "application/json"
+                'X-Requested-With': 'XMLHttpRequest'
             }
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert("Inquiry marked as read.");
-                
                 // ✅ Update the status in the table instantly
                 let row = document.querySelector(`.inquiry-row[data-id="${currentInquiryId}"]`);
                 let statusCell = row.querySelector("td:nth-child(7) span"); // Status cell
@@ -169,42 +188,94 @@
                 statusCell.textContent = "Read";
                 statusCell.classList.remove("bg-red-500");
                 statusCell.classList.add("bg-green-500", "text-white");
+                
+                // ✅ Update the button's data-status attribute
+                let viewButton = row.querySelector(".view-inquiry-btn");
+                if (viewButton) {
+                    viewButton.dataset.status = "read";
+                }
+
+                // ✅ Hide "Mark as Read" button in modal
+                markAsReadBtn.style.display = "none";
+                
+                // Update status in modal
+                const statusElement = document.getElementById("inquiryStatus");
+                statusElement.textContent = "read";
+                statusElement.classList.remove("bg-red-500");
+                statusElement.classList.add("bg-green-500", "text-white");
 
                 // ✅ Hide the modal
                 inquiryDetailsModal.style.display = "none";
+                
+                alert("Inquiry marked as read.");
             } else {
-                alert(data.error || "Failed to mark as read.");
+                alert("Failed to mark as read: " + (data.message || "Unknown error"));
             }
         })
-        .catch(error => console.error("Error:", error));
+        .catch(error => {
+            console.error("Error:", error);
+            alert("An error occurred while marking the inquiry as read.");
+        })
+        .finally(() => {
+            // Clean up the form
+            form.remove();
+        });
     });
 
-    // ✅ Handle AJAX Delete
+    // ✅ Handle Delete with similar approach
     document.querySelectorAll(".delete-inquiry-btn").forEach(button => {
         button.addEventListener("click", function () {
             let inquiryId = this.dataset.id;
             if (!confirm("Are you sure you want to delete this inquiry?")) return;
 
-            fetch(`/admin/inquiries/${inquiryId}`, {
-                method: "DELETE",
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/admin/inquiries/${inquiryId}`;
+            form.style.display = 'none';
+            
+            // Add CSRF token
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_token';
+            csrfInput.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            form.appendChild(csrfInput);
+            
+            // Add method spoofing for DELETE
+            const methodInput = document.createElement('input');
+            methodInput.type = 'hidden';
+            methodInput.name = '_method';
+            methodInput.value = 'DELETE';
+            form.appendChild(methodInput);
+            
+            // Add to document and submit via fetch
+            document.body.appendChild(form);
+            
+            fetch(form.action, {
+                method: 'POST',
+                body: new FormData(form),
                 headers: {
-                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
+                    'X-Requested-With': 'XMLHttpRequest'
                 }
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert("Inquiry deleted successfully.");
                     document.querySelector(`.inquiry-row[data-id="${inquiryId}"]`).remove();
+                    alert("Inquiry deleted successfully.");
                 } else {
-                    alert(data.error || "Failed to delete inquiry.");
+                    alert("Failed to delete inquiry.");
                 }
             })
-            .catch(error => console.error("Error:", error));
+            .catch(error => {
+                console.error("Error:", error);
+                alert("An error occurred while deleting the inquiry.");
+            })
+            .finally(() => {
+                form.remove();
+            });
         });
     });
-});
-</script>
+});</script>
     
     
 

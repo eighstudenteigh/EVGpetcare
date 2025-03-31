@@ -3,10 +3,9 @@
 @section('title', 'Home')
 
 @section('content')
-<!-- Hero Section - Removed min-h-[calc(100vh-4rem)] to prevent footer issues -->
+<!-- Hero Section -->
 <div class="flex flex-col flex-grow relative"> 
-
-    <!-- Image container - Adjust height on mobile -->
+    <!-- Image container -->
     <div class="relative h-1/2 md:h-[60vh] overflow-hidden" id="hero-container">
         <div class="absolute inset-0" id="cat-image-wrapper">
             <img
@@ -18,7 +17,7 @@
         </div>
     </div>
 
-    <!-- Text container - Overlay for mobile, separate for desktop -->
+    <!-- Text container -->
     <div class="relative flex flex-col md:flex-row overflow-hidden items-center justify-center" id="text-container">
         <!-- First text section -->
         <div id="first-text-section" class="bg-orange-500 text-white opacity-0 h-0 w-full md:w-2/3 flex items-center justify-center rounded-lg shadow-lg">
@@ -31,82 +30,133 @@
         </div>
     </div>
 </div>
-<!-- Running Dog Container (Initially Hidden) -->
+
+<!-- Running Dog Container -->
 <div class="relative overflow-hidden h-28 bg-white">
     <img src="{{ asset('images/running-dog.gif') }}" alt="Running Dog" id="running-dog" class="absolute bottom-0 hidden" />
 </div>
-
 @endsection
 
 @section('scripts')
 <script>
+    // Global variables
+    let gsapTimeline;
+
     window.addEventListener('load', function () {
-        if (typeof gsap === 'undefined') {
-            loadGSAP();
+        // Detect if mobile
+        const isMobile = window.innerWidth < 768;
+        
+        if (isMobile) {
+            // Use CSS animations for mobile
+            initMobileAnimations();
         } else {
-            initAnimations();
+            // Use GSAP for desktop
+            if (typeof gsap === 'undefined') {
+                loadGSAP();
+            } else {
+                initDesktopAnimations();
+            }
         }
+        
+        // Listen for resize events to switch animation methods
+        window.addEventListener('resize', function() {
+            const nowMobile = window.innerWidth < 768;
+            
+            if (nowMobile !== isMobile) {
+                // Reload the page to switch animation methods
+                window.location.reload();
+            }
+        });
     });
+    
+    function initMobileAnimations() {
+        // Clean up any existing GSAP animations
+        if (typeof gsap !== 'undefined' && gsapTimeline) {
+            gsapTimeline.kill();
+        }
+        
+        // Set initial state for mobile
+        document.getElementById('hero-container').style.height = '50%';
+        document.getElementById('cat-image').classList.add('mobile-cat-animation');
+        
+        // Setup text containers with staggered fade animations
+        const firstText = document.getElementById('first-text-section');
+        const secondText = document.getElementById('second-text-section');
+        const runningDog = document.getElementById('running-dog');
+        
+        // Clear any inline styles from GSAP
+        firstText.removeAttribute('style');
+        secondText.removeAttribute('style');
+        runningDog.removeAttribute('style');
+        
+        // Add mobile animation classes with staggered delays
+        firstText.classList.add('mobile-slide-up');
+        firstText.style.animationDelay = '600ms';
+        firstText.style.height = '18vh';
+        firstText.style.opacity = '0';
+        
+        secondText.classList.add('mobile-slide-up');
+        secondText.style.animationDelay = '1200ms';
+        secondText.style.height = '12vh';
+        secondText.style.opacity = '0';
+        
+        // Setup dog animation for mobile
+        runningDog.classList.remove('hidden');
+        runningDog.classList.add('mobile-dog-run');
+        runningDog.style.animationDelay = '900ms';
+
+        // Force a reflow to ensure animations start
+        void document.getElementById('hero-container').offsetWidth;
+        
+        // Now set the opacity to trigger animations
+        setTimeout(() => {
+            firstText.style.opacity = '1';
+            secondText.style.opacity = '1';
+        }, 100);
+    }
 
     function loadGSAP() {
         const gsapScript = document.createElement('script');
         gsapScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js';
-        gsapScript.onload = initAnimations;
+        gsapScript.onload = initDesktopAnimations;
         document.body.appendChild(gsapScript);
     }
 
-    function initAnimations() {
-        const resetAnimation = () => {
-            const isMobile = window.innerWidth < 768;
-            const viewportHeight = window.innerHeight;
-            const heroHeightDesktop = Math.min(viewportHeight * 0.8, 600);
+    function initDesktopAnimations() {
+        const viewportHeight = window.innerHeight;
+        const heroHeightDesktop = Math.min(viewportHeight * 0.8, 600);
 
-            gsap.set("#cat-image", { scale: 1.1, y: "0%" });
-            gsap.set("#hero-container", { height: isMobile ? "50%" : heroHeightDesktop + "px" });
-            gsap.set("#first-text-section", { opacity: 0, height: 0, width: "100%" });
-            gsap.set("#second-text-section", { opacity: 0, width: 0, height: "0%" });
-            gsap.set("#running-dog", { x: "-200px", display: "none" });
+        gsap.set("#cat-image", { scale: 1.1, y: "0%" });
+        gsap.set("#hero-container", { height: heroHeightDesktop + "px" });
+        gsap.set("#first-text-section", { opacity: 0, height: 0, width: "100%" });
+        gsap.set("#second-text-section", { opacity: 0, width: 0, height: "0%" });
+        gsap.set("#running-dog", { x: "-200px", display: "none" });
 
-            const timeline = gsap.timeline({ defaults: { ease: "power2.inOut" }, delay: 0.5 });
+        gsapTimeline = gsap.timeline({ defaults: { ease: "power2.inOut" }, delay: 0.5 });
 
-            if (isMobile) {
-                timeline
-                    .to("#cat-image", { y: "4%", duration: 1 })
-                    .to("#hero-container", { height: "35%", duration: 1 }, "-=0.8")
-                    .to("#first-text-section", { height: "18vh", opacity: 1, duration: 0.8 }, "-=0.3")
-                    .to("#second-text-section", { height: "12vh", opacity: 1, duration: 1.2 });
-            } else {
-                timeline
-                    .to("#cat-image", { y: "4%", duration: 1.5 })
-                    .to("#hero-container", { height: "50vh", duration: 1.5 }, "-=1")
-                    .to("#first-text-section", { height: "20vh", opacity: 1, duration: 1 }, "-=0.5")
-                    .to("#second-text-section", { width: "30%", height: "15vh", opacity: 1, duration: 1 }, "-=0.2")
-                    .to("#first-text-section", { width: "70%", height: "15vh", duration: 0.8 }, "-=0.8");
-            }
-
-            
-            timeline
-                .set("#running-dog", { display: "block" })
-                .fromTo("#running-dog", 
-                    { x: "-200px" }, 
-                    { x: "100vw", duration: 8, repeat: -1, ease: "linear" }
-                );
-        };
-
-        resetAnimation();
-        window.addEventListener('resize', resetAnimation);
+        gsapTimeline
+            .to("#cat-image", { y: "4%", duration: 1.5 })
+            .to("#hero-container", { height: "50vh", duration: 1.5 }, "-=1")
+            .to("#first-text-section", { height: "20vh", opacity: 1, duration: 1 }, "-=0.5")
+            .to("#second-text-section", { width: "30%", height: "15vh", opacity: 1, duration: 1 }, "-=0.2")
+            .to("#first-text-section", { width: "70%", height: "15vh", duration: 0.8 }, "-=0.8")
+            .set("#running-dog", { display: "block" })
+            .fromTo("#running-dog", 
+                { x: "-200px" }, 
+                { x: "100vw", duration: 8, repeat: -1, ease: "linear" }
+            );
     }
 </script>
 
-
 <style>
     #running-dog {
-    position: absolute;
-    bottom: 0;
-    height: 100px;
-    will-change: transform;
-    z-index: 10; /* Ensure it's on top */
-}
+        position: absolute;
+        bottom: 0;
+        height: 100px;
+        will-change: transform;
+        z-index: 20; /* Ensure it's on top */
+    }
+    
     html, body {
         height: 100%;
         margin: 0;
@@ -120,7 +170,7 @@
 
     #text-container {
         position: absolute;
-        top: 49%; /* Adjusted to better center text on mobile */
+        top: 61%; /* Adjusted to better center text on mobile */
         left: 50%;
         transform: translate(-50%, -45%);
         z-index: 5;
@@ -142,22 +192,36 @@
         #first-text-section {
             width: 100%;
             height: 18vh; /* Reduce the height */
-    padding: 0.5rem; /* Reduce padding */
+            padding: 0.5rem; /* Reduce padding */
         }
 
         #second-text-section {
             width: 100%;
             height: 12vh; /* Reduce the height */
-    padding: 0.5rem; /* Reduce padding */
-}
+            padding: 0.5rem; /* Reduce padding */
+        }
     }
 
-    #first-text-section, #second-text-section {
+    #first-text-section:hover, #second-text-section:hover {
         transition: height 0.3s ease, width 0.3s ease, opacity 0.3s ease;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Enhanced text visibility */
+        text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.7);
+        letter-spacing: 1px;
     }
 
     @media (max-width: 767px) {
+        .mobile-slide-up {
+        animation: slideUp 1s ease-out forwards;
+    }
+
+    @keyframes slideUp {
+        from { 
+            opacity: 1; /* Keep visible */
+            transform: translateY(100px); /* Start lower */
+        }
+        to { 
+            transform: translateY(0); /* Move to normal position */
+        }
+    }
         h1 {
             font-size: 1.8rem;
             padding: 0.8rem;
@@ -165,9 +229,38 @@
 
         h2 {
             font-size: 1.6rem;
-            color: #E67700; /* text-gray-700 */
+            color: white; 
             padding: 1rem;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4); /* Slight shadow for better readability */
+        }
+        
+        /* Mobile animations */
+        .mobile-cat-animation {
+            animation: moveDown 1s ease-out forwards;
+        }
+        
+        .mobile-fade-in {
+            animation: fadeIn 1.2s ease-out forwards;
+        }
+        
+        .mobile-dog-run {
+            opacity: 0;
+            animation: fadeIn 0.5s ease-out forwards, dogRun 10s linear infinite 0.5s;
+        }
+        
+        @keyframes moveDown {
+            from { transform: translateY(-30px); }
+            to { transform: translateY(4%); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes dogRun {
+            from { transform: translateX(-200px); }
+            to { transform: translateX(100vw); }
         }
     }
 </style>

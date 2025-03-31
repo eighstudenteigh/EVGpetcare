@@ -3,27 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pet;
+use App\Models\PetType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class PetController extends Controller
 {
-    /**
-     * Display a list of the user's pets.
-     */
     public function index()
     {
         if (Auth::check()) {
             $pets = Auth::user()->pets;
-            return view('customer.pets.index', compact('pets'));
+            $petTypes = PetType::all(); // Fetch pet types
+            return view('customer.pets.index', compact('pets', 'petTypes'));
         }
 
         return redirect()->route('login');
     }
-
-    /**
-     * Store a new pet in the database.
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -37,19 +32,9 @@ class PetController extends Controller
         $validated['customer_id'] = Auth::id();
         $pet = Pet::create($validated);
 
-        // ✅ Return JSON response if request is AJAX
-        if ($request->ajax()) {
-            return response()->json([
-                'id' => $pet->id,
-                'name' => $pet->name,
-                'type' => ucfirst($pet->type),
-                'breed' => $pet->breed ?: 'N/A',
-                'age' => $pet->age . ' years'
-            ]);
-        }
-
         return redirect()->route('customer.pets.index')->with('success', 'Pet added successfully.');
     }
+    
     public function update(Request $request, Pet $pet)
     {
         if ($pet->customer_id !== Auth::id()) {
@@ -84,4 +69,5 @@ class PetController extends Controller
 
         return redirect()->route('customer.pets.index')->with('success', 'Pet deleted successfully.');
     }
+    
 }

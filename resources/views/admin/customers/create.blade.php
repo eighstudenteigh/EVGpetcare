@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container mx-auto px-4 py-6">
-    <h2 class="text-3xl font-bold mb-6 text-gray-800">➕ Add New Customer</h2>
+    <h2 class="text-3xl font-bold mb-6 text-gray-800">Add New Customer</h2>
 
     <!-- ✅ Success Message -->
     @if(session('success'))
