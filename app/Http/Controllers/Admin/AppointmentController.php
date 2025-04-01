@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use App\Models\Setting;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\AppointmentApproved;
+use Illuminate\Support\Facades\Log;
 
 class AppointmentController extends Controller
 {
@@ -97,28 +98,36 @@ public function all(Request $request)
 
     // ✅ Approve an appointment
     public function approve(Appointment $appointment)
-    {
-        $maxAppointments = Setting::first()->max_appointments_per_day ?? 10;
-        $approvedToday = Appointment::whereDate('appointment_date', now())->where('status', 'approved')->count();
-    
-        if ($approvedToday >= $maxAppointments) {
-            return redirect()->route('admin.appointments')->with('error', 'Max appointments reached for today.');
-        }
-    
-        if ($appointment->status !== 'pending') {
-            return redirect()->route('admin.appointments')->with('error', 'Only pending appointments can be approved.');
-        }
-    
-        $appointment->update([
-            'status' => 'approved',
-            'approved_at' => now(),
-        ]);
-    
+{
+    $maxAppointments = Setting::first()->max_appointments_per_day ?? 10;
+    $approvedToday = Appointment::whereDate('appointment_date', now())
+                                ->where('status', 'approved')
+                                ->count();
+
+    if ($approvedToday >= $maxAppointments) {
+        return redirect()->route('admin.appointments')->with('error', 'Max appointments reached for today.');
+    }
+
+    if ($appointment->status !== 'pending') {
+        return redirect()->route('admin.appointments')->with('error', 'Only pending appointments can be approved.');
+    }
+
+    $appointment->update([
+        'status' => 'approved',
+        'approved_at' => now(),
+    ]);
+
+    try {
         // ✅ Send Email Notification
         Mail::to($appointment->user->email)->send(new AppointmentApproved($appointment));
-    
         return redirect()->route('admin.appointments')->with('success', 'Appointment approved and email sent.');
+    } catch (\Exception $e) {
+        // Log the error for debugging
+        Log::error('Failed to send appointment approval email: ' . $e->getMessage());
+        return redirect()->route('admin.appointments')->with('warning', 'Appointment approved but email could not be sent.');
     }
+}
+
 
     // ✅ Reject an appointment
     public function reject(Appointment $appointment)

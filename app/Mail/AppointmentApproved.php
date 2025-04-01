@@ -14,10 +14,16 @@ class AppointmentApproved extends Mailable
     use Queueable, SerializesModels;
 
     public $appointment;
+    public $customerName;
+    public $appointmentDate;
+    public $appointmentTime;
 
     public function __construct(Appointment $appointment)
     {
         $this->appointment = $appointment;
+        $this->customerName = $appointment->user->name ?? 'Customer';
+        $this->appointmentDate = Carbon::parse($appointment->appointment_date)->format('l, F j, Y');
+        $this->appointmentTime = Carbon::parse($appointment->appointment_time)->format('h:i A');
     }
 
     public function build()
@@ -25,9 +31,9 @@ class AppointmentApproved extends Mailable
         return $this->subject('Your Appointment Has Been Approved!')
                     ->view('emails.appointment_approved')
                     ->with([
-                        'customerName' => $this->appointment->user->name,
-                        'date' => Carbon::parse($this->appointment->appointment_date)->format('F j, Y'),
-                        'time' => Carbon::parse($this->appointment->appointment_time)->format('h:i A'),
+                        'customerName' => $this->customerName,
+                        'date' => $this->appointmentDate,
+                        'time' => $this->appointmentTime,
                     ]);
     }
 }
