@@ -25,7 +25,7 @@
         <a href="{{ route('admin.appointments.all') }}" class="bg-gray-500 text-white px-4 py-2 rounded">All</a>
     </div>
 
-    <!-- 🔹 Sort Appointments -->
+    {{-- <!-- 🔹 Sort Appointments -->
     <div class="mb-4">
         <label for="sortAppointments" class="font-semibold">Sort by:</label>
         <select id="sortAppointments" class="px-3 py-2 border rounded">
@@ -33,7 +33,7 @@
             <option value="owner">Owner</option>
             <option value="pet">Pet</option>
         </select>
-    </div>
+    </div> --}}
 
     <!-- ✅ Pending Appointments List -->
     <div class="appointments-list space-y-4">

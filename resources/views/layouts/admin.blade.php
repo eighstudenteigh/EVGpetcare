@@ -6,8 +6,20 @@
     <title>Admin Dashboard</title>
     @vite(['resources/css/app.css'])
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        html, body {
+            height: 100%;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        main {
+            flex: 1;
+        }
+    </style>
 </head>
 <body class="bg-gray-100">
 
