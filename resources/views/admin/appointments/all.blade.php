@@ -14,20 +14,18 @@
         <a href="{{ route('admin.appointments.all') }}" class="bg-gray-500 text-white px-4 py-2 rounded">All</a>
     </div>
 
-    <!-- 🔹 Filtering Options -->
+    <!-- 🔹 Sorting Options -->
     <form method="GET" class="mb-6 flex gap-4">
-        <select name="status" class="p-2 border rounded">
-            <option value="">Filter by Status</option>
-            <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-            <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved</option>
-            <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
-        </select>
-
         <select name="sort_by" class="p-2 border rounded">
             <option value="">Sort by</option>
             <option value="appointment_date" {{ request('sort_by') == 'appointment_date' ? 'selected' : '' }}>Date</option>
             <option value="user_name" {{ request('sort_by') == 'user_name' ? 'selected' : '' }}>Owner Name</option>
             <option value="pet_name" {{ request('sort_by') == 'pet_name' ? 'selected' : '' }}>Pet Name</option>
+        </select>
+
+        <select name="sort_order" class="p-2 border rounded">
+            <option value="asc" {{ request('sort_order') == 'asc' ? 'selected' : '' }}>Ascending</option>
+            <option value="desc" {{ request('sort_order') == 'desc' ? 'selected' : '' }}>Descending</option>
         </select>
 
         <button type="submit" class="bg-gray-700 text-white px-4 py-2 rounded">Apply</button>

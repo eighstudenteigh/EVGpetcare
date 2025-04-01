@@ -5,26 +5,25 @@
     <h2 class="text-2xl sm:text-3xl font-bold text-gray-700 mb-6">My Appointments</h2>
 
     <!-- Book New Appointment Button -->
-<div class="flex justify-end mb-4">
-    @if($petsCount === 0)
-        <div class="text-center">
-            <a href="#" 
-               class="px-6 bg-orange-500 text-white font-semibold py-2 rounded opacity-50 cursor-not-allowed"
-               aria-disabled="true" tabindex="-1">
+    <div class="flex justify-end mb-4">
+        @if($petsCount === 0)
+            <div class="text-center">
+                <a href="#" 
+                   class="px-6 bg-orange-500 text-white font-semibold py-2 rounded opacity-50 cursor-not-allowed"
+                   aria-disabled="true" tabindex="-1">
+                    + Book New Appointment
+                </a>
+                <p class="text-sm text-gray-400 mt-2">You need to register at least one pet to book an appointment.</p>
+            </div>
+        @else
+            <a href="{{ route('customer.appointments.create') }}" 
+               class="px-6 bg-orange-500 text-white font-semibold py-2 rounded hover:bg-orange-600">
                 + Book New Appointment
             </a>
-            <p class="text-sm text-gray-400 mt-2">You need to register at least one pet to book an appointment.</p>
-        </div>
-    @else
-        <a href="{{ route('customer.appointments.create') }}" 
-           class="px-6 bg-orange-500 text-white font-semibold py-2 rounded hover:bg-orange-600">
-            + Book New Appointment
-        </a>
-    @endif
-</div>
+        @endif
+    </div>
 
-
-    <!-- Desktop Table (hidden on mobile) -->
+    <!-- Desktop Table -->
     <div class="hidden sm:block shadow-md rounded-lg overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full border-collapse">
@@ -60,7 +59,7 @@
                                     {{ $servicesForPet ?: 'No services selected' }}
                                 </td>
 
-                                <!-- Date, Time, Status, Actions (Only once per appointment) -->
+                                <!-- Date, Time, Status, Actions -->
                                 @if ($index === 0)
                                     <td class="px-4 py-3 text-gray-600" rowspan="{{ count($appointment->pets) }}">
                                         {{ \Carbon\Carbon::parse($appointment->appointment_date)->format('F j, Y') }}
@@ -75,17 +74,13 @@
                                             <span class="px-3 py-1 text-xs font-semibold text-yellow-800 bg-yellow-200 rounded-lg">
                                                 Pending
                                             </span>
-                                        @elseif ($appointment->status == 'confirmed')
+                                        @elseif ($appointment->status == 'approved')
                                             <span class="px-3 py-1 text-xs font-semibold text-green-800 bg-green-200 rounded-lg">
-                                                Confirmed
+                                                Approved
                                             </span>
-                                        @elseif ($appointment->status == 'completed')
-                                            <span class="px-3 py-1 text-xs font-semibold text-blue-800 bg-blue-200 rounded-lg">
-                                                Completed
-                                            </span>
-                                        @elseif ($appointment->status == 'cancelled')
+                                        @elseif ($appointment->status == 'rejected')
                                             <span class="px-3 py-1 text-xs font-semibold text-red-800 bg-red-200 rounded-lg">
-                                                Cancelled
+                                                Rejected
                                             </span>
                                         @endif
                                     </td>
@@ -120,7 +115,7 @@
         </div>
     </div>
 
-    <!-- Mobile Card View (hidden on desktop) -->
+    <!-- Mobile Card View -->
     <div class="sm:hidden space-y-4">
         @forelse ($appointments as $appointment)
             <div class="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
@@ -140,17 +135,13 @@
                                 <span class="px-3 py-1 text-xs font-semibold text-yellow-800 bg-yellow-200 rounded-lg">
                                     Pending
                                 </span>
-                            @elseif ($appointment->status == 'confirmed')
+                            @elseif ($appointment->status == 'approved')
                                 <span class="px-3 py-1 text-xs font-semibold text-green-800 bg-green-200 rounded-lg">
-                                    Confirmed
+                                    Approved
                                 </span>
-                            @elseif ($appointment->status == 'completed')
-                                <span class="px-3 py-1 text-xs font-semibold text-blue-800 bg-blue-200 rounded-lg">
-                                    Completed
-                                </span>
-                            @elseif ($appointment->status == 'cancelled')
+                            @elseif ($appointment->status == 'rejected')
                                 <span class="px-3 py-1 text-xs font-semibold text-red-800 bg-red-200 rounded-lg">
-                                    Cancelled
+                                    Rejected
                                 </span>
                             @endif
                         </div>
@@ -175,7 +166,7 @@
                                 </div>
                             </div>
                             
-                            <!-- Pet Services (collapsible) - now with dark background -->
+                            <!-- Pet Services (collapsible) -->
                             <div id="pet-services-{{ $appointment->id }}-{{ $pet->id }}" class="hidden px-4 py-3 bg-gray-700 text-sm">
                                 <div class="mb-2">
                                     <span class="font-medium text-white">Services:</span>

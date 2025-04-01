@@ -64,30 +64,26 @@ public function all(Request $request)
 {
     $query = Appointment::with(['user', 'pets', 'services']);
 
-    // ✅ Apply status filter (if selected)
-    if ($request->has('status') && in_array($request->status, ['pending', 'approved', 'rejected'])) {
-        $query->where('status', $request->status);
-    }
-
-    // ✅ Sorting options
+    // ✅ Sorting options with direction
     if ($request->has('sort_by')) {
         $sortField = $request->sort_by;
+        $sortDirection = $request->sort_order === 'desc' ? 'desc' : 'asc';
         $allowedSortFields = ['appointment_date', 'user_name', 'pet_name'];
 
         if (in_array($sortField, $allowedSortFields)) {
             if ($sortField === 'user_name') {
                 $query->join('users', 'appointments.user_id', '=', 'users.id')
-                      ->orderBy('users.name');
+                      ->orderBy('users.name', $sortDirection);
             } elseif ($sortField === 'pet_name') {
                 $query->join('appointment_pet', 'appointments.id', '=', 'appointment_pet.appointment_id')
                       ->join('pets', 'appointment_pet.pet_id', '=', 'pets.id')
-                      ->orderBy('pets.name');
+                      ->orderBy('pets.name', $sortDirection);
             } else {
-                $query->orderBy($sortField);
+                $query->orderBy($sortField, $sortDirection);
             }
         }
     } else {
-        $query->orderBy('appointment_date', 'asc');
+        $query->orderBy('appointment_date', 'asc'); // Default sorting
     }
 
     // ✅ Paginate results
@@ -95,6 +91,7 @@ public function all(Request $request)
 
     return view('admin.appointments.all', compact('appointments'));
 }
+
 
     // ✅ Approve an appointment
     public function approve(Appointment $appointment)

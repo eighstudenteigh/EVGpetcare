@@ -1,8 +1,10 @@
-<aside class="bg-orange-600 text-white w-64 min-h-screen p-4 fixed top-0 left-0 z-50">
-    
+<aside class="bg-orange-600 text-white w-full h-full p-4 overflow-y-auto">
     <!-- Branding Section -->
-    <div class="flex items-center px-1 py-1">
-        <h1 class="text-2xl font-bold">EVG Juico PetCare</h1>
+    <div class="flex items-center justify-between px-1 py-1">
+        <h1 class="text-xl md:text-2xl font-bold">EVG Juico PetCare</h1>
+        <button id="closeSidebar" class="md:hidden text-white hover:text-orange-200">
+            <i class="ph ph-x w-6 h-6"></i>
+        </button>
     </div>
     <hr class="border-t border-orange-300 my-2">
     <nav class="space-y-3 mt-4">
@@ -73,14 +75,23 @@
         </a>
 
         <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" 
-   class="flex items-center px-4 py-3 rounded-md hover:bg-orange-400 transition duration-300 
-          {{ request()->routeIs('admin.settings') ? 'bg-orange-500 shadow-md shadow-orange-900 text-white font-bold' : '' }}">
-    <i class="ph ph-sign-out w-5 h-5 mr-2"></i>
-    Logout
-</a>
+           class="flex items-center px-4 py-3 rounded-md hover:bg-orange-400 transition duration-300">
+            <i class="ph ph-sign-out w-5 h-5 mr-2"></i>
+            Logout
+        </a>
 
-<form id="logout-form" method="POST" action="{{ route('logout') }}" class="hidden">
-    @csrf
-</form>
+        <form id="logout-form" method="POST" action="{{ route('logout') }}" class="hidden">
+            @csrf
+        </form>
     </nav>
+
+    <script>
+        // Close sidebar when the close button is clicked (mobile only)
+        document.getElementById('closeSidebar')?.addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.add('-translate-x-full');
+            overlay.classList.add('hidden');
+        });
+    </script>
 </aside>
