@@ -1,7 +1,8 @@
 <x-guest-layout>
     <form method="POST" action="{{ route('password.update') }}">
         @csrf
-
+        @method('PUT')
+        
         <input type="hidden" name="token" value="{{ $token }}">
         <input type="hidden" name="email" value="{{ old('email', request()->email) }}">
 
