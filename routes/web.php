@@ -18,13 +18,15 @@ use App\Http\Controllers\Admin\ClosedDaysController;
 use App\Http\Controllers\Admin\CRUDServiceController;
 use App\Http\Controllers\Admin\AdminPetController;
 use App\Http\Controllers\Admin\AdminPetTypeController;
+use App\Http\Controllers\Auth\EmailVerificationController;
+
 
 
 
 
 //  Public Pages (No Middleware)
     Route::get('/', [PageController::class, 'home'])->name('home');
-   
+    Route::get('/verify-email/{id}', [EmailVerificationController::class, 'verify'])->name('verify.email');
    
 //services
     Route::get('/services', [GuestServiceController::class, 'index'])->name('services');
@@ -51,7 +53,7 @@ use App\Http\Controllers\Admin\AdminPetTypeController;
     Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth')->name('logout');
 
 // Authenticated Routes
-    Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'redirectToDashboard'])->name('dashboard');
 
         // Profile Routes - available to all authenticated users

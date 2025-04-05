@@ -19,27 +19,34 @@ class LoginController extends Controller
      * Handle login request.
      */
     public function login(Request $request)
-    {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
-        ]);
+{
+    $credentials = $request->validate([
+        'email' => ['required', 'email'],
+        'password' => ['required'],
+    ]);
 
-        if (Auth::attempt($credentials)) {
-            $user = Auth::user();
+    if (Auth::attempt($credentials)) {
+        $user = Auth::user();
 
-            // Redirect based on role
-            if ($user->role === 'admin') {
-                return redirect()->route('admin.dashboard');
-            } else {
-                return redirect()->route('customer.dashboard');
-            }
+        // ✅ Check if email is verified
+        if ($user->email_verified_at === null) {
+            Auth::logout();
+
+            return back()->withErrors([
+                'email' => 'Your email is not verified. Please check your inbox.',
+            ])->withInput();
         }
 
-        return back()->withErrors([
-            'email' => 'Invalid credentials.',
-        ])->withInput();
+        // Redirect based on role
+        return $user->role === 'admin'
+            ? redirect()->route('admin.dashboard')
+            : redirect()->route('customer.dashboard');
     }
+
+    return back()->withErrors([
+        'email' => 'Invalid credentials.',
+    ])->withInput();
+}
 
     public function logout(Request $request)
     {

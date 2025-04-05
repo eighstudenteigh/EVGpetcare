@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\URL;
+use App\Mail\VerifyEmail;
 
 class RegisteredUserController extends Controller
 {
@@ -26,25 +29,29 @@ class RegisteredUserController extends Controller
      * Handle an incoming registration request.
      */
     public function store(Request $request): RedirectResponse
-{
-    $request->validate([
-        'name' => ['required', 'string', 'max:255', 'regex:/^[A-Za-z\s]+$/'],
-        'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
-        'phone' => ['required', 'regex:/^(09\d{9}|\+63\d{10})$/', 'unique:users,phone'],
-        'address' => ['required', 'string', 'max:255'],
-        'password' => ['required', 'string', 'min:8', 'confirmed'],
-    ]);
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255', 'regex:/^[A-Za-z\s]+$/'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'phone' => ['required', 'regex:/^(09\d{9}|\+63\d{10})$/', 'unique:users,phone'],
+            'address' => ['required', 'string', 'max:255'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+    
+        $user = User::create([
+            'name' => trim($request->name),
+            'email' => strtolower(trim($request->email)),
+            'phone' => trim($request->phone),
+            'address' => trim($request->address),
+            'password' => Hash::make($request->password),
+        ]);
+    
+        // Send custom verification email
+        $verificationUrl = URL::to('/verify-email/' . $user->id);
+    
+        Mail::to($user->email)->send(new VerifyEmail($verificationUrl));
 
-    $user = User::create([
-        'name' => trim($request->name),
-        'email' => strtolower(trim($request->email)),
-        'phone' => trim($request->phone),
-        'address' => trim($request->address),
-        'password' => Hash::make($request->password),
-    ]);
-
-    Auth::login($user);
-
-    return redirect()->route('dashboard')->with('success', 'Registration successful.');
-}
+    
+        return redirect()->route('login')->with('status', 'Registration successful! Check your email to verify your account.');
+    }
 }
