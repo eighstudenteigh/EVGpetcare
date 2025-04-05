@@ -45,11 +45,11 @@
                 <div class="flex items-center justify-between mt-4">
                     
 
-                    @if (Route::has('password.request'))
+                    
                         <a href="{{ route('password.custom.request') }}" class="text-sm text-orange-600 hover:underline">
                             Forgot password?
                         </a>
-                    @endif
+                    
                 </div>
 
                 <!-- Submit Button -->
