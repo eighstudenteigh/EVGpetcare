@@ -37,15 +37,19 @@ class ResetPasswordController extends Controller
                 'password' => Hash::make($password),
                 'remember_token' => Str::random(60),
             ])->save();
+
+            // Add this to ensure the password is immediately updated
+            $user->setRememberToken(Str::random(60));
+            $user->save();
         }
     );
 
     if ($status == Password::PASSWORD_RESET) {
-        return redirect()->route('login')->with([
-            'status' => 'Password reset successfully! You can now login with your new password.'
-        ]);
+        return redirect()->route('login')
+            ->with('success', 'Password reset successfully! You can now login with your new password.');
     }
 
-    return back()->withErrors(['email' => [__($status)]]);
+    return back()->withInput($request->only('email'))
+        ->withErrors(['email' => __($status)]);
 }
 }

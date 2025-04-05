@@ -11,44 +11,45 @@ class LoginController extends Controller
      * Show the login form.
      */
     public function showLoginForm()
-{
-    return view('auth.login', [
-        'status' => session('status') 
-    ]);
-}
+    {
+        return view('auth.login', [
+            'status' => session('status'),
+            'success' => session('success')
+        ]);
+    }
 
     /**
      * Handle login request.
      */
     public function login(Request $request)
-{
-    $credentials = $request->validate([
-        'email' => ['required', 'email'],
-        'password' => ['required'],
-    ]);
+    {
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required'],
+        ]);
 
-    if (Auth::attempt($credentials)) {
-        $user = Auth::user();
+        if (Auth::attempt($credentials)) {
+            $user = Auth::user();
 
-        // ✅ Check if email is verified
-        if ($user->email_verified_at === null) {
-            Auth::logout();
+            // Check if email is verified
+            if ($user->email_verified_at === null) {
+                Auth::logout();
 
-            return back()->withErrors([
-                'email' => 'Your email is not verified. Please check your inbox.',
-            ])->withInput();
+                return back()->withErrors([
+                    'email' => 'Your email is not verified. Please check your inbox.',
+                ])->withInput();
+            }
+
+            // Redirect based on role
+            return $user->role === 'admin'
+                ? redirect()->route('admin.dashboard')
+                : redirect()->route('customer.dashboard');
         }
 
-        // Redirect based on role
-        return $user->role === 'admin'
-            ? redirect()->route('admin.dashboard')
-            : redirect()->route('customer.dashboard');
+        return back()->withErrors([
+            'email' => 'Invalid credentials.',
+        ])->withInput();
     }
-
-    return back()->withErrors([
-        'email' => 'Invalid credentials.',
-    ])->withInput();
-}
 
     public function logout(Request $request)
     {

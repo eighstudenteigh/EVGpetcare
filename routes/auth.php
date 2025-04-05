@@ -20,8 +20,9 @@ Route::middleware('guest')->group(function () {
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
 
   // Reset password (custom)
-  Route::get('/reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
+  /* Route::get('/reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
   Route::post('/reset-password', [NewPasswordController::class, 'store'])->name('password.store');
+ */
 });
 
 Route::middleware('auth')->group(function () {
