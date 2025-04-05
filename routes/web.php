@@ -15,13 +15,15 @@ use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\AdminServiceController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\ClosedDaysController;
-use App\Http\Controllers\Admin\CRUDServiceController;
 use App\Http\Controllers\Admin\AdminPetController;
 use App\Http\Controllers\Admin\AdminPetTypeController;
 use App\Http\Controllers\Auth\EmailVerificationController;
+use App\Http\Controllers\CustomForgotPasswordController;
 
 
 
+Route::get('/forgot-password', [CustomForgotPasswordController::class, 'showForm'])->name('password.request');
+Route::post('/forgot-password', [CustomForgotPasswordController::class, 'sendResetLink'])->name('password.email');
 
 
 //  Public Pages (No Middleware)
