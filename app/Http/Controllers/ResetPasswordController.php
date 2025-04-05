@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Hash;
@@ -10,17 +9,25 @@ use Illuminate\Support\Str;
 
 class ResetPasswordController extends Controller
 {
-    public function showResetForm(Request $request, $token)
+    /**
+     * Display the password reset view.
+     */
+    public function showResetForm(Request $request, $token = null)
     {
-        return view('auth.reset-password', ['token' => $token, 'email' => $request->email]);
+        return view('auth.reset-password-custom')->with(
+            ['token' => $token, 'email' => $request->email]
+        );
     }
 
+    /**
+     * Reset the given user's password.
+     */
     public function reset(Request $request)
     {
         $request->validate([
             'token' => 'required',
             'email' => 'required|email',
-            'password' => 'required|min:8|confirmed',
+            'password' => 'required|confirmed|min:8',
         ]);
 
         $status = Password::reset(
@@ -33,7 +40,7 @@ class ResetPasswordController extends Controller
             }
         );
 
-        return $status === Password::PASSWORD_RESET
+        return $status == Password::PASSWORD_RESET
             ? redirect()->route('login')->with('status', __($status))
             : back()->withErrors(['email' => [__($status)]]);
     }

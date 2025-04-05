@@ -18,9 +18,18 @@ use App\Http\Controllers\Admin\ClosedDaysController;
 use App\Http\Controllers\Admin\AdminPetController;
 use App\Http\Controllers\Admin\AdminPetTypeController;
 use App\Http\Controllers\Auth\EmailVerificationController;
+use App\Http\Controllers\CustomForgotPasswordController;
+use App\Http\Controllers\ForgotPasswordController;
 
 
+// Custom Password Reset Routes
+Route::get('/forgot-password', [ForgotPasswordController::class, 'showRequestForm'])
+    ->middleware('guest')
+    ->name('password.custom.request');
 
+Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])
+    ->middleware('guest')
+    ->name('password.custom.email');
 
 
 //  Public Pages (No Middleware)

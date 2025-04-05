@@ -21,13 +21,15 @@ class ResetPassword extends Notification
     }
 
     public function toMail($notifiable)
-    {
-        $resetUrl = url(route('password.reset', [
-            'token' => $this->token,
-            'email' => $notifiable->getEmailForPasswordReset(),
-        ], false));
+{
+    $resetUrl = url(route('password.reset', [
+        'token' => $this->token,
+        'email' => $notifiable->getEmailForPasswordReset(),
+    ], false));
 
-        // Call your custom mailable
-        return (new ResetPasswordMail($resetUrl, config('auth.passwords.'.config('auth.defaults.passwords').'.expire')));
-    }
+    return (new ResetPasswordMail(
+        $resetUrl,
+        config('auth.passwords.' . config('auth.defaults.passwords') . '.expire')
+    ))->to($notifiable->email); 
+}
 }
