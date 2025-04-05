@@ -19,6 +19,12 @@ use App\Http\Controllers\Admin\AdminPetController;
 use App\Http\Controllers\Admin\AdminPetTypeController;
 use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\CustomForgotPasswordController;
+use Illuminate\Support\Facades\Artisan;
+
+Route::get('/clear-all', function () {
+    Artisan::call('optimize:clear');
+    return 'All caches cleared!';
+});
 
 
 
