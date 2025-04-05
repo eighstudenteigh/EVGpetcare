@@ -10,7 +10,7 @@
     <!-- 🔍 Search Box -->
     <div class="mb-4">
         <div class="relative">
-            <input type="text" id="searchBox" placeholder="Search services or animal types..." 
+            <input type="text" id="searchBox" placeholder="Search services..." 
                 class="w-full p-2 pl-10 border rounded focus:border-orange-500 focus:outline-none">
             <div class="absolute left-3 top-2.5 text-gray-500">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -319,21 +319,27 @@ if (searchBox) {
     searchBox.addEventListener("keyup", function () {
         const input = this.value.toLowerCase();
         
+        // Track which service IDs have been matched
+        const matchedServiceIds = new Set();
+        
         // Get all service rows
         const serviceRows = document.querySelectorAll(".service-row");
         
+        // First, find all services that match the search term
         serviceRows.forEach(row => {
-            // Get the service name from the first column
+            const serviceId = row.dataset.id;
             const serviceName = row.querySelector("td:first-child").textContent.toLowerCase();
             
-            // Get the animal type from the second column
-            const animalType = row.querySelector("td:nth-child(2)").textContent.toLowerCase();
-            
-            // Check if either the service name or animal type contains the search term
-            const isMatch = serviceName.includes(input) || animalType.includes(input);
-            
-            // Show or hide the row based on the match
-            row.style.display = isMatch ? "" : "none";
+            // Check if the service name contains the search term
+            if (serviceName.includes(input)) {
+                matchedServiceIds.add(serviceId);
+            }
+        });
+        
+        // Then, show/hide rows based on whether their service ID is in the matched set
+        serviceRows.forEach(row => {
+            const serviceId = row.dataset.id;
+            row.style.display = matchedServiceIds.has(serviceId) ? "" : "none";
         });
     });
 }
