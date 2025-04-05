@@ -313,19 +313,30 @@
         });
     });
 
-    // ✅ Search Functionality
+    //  Search Functionality
     const searchBox = document.getElementById("searchBox");
-    if (searchBox) {
-        searchBox.addEventListener("keyup", function () {
-            const input = this.value.toLowerCase();
-            document.querySelectorAll(".service-row").forEach(row => {
-                const serviceName = row.querySelector("td:first-child").textContent.toLowerCase();
-                const petTypes = row.querySelector("td:nth-child(3)").textContent.toLowerCase();
-
-                row.style.display = (serviceName.includes(input) || petTypes.includes(input)) ? "" : "none";
-            });
+if (searchBox) {
+    searchBox.addEventListener("keyup", function () {
+        const input = this.value.toLowerCase();
+        
+        // Get all service rows
+        const serviceRows = document.querySelectorAll(".service-row");
+        
+        serviceRows.forEach(row => {
+            // Get the service name from the first column
+            const serviceName = row.querySelector("td:first-child").textContent.toLowerCase();
+            
+            // Get the animal type from the second column
+            const animalType = row.querySelector("td:nth-child(2)").textContent.toLowerCase();
+            
+            // Check if either the service name or animal type contains the search term
+            const isMatch = serviceName.includes(input) || animalType.includes(input);
+            
+            // Show or hide the row based on the match
+            row.style.display = isMatch ? "" : "none";
         });
-    }
+    });
+}
 });
 </script>
 @endsection
