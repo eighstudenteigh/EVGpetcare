@@ -19,7 +19,8 @@ use App\Http\Controllers\Admin\CRUDServiceController;
 use App\Http\Controllers\Admin\AdminPetController;
 use App\Http\Controllers\Admin\AdminPetTypeController;
 use App\Http\Controllers\Auth\EmailVerificationController;
-
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\ResetPasswordController;
 
 
 
@@ -27,6 +28,12 @@ use App\Http\Controllers\Auth\EmailVerificationController;
 //  Public Pages (No Middleware)
     Route::get('/', [PageController::class, 'home'])->name('home');
     Route::get('/verify-email/{id}', [EmailVerificationController::class, 'verify'])->name('verify.email');
+
+    Route::get('/forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+    Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+    
+    Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
+    Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
    
 //services
     Route::get('/services', [GuestServiceController::class, 'index'])->name('services');
