@@ -11,9 +11,11 @@ class LoginController extends Controller
      * Show the login form.
      */
     public function showLoginForm()
-    {
-        return view('auth.login'); // Ensure you have this Blade file
-    }
+{
+    return view('auth.login', [
+        'status' => session('status') 
+    ]);
+}
 
     /**
      * Handle login request.

@@ -3,7 +3,11 @@
 
         <div class="w-full sm:max-w-md bg-white rounded-lg shadow-lg p-6">
            
-
+            @if (session('status'))
+            <div class="mb-4 font-medium text-sm text-green-600">
+                {{ session('status') }}
+            </div>
+            @endif
             <!-- Session Status -->
             <x-auth-session-status class="mb-4" :status="session('status')" />
 
