@@ -20,7 +20,7 @@ use App\Http\Controllers\Admin\AdminPetTypeController;
 use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\CustomForgotPasswordController;
 use App\Http\Controllers\ForgotPasswordController;
-
+use App\Http\Controllers\ResetPasswordController;
 
 // Custom Password Reset Routes
 Route::get('/forgot-password', [ForgotPasswordController::class, 'showRequestForm'])
@@ -31,6 +31,14 @@ Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLink
     ->middleware('guest')
     ->name('password.custom.email');
 
+// Password Reset Form and Update
+Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])
+    ->middleware('guest')
+    ->name('password.reset');
+
+Route::post('/reset-password', [ResetPasswordController::class, 'reset'])
+    ->middleware('guest')
+    ->name('password.update');
 
 //  Public Pages (No Middleware)
     Route::get('/', [PageController::class, 'home'])->name('home');
