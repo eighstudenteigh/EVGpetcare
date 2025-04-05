@@ -15,27 +15,21 @@ use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\AdminServiceController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\ClosedDaysController;
-use App\Http\Controllers\Admin\CRUDServiceController;
 use App\Http\Controllers\Admin\AdminPetController;
 use App\Http\Controllers\Admin\AdminPetTypeController;
 use App\Http\Controllers\Auth\EmailVerificationController;
-use App\Http\Controllers\Auth\ResetPasswordController;
-use App\Http\Controllers\ForgotPasswordController;
+
 
 
 
 
 //  Public Pages (No Middleware)
     Route::get('/', [PageController::class, 'home'])->name('home');
-    Route::get('/verify-email/{id}', [EmailVerificationController::class, 'verify'])->name('verify.email');
+    Route::get('/verify-email/{id}', [EmailVerificationController::class, 'verify'])
+    ->middleware('signed')
+    ->name('verify.email');
 
-// Forgot Password 
-    Route::get('/forgot-password', [ForgotPasswordController::class, 'showRequestForm'])->name('password.custom.request');
-    Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.custom.email');
-    
-    Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
-    Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
-   
+
 //services
     Route::get('/services', [GuestServiceController::class, 'index'])->name('services');
     Route::get('/services/all', [GuestServiceController::class, 'getAllServices']);

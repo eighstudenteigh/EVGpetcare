@@ -6,11 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\URL;
 
 class EmailVerificationController extends Controller
 {
-    public function verify($id)
+    public function verify(Request $request, $id)
     {
+        if (!$request->hasValidSignature()) {
+            return redirect('/login')->with('error', 'Invalid or expired verification link.');
+        }
+
         $user = User::findOrFail($id);
 
         if ($user->email_verified_at !== null) {
@@ -23,4 +28,3 @@ class EmailVerificationController extends Controller
         return redirect('/login')->with('status', 'Email verified successfully. You can now log in.');
     }
 }
-
