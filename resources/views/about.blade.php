@@ -3,7 +3,7 @@
 @section('title', 'Our Services')
 
 @section('content')
-<div class="min-h-screen bg-gray-100 flex flex-col items-center py-10 px-4 md:px-16 overflow-hidden relative">
+<div class="max-h-[80vh] bg-gray-100 flex flex-col items-center py-10 px-4 md:px-16 overflow-hidden relative">
     <!-- Image Animation Container -->
     <div class="absolute inset-0 z-0 flex justify-center items-center" id="image-sequence">
         <img src="{{ asset('images/veterinary-service.jpeg') }}" alt="Veterinary Service" class="absolute img-overlay" id="img1">

@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width">
     <title>{{ $slot }}</title>
     <style>
-        /* Laravel's default email styles */
         body {
             font-family: Arial, sans-serif;
             line-height: 1.6;

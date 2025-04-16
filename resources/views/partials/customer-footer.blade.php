@@ -1,4 +1,5 @@
-<footer class="bg-gray-700 text-white py-6 mt-auto w-full">
+<footer class="bg-gray-700 text-white py-1 mt-auto w-full">
+    
     <div class="max-w-7xl mx-auto px-6 lg:px-8">
         <div class="flex flex-col md:flex-row items-center justify-between">
             <!-- Left: Copyright Notice -->
@@ -11,7 +12,7 @@
                     <path d="M18 8.118l-8 5-8-5V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
                 </svg>
                 <a href="mailto:info@evgpetcare.com" class="text-sm hover:text-orange-400">
-                    info@evgpetcare.com
+                    evgjuicopetcarecenter@gmail.com
                 </a>
             </div>
         </div>

@@ -4,264 +4,265 @@
 
 @section('content')
 <!-- Hero Section -->
-<div class="flex flex-col flex-grow relative"> 
-    <!-- Image container -->
-    <div class="relative h-1/2 md:h-[60vh] overflow-hidden" id="hero-container">
-        <div class="absolute inset-0" id="cat-image-wrapper">
-            <img
-                src="{{ asset('images/peeking-cat.webp') }}"
-                alt="Peeking Cat"
-                id="cat-image"
-                class="w-full h-full object-cover object-center"
-            />
+<section class="bg-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col-reverse md:flex-row items-center justify-between gap-10 py-12 md:py-20">
+        
+        <!-- Left Column -->
+        <div class="md:w-1/2 text-center md:text-left">
+          <h1 class="text-4xl lg:text-5xl font-extrabold text-gray-900 leading-tight mb-6">
+            Caring Hands for Your <span class="text-orange-500">Beloved Pets</span>
+          </h1>
+          
+          <p class="text-lg text-gray-600 mb-8 max-w-md mx-auto md:mx-0">
+            Professional pet care clinic and grooming services dedicated to keeping your furry friends happy, healthy, and looking their best.
+          </p>
+          
+          <div class="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4">
+            <!-- Location Button -->
+            <div class="flex items-center bg-white hover:bg-gray-100 border border-gray-300 rounded-lg px-4 py-3 transition cursor-pointer">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-orange-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <span class="font-medium text-gray-700">Our Locations</span>
+            </div>
+  
+            <!-- Book Button -->
+            <a href="{{ route('customer.appointments.create') }}" class="px-6 py-3 bg-orange-500 text-white font-semibold rounded-lg shadow hover:bg-orange-600 transition duration-300">
+              Book Appointment
+            </a>
+          </div>
+        </div>
+  
+        <!-- Right Column (Image) -->
+        <div class="md:w-1/2" min-h-[86vh]>
+          <img src="{{ asset('images/hero image cat.jpg') }}" alt="Pet Care Hero Image" class="rounded-xl shadow-lg w-full h-auto object-cover max-h-[86vh]">
+        </div>
+  
+      </div>
+    </div>
+  </section>
+  
+
+<!-- Highlight Services CTA Section -->
+<section class="bg-orange-500 text-white py-20" id="highlight-services min-h-[90vh]">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8 flex flex-col lg:flex-row items-center gap-10">
+      
+      <!-- Image Placeholder (replace src with your image) -->
+      <div class="w-full lg:w-1/2">
+        <img src="/images/pet-clinic.jpg" alt="Happy pet and vet" class="rounded-2xl shadow-xl w-full object-cover h-80 lg:h-96">
+      </div>
+  
+      <!-- Text Content -->
+      <div class="w-full lg:w-1/2 text-center lg:text-left">
+        <h2 class="text-4xl font-extrabold mb-6 leading-tight ">
+          Caring for Your Pets with <span class="underline decoration-white/30">Passion & Expertise</span>
+        </h2>
+        <p class="text-lg mb-8 text-orange-100">
+          From regular check-ups to emergency surgeries, our experienced team is here to provide complete and compassionate care for your furry family members.
+        </p>
+        <a href="#services" class="inline-block bg-white text-gray-900 font-semibold px-6 py-3 rounded-full shadow hover:bg-orange-100 transition">
+          Explore Our Services
+        </a>
+      </div>
+  
+    </div>
+  </section>
+  
+
+{{-- <!-- Why Choose Us Section - Horizontal Layout -->
+<section class="py-12 bg-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+            <h2 class="text-5xl font-extrabold text-gray-900 inline-block pb-3 border-b-4 border-orange-400">Why Choose Us</h2>
+        <p class="mt-4 text-lg text-gray-900 max-w-2xl mx-auto">
+          Trusted care. Compassionate service. Excellence in every visit.
+        </p>
+      </div>
+  
+      <!-- Flex Row Layout -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <!-- Left: Image -->
+        <div class="rounded-2xl overflow-hidden shadow-lg">
+          <img src="/mnt/data/490984368_641987588660302_7427716606766130483_n.jpg" alt="Vet Clinic" class="w-full h-auto object-cover">
+        </div>
+  
+        <!-- Right: Text Content -->
+        <div>
+          <div class="bg-white rounded-2xl shadow-md p-8 mb-8">
+            <p class="text-gray-700 text-lg leading-relaxed">
+              Founded by Dr. Ericko Vien G. Juico, <strong>EVG Juico Pet Care Center</strong> offers full-service vet care across Zambales. From checkups to life-saving treatment—your pets are family, and we treat them that way.
+            </p>
+          </div>
+  
+          <!-- Features -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Licensed Professionals -->
+            <div class="bg-white rounded-xl shadow-md p-6 text-center hover:shadow-lg transition">
+              <div class="inline-flex bg-orange-100 p-3 rounded-full mb-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016..." />
+                </svg>
+              </div>
+              <h3 class="text-md font-semibold text-gray-900">Licensed Professionals</h3>
+              <p class="text-sm text-gray-600">Led by three experienced, licensed veterinarians.</p>
+            </div>
+  
+            <!-- Comprehensive Services -->
+            <div class="bg-white rounded-xl shadow-md p-6 text-center hover:shadow-lg transition">
+              <div class="inline-flex bg-orange-100 p-3 rounded-full mb-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2..." />
+                </svg>
+              </div>
+              <h3 class="text-md font-semibold text-gray-900">Comprehensive Services</h3>
+              <p class="text-sm text-gray-600">From wellness visits to surgery, we do it all.</p>
+            </div>
+  
+            <!-- Multiple Locations -->
+            <div class="bg-white rounded-xl shadow-md p-6 text-center hover:shadow-lg transition">
+              <div class="inline-flex bg-orange-100 p-3 rounded-full mb-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2..." />
+                </svg>
+              </div>
+              <h3 class="text-md font-semibold text-gray-900">Multiple Locations</h3>
+              <p class="text-sm text-gray-600">Now serving Castillejos and Subic areas.</p>
+            </div>
+  
+            <!-- Digital Convenience -->
+            <div class="bg-white rounded-xl shadow-md p-6 text-center hover:shadow-lg transition">
+              <div class="inline-flex bg-orange-100 p-3 rounded-full mb-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01..." />
+                </svg>
+              </div>
+              <h3 class="text-md font-semibold text-gray-900">Digital Convenience</h3>
+              <p class="text-sm text-gray-600">Book online. View records anytime, anywhere.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section> --}}
+  
+          
+<!-- Mission & Vision Section -->
+<section class="py-20 bg-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h2 class="text-4xl font-extrabold text-center text-gray-900 mb-12">Our Commitment</h2>
+  
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-8">
+        <!-- Vision Text -->
+        <div class="bg-white p-8 rounded-2xl shadow-md">
+          <h3 class="text-2xl font-semibold text-orange-500 mb-4">Vision</h3>
+          <p class="text-gray-700 text-lg leading-relaxed">
+            Our veterinary clinic strives for absolute excellence and to rise to such a high level of business and medical excellence, 
+            that through education and example, we will inspire our Evg Juico petcare community to care for its pets and people as God intended.
+          </p>
+        </div>
+        <!-- Vision Image -->
+        <div class="rounded-2xl overflow-hidden shadow-md  max-h-[38vh]">
+          <img src="{{ asset('images/vision.jpg') }}" alt="Vision Image" class="w-full h-full object-cover max-h-[500px]">
+        </div>
+      </div>
+  
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <!-- Mission Image -->
+        <div class="rounded-2xl overflow-hidden shadow-md  max-h-[38vh]">
+          <img src="{{ asset('images/mission.jpg') }}" alt="Mission Image" class="w-full h-full object-cover max-h-[500px]">
+        </div>
+        <!-- Mission Text -->
+        <div class="bg-white p-8 rounded-2xl shadow-md">
+          <h3 class="text-2xl font-semibold text-orange-500 mb-4">Mission</h3>
+          <p class="text-gray-700 text-lg leading-relaxed">
+            Animal Care Clinic is dedicated to exemplary veterinary medicine and patient care, client service and employee well-being; 
+            while maintaining honesty, integrity, profitability and community involvement along the way.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  
+
+<!-- Meet Our Team Section -->
+<section class="py-16 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-gray-900">Meet Our Team</h2>
+            <p class="mt-4 text-xl text-gray-600 max-w-3xl mx-auto">Dedicated professionals committed to your pet's health and happiness</p>
+        </div>
+        
+        <!-- Featured Team Member -->
+        <div class="bg-gray-50 rounded-xl shadow-sm overflow-hidden mb-8">
+            <div class="md:flex">
+                <div class="md:w-1/3">
+                    <img src="/images/dr.jpg" alt="Dr. Ericko Vien G. Juico" class="h-64 w-full object-cover md:h-full">
+                </div>
+                <div class="p-8 md:w-2/3">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2">Dr. Ericko Vien G. Juico</h3>
+                    <p class="text-orange-500 font-medium mb-4">Founder & Head Veterinarian</p>
+                    <p class="text-gray-700 leading-relaxed mb-6">
+                        Dr. Juico founded EVG JUICO PET CARE CENTER with a vision to provide exceptional veterinary care to pets in Zambales. With extensive experience in veterinary medicine, Dr. Juico leads our team of professionals committed to the health and well-being of your furry family members.
+                    </p>
+                    <div class="flex justify-center md:justify-start">
+                        <a href="#" class="px-6 py-3 bg-orange-500 text-white font-medium rounded-lg shadow-sm hover:bg-orange-600 transition duration-300 text-center">
+                            Meet Our Full Team
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-
-    <!-- Text container -->
-    <div class="relative flex flex-col md:flex-row overflow-hidden items-center justify-center" id="text-container">
-        <!-- First text section -->
-        <div id="first-text-section" class="bg-orange-500 text-white opacity-0 h-0 w-full md:w-2/3 flex items-center justify-center rounded-lg shadow-lg">
-            <h1 class="text-2xl sm:text-3xl md:text-5xl font-bold px-4 py-2 text-center">Caring Hands for Your Beloved Pets</h1>
-        </div>
-
-        <!-- Second text section -->
-        <div id="second-text-section" class="bg-gray-500 text-white opacity-0 h-0 w-full md:w-1/3 flex items-center justify-center rounded-lg shadow-lg">
-            <h2 class="text-lg sm:text-xl md:text-3xl px-4 py-2 text-center">Where Pets Are Family</h2>
-        </div>
-    </div>
-</div>
-
-<!-- Running Dog Container -->
-<div class="relative overflow-hidden h-28 bg-white">
-    <img src="{{ asset('images/running-dog.gif') }}" alt="Running Dog" id="running-dog" class="absolute bottom-0 hidden" />
-</div>
-@endsection
-
-@section('scripts')
-<script>
-    // Global variables
-    let gsapTimeline;
-
-    window.addEventListener('load', function () {
-        // Detect if mobile
-        const isMobile = window.innerWidth < 768;
-        
-        if (isMobile) {
-            // Use CSS animations for mobile
-            initMobileAnimations();
-        } else {
-            // Use GSAP for desktop
-            if (typeof gsap === 'undefined') {
-                loadGSAP();
-            } else {
-                initDesktopAnimations();
-            }
-        }
-        
-        // Listen for resize events to switch animation methods
-        window.addEventListener('resize', function() {
-            const nowMobile = window.innerWidth < 768;
-            
-            if (nowMobile !== isMobile) {
-                // Reload the page to switch animation methods
-                window.location.reload();
-            }
-        });
-    });
-    
-    function initMobileAnimations() {
-        // Clean up any existing GSAP animations
-        if (typeof gsap !== 'undefined' && gsapTimeline) {
-            gsapTimeline.kill();
-        }
-        
-        // Set initial state for mobile
-        document.getElementById('hero-container').style.height = '50%';
-        document.getElementById('cat-image').classList.add('mobile-cat-animation');
-        
-        // Setup text containers with staggered fade animations
-        const firstText = document.getElementById('first-text-section');
-        const secondText = document.getElementById('second-text-section');
-        const runningDog = document.getElementById('running-dog');
-        
-        // Clear any inline styles from GSAP
-        firstText.removeAttribute('style');
-        secondText.removeAttribute('style');
-        runningDog.removeAttribute('style');
-        
-        // Add mobile animation classes with staggered delays
-        firstText.classList.add('mobile-slide-up');
-        firstText.style.animationDelay = '600ms';
-        firstText.style.height = '18vh';
-        firstText.style.opacity = '0';
-        
-        secondText.classList.add('mobile-slide-up');
-        secondText.style.animationDelay = '1200ms';
-        secondText.style.height = '12vh';
-        secondText.style.opacity = '0';
-        
-        // Setup dog animation for mobile
-        runningDog.classList.remove('hidden');
-        runningDog.classList.add('mobile-dog-run');
-        runningDog.style.animationDelay = '900ms';
-
-        // Force a reflow to ensure animations start
-        void document.getElementById('hero-container').offsetWidth;
-        
-        // Now set the opacity to trigger animations
-        setTimeout(() => {
-            firstText.style.opacity = '1';
-            secondText.style.opacity = '1';
-        }, 100);
-    }
-
-    function loadGSAP() {
-        const gsapScript = document.createElement('script');
-        gsapScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js';
-        gsapScript.onload = initDesktopAnimations;
-        document.body.appendChild(gsapScript);
-    }
-
-    function initDesktopAnimations() {
-        const viewportHeight = window.innerHeight;
-        const heroHeightDesktop = Math.min(viewportHeight * 0.8, 600);
-
-        gsap.set("#cat-image", { scale: 1.1, y: "0%" });
-        gsap.set("#hero-container", { height: heroHeightDesktop + "px" });
-        gsap.set("#first-text-section", { opacity: 0, height: 0, width: "100%" });
-        gsap.set("#second-text-section", { opacity: 0, width: 0, height: "0%" });
-        gsap.set("#running-dog", { x: "-200px", display: "none" });
-
-        gsapTimeline = gsap.timeline({ defaults: { ease: "power2.inOut" }, delay: 0.5 });
-
-        gsapTimeline
-            .to("#cat-image", { y: "4%", duration: 1.5 })
-            .to("#hero-container", { height: "50vh", duration: 1.5 }, "-=1")
-            .to("#first-text-section", { height: "20vh", opacity: 1, duration: 1 }, "-=0.5")
-            .to("#second-text-section", { width: "30%", height: "15vh", opacity: 1, duration: 1 }, "-=0.2")
-            .to("#first-text-section", { width: "70%", height: "15vh", duration: 0.8 }, "-=0.8")
-            .set("#running-dog", { display: "block" })
-            .fromTo("#running-dog", 
-                { x: "-200px" }, 
-                { x: "100vw", duration: 8, repeat: -1, ease: "linear" }
-            );
-    }
-</script>
+</section>
 
 <style>
-    #running-dog {
-        position: absolute;
-        bottom: 0;
-        height: 100px;
-        will-change: transform;
-        z-index: 1;
+    .service-carousel {
+        position: relative;
+        padding: 0 40px;
     }
-    
-    html, body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-        overflow-x: hidden; /* Changed from 'hidden' to allow vertical scrolling */
+    .swiper-container {
+        overflow: hidden;
     }
-
-    #hero-container {
-        transition: height 0.3s ease;
+    .swiper-slide {
+        height: auto;
     }
-
-    #text-container {
-        position: absolute;
-        top: 61%; /* Adjusted to better center text on mobile */
-        left: 50%;
-        transform: translate(-50%, -45%);
-        z-index: 5;
-        width: 80%;
-        pointer-events: none;
+    .hero-image-container {
+        height: 400px;
     }
-
     @media (min-width: 768px) {
-        #text-container {
-            position: relative;
-            top: unset;
-            left: unset;
-            transform: none;
-            z-index: 1;
-            width: 100%;
-            pointer-events: auto;
-        }
-
-        #first-text-section {
-            width: 100%;
-            height: 18vh; /* Reduce the height */
-            padding: 0.5rem; /* Reduce padding */
-        }
-
-        #second-text-section {
-            width: 100%;
-            height: 12vh; /* Reduce the height */
-            padding: 0.5rem; /* Reduce padding */
-        }
-    }
-
-    #first-text-section:hover, #second-text-section:hover {
-        transition: height 0.3s ease, width 0.3s ease, opacity 0.3s ease;
-        text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.7);
-        letter-spacing: 1px;
-    }
-
-    @media (max-width: 767px) {
-        .mobile-slide-up {
-        animation: slideUp 1s ease-out forwards;
-    }
-
-    @keyframes slideUp {
-        from { 
-            opacity: 1; /* Keep visible */
-            transform: translateY(150px); /* Start lower */
-        }
-        to { 
-            transform: translateY(0); /* Move to normal position */
-        }
-    }
-        h1 {
-            font-size: 1.8rem;
-            padding: 0.5rem;
-        }
-
-        h2 {
-            font-size: 1.5rem;
-            color: white; 
-            padding: .5rem;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4); /* Slight shadow for better readability */
-        }
-        
-        /* Mobile animations */
-        .mobile-cat-animation {
-            animation: moveDown 1s ease-out forwards;
-        }
-        
-        .mobile-fade-in {
-            animation: fadeIn 1.2s ease-out forwards;
-        }
-        
-        .mobile-dog-run {
-            opacity: 0;
-            animation: fadeIn 0.5s ease-out forwards, dogRun 10s linear infinite 0.5s;
-        }
-        
-        @keyframes moveDown {
-            from { transform: translateY(-58px); }
-            to { transform: translateY(4%); }
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(50px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes dogRun {
-            from { transform: translateX(-200px); }
-            to { transform: translateX(100vw); }
+        .hero-image-container {
+            height: 100%;
         }
     }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize the Swiper carousel
+        const swiper = new Swiper('.swiper-container', {
+            slidesPerView: 1,
+            spaceBetween: 20,
+            loop: true,
+            autoplay: {
+                delay: 5000,
+                disableOnInteraction: false,
+            },
+            navigation: {
+                nextEl: '.next-button',
+                prevEl: '.prev-button',
+            },
+            breakpoints: {
+                640: {
+                    slidesPerView: 2,
+                },
+                1024: {
+                    slidesPerView: 3,
+                },
+            }
+        });
+    });
+</script>
 @endsection

@@ -7,10 +7,7 @@
                 <a href="{{ route('customer.dashboard') }}" class="text-2xl font-bold tracking-wide hover:text-orange-200 transition-all duration-200 hover:pl-1">
                     EVG Juico PetCare
                 </a>
-                <div class="hidden md:block">
-                    <p class="text-xs sm:text-sm mt-1 hover:text-orange-200 transition-all duration-200 hover:pl-1">NDM Juico Building, 1, San Pablo, Castillejos, Zambales</p>
-                    <p class="text-xs sm:text-sm hover:text-orange-200 transition-all duration-200 hover:pl-1">Contact: (0943) 677-4256</p>
-                </div>
+                
             </div>
 
             <!-- Mobile Menu Button -->

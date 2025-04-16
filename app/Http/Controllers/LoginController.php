@@ -29,13 +29,13 @@ class LoginController extends Controller
         $user = Auth::user();
 
         // ✅ Check if email is verified
-        if ($user->email_verified_at === null) {
+        /* if ($user->email_verified_at === null) {
             Auth::logout();
 
             return back()->withErrors([
                 'email' => 'Your email is not verified. Please check your inbox.',
             ])->withInput();
-        }
+        } */
 
         // Redirect based on role
         return $user->role === 'admin'
