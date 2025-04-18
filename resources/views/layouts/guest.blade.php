@@ -16,6 +16,9 @@
 </head>
 <body class="font-sans text-gray-900 antialiased flex flex-col min-h-screen bg-gray-100">
 
+    <!-- Top Orange Bar -->
+    @include('partials.top-blue-nav')
+    
     <!-- Navigation Bar -->
     @include('partials.landing-nav')
 

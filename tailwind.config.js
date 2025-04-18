@@ -41,7 +41,8 @@ export default {
                  darkGray: '#3F4A5A',   // Dark Gray for Cards
             },
             fontFamily: {
-                sans: ['Inter', ...defaultTheme.fontFamily.sans],
+                heading: ['Poppins', 'sans-serif'],
+                body: ['Open Sans', 'sans-serif'],
             },
         },
     },

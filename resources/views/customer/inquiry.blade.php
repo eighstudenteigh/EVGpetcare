@@ -1,7 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="max-w-3xl mx-auto bg-white shadow-md p-6 rounded-lg">
+<div class="py-8">
+<div class="max-w-3xl mx-auto bg-white shadow-md p-6  rounded-lg">
     <h2 class="text-2xl font-semibold text-gray-700 mb-4"> Send an Inquiry</h2>
 
     @if(session('success'))
@@ -54,5 +55,6 @@
             Send Inquiry
         </button>
     </form>
+</div>
 </div>
 @endsection

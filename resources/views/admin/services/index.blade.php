@@ -5,7 +5,6 @@
 @section('content')
 <div class="container mx-auto px-4 py-6">
     <h2 class="text-3xl font-bold mb-6 text-gray-800">🛠 Manage Services</h2>
-    Service Search Box
 
     <!-- 🔍 Search Box -->
     <div class="mb-4">
@@ -20,11 +19,10 @@
         </div>
     </div>
     
-    <a href="{{ route('admin.services.create') }}" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded mb-4 inline-block">
+    <a href="{{ route('admin.services.create') }}" class="bg-orange-500 hover:bg-gray-700 text-white px-4 py-2 rounded mb-4 inline-block">
         + Add New Service
     </a>
     
-
     @if(session('success'))
         <p class="text-green-600 bg-green-100 p-3 rounded-md">{{ session('success') }}</p>
     @endif
@@ -58,18 +56,13 @@
                                 @if ($index === 0)
                                     <td class="p-3 flex gap-2 align-top" rowspan="{{ $service->animalTypes->count() }}">
                                         <!-- 🛠 Edit Button -->
-                                        <button class="edit-service-btn bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 rounded"
+                                        <button class="edit-service-btn bg-orange-500 hover:bg-gray-700 text-white px-3 py-1 rounded"
                                             data-id="{{ $service->id }}"
                                             data-name="{{ $service->name }}"
+                                            data-description="{{ $service->description }}"
                                             data-prices="{{ json_encode($service->animalTypes->pluck('pivot.price', 'id')) }}"
                                             data-animals="{{ json_encode($service->animalTypes->pluck('id')->toArray()) }}">
                                             Edit
-                                        </button>
-
-                                        <!-- ❌ Delete Button -->
-                                        <button class="delete-service-btn bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
-                                            data-id="{{ $service->id }}">
-                                            Delete
                                         </button>
                                     </td>
                                 @endif
@@ -84,7 +77,8 @@
                             <td class="p-3 flex gap-2">
                                 <button class="edit-service-btn bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 rounded"
                                     data-id="{{ $service->id }}"
-                                    data-name="{{ $service->name }}">
+                                    data-name="{{ $service->name }}"
+                                    data-description="{{ $service->description }}">
                                     Edit
                                 </button>
                                 <button class="delete-service-btn bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
@@ -99,43 +93,65 @@
         </table>
     </div>
     
-<!-- 🛠 Edit Service Modal -->
+    
+    <!-- 🛠 Edit Service Modal -->
 <div id="editServiceModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden items-center justify-center z-50">
-    <div class="bg-white p-6 rounded-lg shadow-lg w-96 max-h-[90vh] overflow-y-auto">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <h2 class="text-xl font-bold mb-4">Edit Service</h2>
-
+        
         <form id="editServiceForm">
             @csrf
             @method('PUT')
-
             <input type="hidden" id="editServiceId" name="id">
 
-            <!-- 🏷 Service Name -->
-            <div class="mb-4">
-                <label class="text-gray-700 font-medium block mb-1">Service Name</label>
-                <input type="text" id="editServiceName" name="name" class="w-full p-2 border rounded focus:border-orange-500 focus:outline-none" required>
-            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Left Column -->
+                <div class="space-y-4">
+                    <!-- Service Name -->
+                    <div>
+                        <label class="text-gray-700 font-medium block mb-1">Service Name *</label>
+                        <input type="text" id="editServiceName" name="service_name" 
+                            class="w-full p-2 border rounded focus:border-orange-500 focus:outline-none" required>
+                    </div>
 
-            <!-- 🐾 Select Pet Types -->
-            <div class="mb-4">
-                <label class="text-gray-700 font-medium block mb-1">Available for Pet Types</label>
-                <div id="petTypeSelection" class="flex flex-wrap gap-2">
-                    @foreach ($petTypes as $type)  
-                        <label class="flex items-center space-x-2 bg-gray-100 px-3 py-2 rounded cursor-pointer">
-                            <input type="checkbox" name="animal_types[]" value="{{ $type->id }}" 
-                                class="pet-type-checkbox">
-                            <span>{{ ucfirst($type->name) }}</span>
-                        </label>
-                    @endforeach
+                    <!-- Pet Types -->
+                    <div>
+                        <label class="text-gray-700 font-medium block mb-1">Available for Pet Types *</label>
+                        <div id="petTypeSelection" class="flex flex-wrap gap-2">
+                            @foreach($petTypes as $petType)
+                            <label class="flex items-center space-x-2 bg-gray-100 px-3 py-2 rounded cursor-pointer">
+                                <input type="checkbox" name="pet_types[]" value="{{ $petType->id }}" 
+                                    class="pet-type-checkbox">
+                                <span>{{ $petType->name }}</span>
+                            </label>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <!-- Price Inputs -->
+                    <div id="priceInputsContainer" class="space-y-3">
+                        <label class="text-gray-700 font-medium block mb-1">Pricing by Pet Type *</label>
+                        @foreach($petTypes as $petType)
+                        <div class="flex items-center justify-between">
+                            <span class="font-medium">{{ $petType->name }} Price (₱)</span>
+                            <input type="number" name="prices[{{ $petType->id }}]" 
+                                class="w-24 p-2 border rounded focus:border-orange-500 focus:outline-none" 
+                                step="0.01" min="0">
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+
+                <!-- Right Column - Description -->
+                <div>
+                    <div class="h-full flex flex-col">
+                        <label class="text-gray-700 font-medium block mb-1">Service Description *</label>
+                        <textarea id="editServiceDescription" name="description" rows="10"
+                            class="flex-grow w-full p-2 border rounded focus:border-orange-500 focus:outline-none whitespace-pre-wrap"></textarea>
+                        <p class="text-sm text-gray-500 mt-1">Note: Line breaks will be preserved in display.</p>
+                    </div>
                 </div>
             </div>
-            <!-- 💰 Price -->
-            <div id="priceInputsContainer" class="mt-4">
-                <label class="text-gray-700 font-medium block mb-1">Price (₱)</label>
-                <input type="number" id="editServicePrice" name="price" class="w-full p-2 border rounded focus:border-orange-500 focus:outline-none" min="0" step="0.01" required>
-            </div>
-
-            
 
             <div class="flex justify-end gap-2 mt-6">
                 <button type="button" id="closeEditModal" class="bg-gray-600 hover:bg-gray-800 text-white px-4 py-2 rounded transition">
@@ -148,9 +164,12 @@
         </form>
     </div>
 </div>
-<!-- ✅ CSRF Token -->
+</div>
+
 <meta name="csrf-token" content="{{ csrf_token() }}">
-<script>document.addEventListener("DOMContentLoaded", function () {
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
     const editButtons = document.querySelectorAll(".edit-service-btn");
     const editServiceModal = document.getElementById("editServiceModal");
     const closeEditModal = document.getElementById("closeEditModal");
@@ -158,70 +177,68 @@
     const priceInputsContainer = document.getElementById("priceInputsContainer");
 
     function updatePriceInputs() {
-    if (!priceInputsContainer) return; // ✅ Prevent null errors
-    const existingInputs = {}; // ✅ Store current values before clearing
+        if (!priceInputsContainer) return;
+        const existingInputs = {};
 
-    // ✅ Save existing price values before clearing
-    document.querySelectorAll("#priceInputsContainer input").forEach(input => {
-        existingInputs[input.name] = input.value; 
-    });
-
-    priceInputsContainer.innerHTML = ""; // ✅ Clear previous price fields
-
-    const existingPrices = JSON.parse(document.getElementById("editServiceId").dataset.prices || "{}");
-
-    document.querySelectorAll(".pet-type-checkbox:checked").forEach(checkbox => {
-        const petTypeId = checkbox.value;
-        const petTypeName = checkbox.nextElementSibling.textContent;
-        
-        // ✅ Use existing price if set, else fallback to previous price input
-        const previousPrice = existingPrices[petTypeId] ?? existingInputs[`prices[${petTypeId}]`] ?? "";
-        const placeholderText = previousPrice !== "" ? `₱${previousPrice}` : "No price set";
-
-        // ✅ Create price input field
-        const priceField = document.createElement("div");
-        priceField.classList.add("mb-2");
-        priceField.innerHTML = `
-            <label class="text-gray-700 font-medium">${petTypeName} Price (₱)</label>
-            <input type="number" name="prices[${petTypeId}]" class="w-full p-2 border rounded"
-                min="0" step="0.01" value="${previousPrice}" placeholder="${placeholderText}" required>
-        `;
-
-        priceInputsContainer.appendChild(priceField);
-    });
-}
-
-// ✅ Open Edit Modal & Populate Fields
-    editButtons.forEach(button => {
-    button.addEventListener("click", function () {
-        const serviceId = this.dataset.id;
-        const serviceName = this.dataset.name;
-        const serviceAnimals = JSON.parse(this.dataset.animals || "[]");
-        const servicePrices = JSON.parse(this.dataset.prices || "{}"); // ✅ Get previous prices
-
-        document.getElementById("editServiceId").value = serviceId;
-        document.getElementById("editServiceId").dataset.prices = JSON.stringify(servicePrices); // ✅ Store prices in dataset
-        document.getElementById("editServiceName").value = serviceName;
-
-        document.querySelectorAll(".pet-type-checkbox").forEach(checkbox => {
-            checkbox.checked = serviceAnimals.includes(parseInt(checkbox.value));
+        document.querySelectorAll("#priceInputsContainer input").forEach(input => {
+            existingInputs[input.name] = input.value; 
         });
 
-        updatePriceInputs(); // ✅ Ensure prices are updated
+        priceInputsContainer.innerHTML = "";
 
-        editServiceModal.classList.remove("hidden");
-        editServiceModal.classList.add("flex");
+        const existingPrices = JSON.parse(document.getElementById("editServiceId").dataset.prices || "{}");
+
+        document.querySelectorAll(".pet-type-checkbox:checked").forEach(checkbox => {
+            const petTypeId = checkbox.value;
+            const petTypeName = checkbox.nextElementSibling.textContent;
+            const previousPrice = existingPrices[petTypeId] ?? existingInputs[`prices[${petTypeId}]`] ?? "";
+            const placeholderText = previousPrice !== "" ? `₱${previousPrice}` : "No price set";
+
+            const priceField = document.createElement("div");
+            priceField.classList.add("mb-2");
+            priceField.innerHTML = `
+                <label class="text-gray-700 font-medium">${petTypeName} Price (₱)</label>
+                <input type="number" name="prices[${petTypeId}]" class="w-full p-2 border rounded"
+                    min="0" step="0.01" value="${previousPrice}" placeholder="${placeholderText}" required>
+            `;
+
+            priceInputsContainer.appendChild(priceField);
+        });
+    }
+
+    // Open Edit Modal & Populate Fields
+    editButtons.forEach(button => {
+        button.addEventListener("click", function () {
+            const serviceId = this.dataset.id;
+            const serviceName = this.dataset.name;
+            const serviceDescription = this.dataset.description || '';
+            const serviceAnimals = JSON.parse(this.dataset.animals || "[]");
+            const servicePrices = JSON.parse(this.dataset.prices || "{}");
+
+            // Set form fields
+            document.getElementById("editServiceId").value = serviceId;
+            document.getElementById("editServiceName").value = serviceName;
+            document.getElementById("editServiceDescription").value = serviceDescription;
+            document.getElementById("editServiceId").dataset.prices = JSON.stringify(servicePrices);
+
+            // Set checkboxes
+            document.querySelectorAll(".pet-type-checkbox").forEach(checkbox => {
+                checkbox.checked = serviceAnimals.includes(parseInt(checkbox.value));
+            });
+
+            updatePriceInputs();
+            editServiceModal.classList.remove("hidden");
+            editServiceModal.classList.add("flex");
+        });
     });
-});
 
-
-    // ✅ Close Modal
+    // Close Modal
     closeEditModal.addEventListener("click", function () {
         editServiceModal.classList.remove("flex");
         editServiceModal.classList.add("hidden");
     });
 
-    // ✅ Close modal when clicking outside
+    // Close modal when clicking outside
     editServiceModal.addEventListener("click", function (e) {
         if (e.target === editServiceModal) {
             editServiceModal.classList.remove("flex");
@@ -229,60 +246,59 @@
         }
     });
 
-    // ✅ Attach event listeners to checkboxes
+    // Attach event listeners to checkboxes
     document.querySelectorAll(".pet-type-checkbox").forEach(checkbox => {
         checkbox.addEventListener("change", updatePriceInputs);
     });
 
-    // ✅ Handle AJAX Edit Form Submission
+    // Handle AJAX Edit Form Submission
     editServiceForm.addEventListener("submit", function (e) {
         e.preventDefault();
 
         const serviceId = document.getElementById("editServiceId").value;
         const formData = new FormData(editServiceForm);
 
-        // Add basic fields
-    formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
-    formData.append('_method', 'PUT');
-    formData.append('name', document.getElementById("editServiceName").value);
+        formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+        formData.append('_method', 'PUT');
+        formData.append('name', document.getElementById("editServiceName").value);
+        formData.append('description', document.getElementById("editServiceDescription").value);
 
-    // ✅ Collect selected pet types
-    document.querySelectorAll(".pet-type-checkbox:checked").forEach(checkbox => {
-        formData.append('animal_types[]', checkbox.value);
+        document.querySelectorAll(".pet-type-checkbox:checked").forEach(checkbox => {
+            formData.append('animal_types[]', checkbox.value);
+        });
+
+        document.querySelectorAll("#priceInputsContainer input").forEach(input => {
+            if (input.value.trim() !== "") {
+                formData.append(input.name, input.value);
+            }
+        });
+
+        fetch(`/admin/services/${serviceId}`, {
+            method: "POST",
+            headers: {
+                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
+                "Accept": "application/json"
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("Service updated successfully.");
+                editServiceModal.classList.add("hidden");
+                location.reload();
+            } else {
+                console.error("Error Response:", data);
+                alert("Failed to update service: " + (data.error || "Unknown error"));
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            alert("An error occurred while updating the service.");
+        });
     });
 
-    // ✅ Collect associated prices
-    document.querySelectorAll("#priceInputsContainer input").forEach(input => {
-        if (input.value.trim() !== "") {
-            formData.append(input.name, input.value); // ✅ `prices[petTypeId]`
-        }
-    });
-
-    fetch(`/admin/services/${serviceId}`, {
-        method: "POST", // Laravel requires method spoofing for PUT
-        headers: {
-            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
-            "Accept": "application/json"
-        },
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert("Service updated successfully.");
-            editServiceModal.classList.add("hidden");
-            location.reload();
-        } else {
-            console.error("Error Response:", data);
-            alert("Failed to update service: " + (data.error || "Unknown error"));
-        }
-    })
-    .catch(error => {
-        console.error("Error:", error);
-        alert("An error occurred while updating the service.");
-    });
-});
-    // ✅ Handle AJAX Delete
+    // Handle AJAX Delete
     document.querySelectorAll(".delete-service-btn").forEach(button => {
         button.addEventListener("click", function () {
             const serviceId = this.dataset.id;
@@ -313,37 +329,29 @@
         });
     });
 
-    //  Search Functionality
+    // Search Functionality
     const searchBox = document.getElementById("searchBox");
-if (searchBox) {
-    searchBox.addEventListener("keyup", function () {
-        const input = this.value.toLowerCase();
-        
-        // Track which service IDs have been matched
-        const matchedServiceIds = new Set();
-        
-        // Get all service rows
-        const serviceRows = document.querySelectorAll(".service-row");
-        
-        // First, find all services that match the search term
-        serviceRows.forEach(row => {
-            const serviceId = row.dataset.id;
-            const serviceName = row.querySelector("td:first-child").textContent.toLowerCase();
+    if (searchBox) {
+        searchBox.addEventListener("keyup", function () {
+            const input = this.value.toLowerCase();
+            const matchedServiceIds = new Set();
+            const serviceRows = document.querySelectorAll(".service-row");
             
-            // Check if the service name contains the search term
-            if (serviceName.includes(input)) {
-                matchedServiceIds.add(serviceId);
-            }
+            serviceRows.forEach(row => {
+                const serviceId = row.dataset.id;
+                const serviceName = row.querySelector("td:first-child").textContent.toLowerCase();
+                
+                if (serviceName.includes(input)) {
+                    matchedServiceIds.add(serviceId);
+                }
+            });
+            
+            serviceRows.forEach(row => {
+                const serviceId = row.dataset.id;
+                row.style.display = matchedServiceIds.has(serviceId) ? "" : "none";
+            });
         });
-        
-        // Then, show/hide rows based on whether their service ID is in the matched set
-        serviceRows.forEach(row => {
-            const serviceId = row.dataset.id;
-            row.style.display = matchedServiceIds.has(serviceId) ? "" : "none";
-        });
-    });
-}
+    }
 });
 </script>
 @endsection
-				

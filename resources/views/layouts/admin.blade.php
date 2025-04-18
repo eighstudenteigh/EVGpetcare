@@ -47,10 +47,10 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 flex flex-col min-h-screen">
+<body class=" flex flex-col min-h-screen">
     
     <!-- Mobile Menu Toggle Button -->
-    <button id="sidebarToggle" class="md:hidden fixed top-4 left-4 z-50 bg-orange-600 text-white p-2 rounded-md shadow-md">
+    <button id="sidebarToggle" class="md:hidden fixed top-4 left-4 z-50 hover:bg-blue-700 transition duration-300  bg-blue-600 text-white p-2 rounded-md shadow-md">
         <i class="ph ph-list text-xl"></i>
     </button>
 
@@ -58,22 +58,22 @@
     <div id="sidebarOverlay" class="md:hidden fixed inset-0 z-30 bg-black bg-opacity-50 hidden"></div>
 
     <!-- Admin Header -->
-    <header class="bg-white text-orange-600 py-4 shadow-md pl-4 md:pl-64 sticky top-0 z-20 transition-all duration-300">
+    <header class=" text-blue-900 py-4 shadow-md pl-4 md:pl-64 sticky top-0 z-20 transition-all duration-300">
         <div class="flex items-center justify-end px-6 gap-4">
             <!-- Admin Profile & Logout -->
             <div class="relative">
                 <button id="profileDropdown" class="flex items-center gap-2">
                     <span class="hidden md:inline">{{ Auth::user()->name }}</span>
-                    <div class="w-8 h-8 bg-orange-600 text-white rounded-full flex items-center justify-center font-bold">
+                    <div class="w-8 h-8 bg-blue-700 text-white rounded-full flex items-center justify-center font-bold">
                         {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                     </div>
                 </button>
 
                 <!-- Dropdown Menu -->
-                <div id="dropdownMenu" class="hidden absolute right-0 mt-2 w-40 bg-orange-600 text-white shadow-lg rounded-md z-50">
+                <div id="dropdownMenu" class="hidden absolute right-0 mt-2 w-40 bg-blue-700 text-white shadow-lg rounded-md z-50">
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit" class="block w-full text-left px-4 py-2 hover:bg-orange-500">
+                        <button type="submit" class="block w-full text-left px-4 py-2 hover:bg-blue-600">
                             Logout
                         </button>
                     </form>
@@ -81,41 +81,21 @@
             </div>
         </div>
     </header>
-<!-- Admin Sidebar -->
-<aside id="sidebar" class="sidebar bg-orange-600 text-white w-64 z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300">
-    @include('partials.admin-sidebar')
-</aside>
+
+    <!-- Admin Sidebar -->
+    <aside id="sidebar" class="sidebar text-gray-800 w-64 z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300">
+        @include('partials.admin-sidebar')
+    </aside>
+
     <!-- Main Layout Wrapper -->
     <div class="flex flex-1">
-        
-        
-
         <!-- Main Content -->
         <main class="flex-1 p-4 md:p-6 w-full md:ml-64 transition-all duration-300">
             @yield('content')
         </main>
     </div>
 
-    <!-- Footer -->
-    <footer class="bg-gray-700 text-white py-4 md:py-6 w-full mt-auto md:ml-64 transition-all duration-300">
-        <div class="max-w-7xl mx-auto px-4 lg:px-8">
-            <div class="flex flex-col md:flex-row items-center justify-between">
-                <!-- Left: Copyright -->
-                <p class="text-sm">&copy; 2025 EVG Juico PetCare. All rights reserved.</p>
-
-                <!-- Right: Contact Info -->
-                <div class="flex items-center gap-2 mt-3 md:mt-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M2.003 5.884L10 10.882l7.997-4.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                        <path d="M18 8.118l-8 5-8-5V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                    </svg>
-                    <a href="mailto:info@evgpetcare.com" class="text-sm hover:text-orange-400">
-                        info@evgpetcare.com
-                    </a>
-                </div>
-            </div>
-        </div>
-    </footer>
+   
 
     <script src="{{ asset('js/tooltip.js') }}"></script>
     <script>

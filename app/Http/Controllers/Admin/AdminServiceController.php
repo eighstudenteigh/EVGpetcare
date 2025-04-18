@@ -58,21 +58,22 @@ class AdminServiceController extends Controller
     public function update(Request $request, Service $service)
     {
         try {
-            // Validate request
             $validated = $request->validate([
                 'name' => 'required|string|max:255|unique:services,name,' . $service->id,
+                'description' => 'required|string', // Add description validation
                 'animal_types' => 'required|array',
                 'animal_types.*' => 'integer|exists:pet_types,id',
                 'prices' => 'required|array',
                 'prices.*' => 'required|numeric|min:0',
             ]);
-
-            // Update service name
+    
+            // Update service
             $service->update([
                 'name' => $validated['name'],
+                'description' => $validated['description'],
             ]);
-
-            // Sync selected pet types **WITH PRICES**
+    
+            // Sync pet types with prices
             $syncData = [];
             foreach ($validated['animal_types'] as $petTypeId) {
                 if (isset($validated['prices'][$petTypeId])) {
@@ -80,12 +81,11 @@ class AdminServiceController extends Controller
                 }
             }
             $service->animalTypes()->sync($syncData);
-
+    
             return response()->json(['success' => true]);
-
+    
         } catch (\Exception $e) {
-            Log::error('Service update failed: ' . $e->getMessage()); // ✅ Now Log is recognized
-
+            Log::error('Service update failed: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'error' => 'Failed to update service: ' . $e->getMessage()
