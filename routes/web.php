@@ -22,7 +22,9 @@ use App\Http\Controllers\Auth\EmailVerificationController;
 
 
 
-
+Route::get('/our-team', function () {
+    return view('team');
+})->name('team');
 
 //  Public Pages (No Middleware)
     Route::get('/', [PageController::class, 'home'])->name('home');

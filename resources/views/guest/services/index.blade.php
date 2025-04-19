@@ -3,7 +3,7 @@
 @section('title', 'Our Services')
 
 @section('content')
-<div class="container mx-auto p-4 sm:p-6">
+<div class="container mx-auto p-4 sm:p-6 ">
     <!-- Header -->
     <div class="mb-4 text-center opacity-0" id="page-header">
         <h1 class="text-3xl font-bold text-gray-800 mb-2">Our Services</h1>

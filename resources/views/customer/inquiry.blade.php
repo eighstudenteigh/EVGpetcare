@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="py-8">
+<div class="py-8 bg-gray-200">
 <div class="max-w-3xl mx-auto bg-white shadow-md p-6  rounded-lg">
     <h2 class="text-2xl font-semibold text-gray-700 mb-4"> Send an Inquiry</h2>
 
@@ -51,7 +51,7 @@
             <textarea name="message" class="w-full p-2 border rounded" rows="4" required></textarea>
         </div>
         
-        <button type="submit" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded">
+        <button type="submit" class="bg-orange-500 hover:bg-gray-800 text-white px-4 py-2 rounded">
             Send Inquiry
         </button>
     </form>

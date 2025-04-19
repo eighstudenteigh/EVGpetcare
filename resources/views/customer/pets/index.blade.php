@@ -6,7 +6,7 @@
 
     <!-- ✅ Flash Message -->
     @if (session('success'))
-        <div id="flashMessage" class="bg-orange-600 text-white text-center py-2 px-4 rounded mb-4">
+        <div id="flashMessage" class="bg-orange-500 text-white text-center py-2 px-4 rounded mb-4">
             {{ session('success') }}
         </div>
     @endif
@@ -14,7 +14,7 @@
     <!-- ✅ Add New Pet Button -->
     <div class="flex justify-end mb-4">
         <button onclick="openAddPetModal()" 
-            class="px-5 py-2 bg-orange-600 text-white font-semibold rounded-lg hover:bg-orange-700 transition">
+            class="px-5 py-2 bg-orange-500 text-white font-semibold rounded-lg hover:bg-gray-700 transition">
             + Add New Pet
         </button>
     </div>

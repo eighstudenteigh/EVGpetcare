@@ -9,16 +9,16 @@
         @if($petsCount === 0)
             <div class="text-center">
                 <a href="#" 
-                   class="px-6 bg-orange-500 text-white font-semibold py-2 rounded opacity-50 cursor-not-allowed"
+                   class="px-6 bg-orange-500 text-white hover:bg-gray-600 transition-colors font-bold py-2 rounded opacity-50 cursor-not-allowed"
                    aria-disabled="true" tabindex="-1">
-                    + Book New Appointment
+                     Book New Appointment
                 </a>
                 <p class="text-sm text-gray-400 mt-2">You need to register at least one pet to book an appointment.</p>
             </div>
         @else
             <a href="{{ route('customer.appointments.create') }}" 
-               class="px-6 bg-orange-500 text-white font-semibold py-2 rounded hover:bg-orange-600">
-                + Book New Appointment
+               class="px-6 bg-orange-500 text-white font-bold py-2 rounded hover:bg-gray-600 transition-colors">
+                 Book New Appointment
             </a>
         @endif
     </div>
