@@ -6,34 +6,23 @@
 <div class="container mx-auto px-4 py-6">
     <h2 class="text-3xl font-bold mb-6 text-gray-800">Pending Appointments</h2>
 
-    <!-- 🔹 Slots Tracking -->
-    <div class="mb-4 p-3 bg-gray-800 text-white rounded-md">
-        <p class="text-lg font-semibold">Today's Capacity  ({{ now()->format('F j, Y') }}): 
-            <span class="text-orange-400">{{ $acceptedAppointmentsToday }}/{{ $maxAppointments }} slots filled</span>
-        </p>
-        <div class="w-full bg-gray-600 rounded-full h-4 mt-2">
-            <div class="h-4 bg-orange-500 rounded-full" style="width: {{ ($acceptedAppointmentsToday / $maxAppointments) * 100 }}%;"></div>
+   <!-- 🔹 Slots Tracking -->
+   <div class="mb-4 p-3 bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-md">
+    <p class="text-lg font-semibold">Today's Capacity ({{ now()->format('F j, Y') }}): 
+        <span class="">{{ $acceptedAppointmentsToday }}/{{ $maxAppointments }} slots filled</span>
+    </p>
+        <div class="w-full bg-gray-300 rounded-full h-4 mt-2">
+            <div class="h-4 bg-gradient-to-r from-green-400 to-blue-400 rounded-full" style="width: {{ ($acceptedAppointmentsToday / $maxAppointments) * 100 }}%;"></div>
         </div>
     </div>
-
     <h4 class="text-2xl font-bold mb-6 text-gray-800"> Appointments Status links</h4>
     <!-- status routes -->
     <div class="flex gap-2 mb-6">
         <a href="{{ route('admin.appointments') }}" class="bg-orange-400 text-white px-4 py-2 rounded">Pending</a>
-        <a href="{{ route('admin.appointments.approved') }}" class="bg-orange-600 text-white px-4 py-2 rounded">Approved</a>
+        <a href="{{ route('admin.appointments.approved') }}" class="bg-blue-600 text-white px-4 py-2 rounded">Approved</a>
         <a href="{{ route('admin.appointments.rejected') }}" class="bg-gray-700 text-white px-4 py-2 rounded">Rejected</a>
         <a href="{{ route('admin.appointments.all') }}" class="bg-gray-500 text-white px-4 py-2 rounded">All</a>
     </div>
-
-    {{-- <!-- 🔹 Sort Appointments -->
-    <div class="mb-4">
-        <label for="sortAppointments" class="font-semibold">Sort by:</label>
-        <select id="sortAppointments" class="px-3 py-2 border rounded">
-            <option value="date">Date</option>
-            <option value="owner">Owner</option>
-            <option value="pet">Pet</option>
-        </select>
-    </div> --}}
 
     <!-- ✅ Pending Appointments List -->
     <div class="appointments-list space-y-4">
@@ -79,7 +68,7 @@
                     <div class="flex gap-2">
                         <form action="{{ route('admin.appointments.approve', $appointment) }}" method="POST">
                             @csrf
-                            <button type="submit" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded">
+                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
                                 Approve
                             </button>
                         </form>

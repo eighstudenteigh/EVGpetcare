@@ -38,6 +38,17 @@
             
             <span class="text-gray-300">/</span>
             
+            <a href="{{ route('team') }}" 
+               class="group px-4 py-2 uppercase tracking-widest text-base font-bold relative
+                      {{ request()->routeIs('our-team') ? 'text-orange-600' : 'text-gray-700 hover:text-orange-600' }}">
+                Our Team
+                <span class="absolute bottom-0 left-0 w-full h-1 bg-orange-500 
+                            transition-all duration-400 ease-out transform origin-left
+                            {{ request()->routeIs('team') ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100' }}"></span>
+            </a>
+            
+            <span class="text-gray-300">/</span>
+            
             <a href="{{ route('customer.inquiry') }}" 
                class="group px-4 py-2 uppercase tracking-widest text-base font-bold relative
                       {{ request()->routeIs('customer.inquiry') ? 'text-orange-600' : 'text-gray-700 hover:text-orange-600' }}">
@@ -58,17 +69,7 @@
 
     <!-- Mobile Menu with Consistent Underlines -->
     <div id="mobileMenu" class="hidden md:hidden bg-white border-t">
-        {{-- <a href="{{ route('home') }}" 
-           class="group block px-6 py-3 transition flex items-center space-x-3 font-medium relative
-                  {{ request()->routeIs('home') ? 'text-orange-600 bg-orange-50' : 'text-gray-700 hover:text-orange-600 hover:bg-orange-50' }}">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-            </svg>
-            <span>Home</span>
-            <span class="absolute bottom-0 left-6 right-6 h-1 bg-orange-500 
-                        transition-all duration-400 ease-out transform origin-left
-                        {{ request()->routeIs('home') ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100' }}"></span>
-        </a> --}}
+        
         <a href="{{ route('about.us') }}" 
            class="group block px-6 py-3 transition flex items-center space-x-3 font-medium relative
                   {{ request()->routeIs('about.us') ? 'text-orange-600 bg-orange-50' : 'text-gray-700 hover:text-orange-600 hover:bg-orange-50' }}">
@@ -90,6 +91,17 @@
             <span class="absolute bottom-0 left-6 right-6 h-1 bg-orange-500 
                         transition-all duration-400 ease-out transform origin-left
                         {{ request()->routeIs('services') ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100' }}"></span>
+        </a>
+        <a href="{{ route('team') }}" 
+           class="group block px-6 py-3 transition flex items-center space-x-3 font-medium relative
+                  {{ request()->routeIs('team') ? 'text-orange-600 bg-orange-50' : 'text-gray-700 hover:text-orange-600 hover:bg-orange-50' }}">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <span>Our Team</span>
+            <span class="absolute bottom-0 left-6 right-6 h-1 bg-orange-500 
+                        transition-all duration-400 ease-out transform origin-left
+                        {{ request()->routeIs('team') ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100' }}"></span>
         </a>
         <a href="{{ route('customer.inquiry') }}" 
            class="group block px-6 py-3 transition flex items-center space-x-3 font-medium relative

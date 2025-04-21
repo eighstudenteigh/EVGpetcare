@@ -124,8 +124,88 @@ public function all(Request $request)
         return redirect()->route('admin.appointments')->with('warning', 'Appointment approved but email could not be sent.');
     }
 }
+    // ✅ Complete an appointment
+public function complete(Appointment $appointment)
+{
+    // Verify appointment is approved and for today
+    if ($appointment->status !== 'approved') {
+        return back()->with('error', 'Only approved appointments can be marked completed');
+    }
 
+    if (!Carbon::parse($appointment->appointment_date)->isToday()) {
+        return back()->with('error', 'Only today\'s appointments can be marked completed');
+    }
 
+    // Update status
+    $appointment->update([
+        'status' => 'completed'
+    ]);
+
+    return redirect()->route('admin.pet-records.show', $appointment->id)
+    ->with('success', 'Appointment marked as complete. You can now create the pet record.');
+}
+/**
+ * Finalize an appointment after all service records are completed
+ * 
+ * @param Appointment $appointment
+ * @return \Illuminate\Http\RedirectResponse
+ */
+/**
+ * Finalize an appointment after all service records are completed
+ * 
+ * @param Appointment $appointment
+ * @return \Illuminate\Http\RedirectResponse
+ */
+public function finalize(Appointment $appointment)
+{
+    // Verify appointment is completed
+    if ($appointment->status !== 'completed') {
+        return redirect()->route('admin.pet-records.show', $appointment->id)
+            ->with('error', 'Only completed appointments can be finalized.');
+    }
+    
+    // Get services and pets for this appointment
+    $services = $appointment->services;
+    $pets = $appointment->pets;
+    
+    // Check if all services for all pets have been recorded
+    $allRecordsComplete = true;
+    $missingRecords = [];
+    
+    foreach ($pets as $pet) {
+        foreach ($services as $service) {
+            $recordExists = false;
+            
+            if ($service->service_type === 'grooming') {
+                $recordExists = $pet->hasGroomingRecord($appointment->id);
+            } elseif ($service->service_type === 'medical') {
+                $recordExists = $pet->hasMedicalRecord($appointment->id);
+            } elseif ($service->service_type === 'boarding') {
+                $recordExists = $pet->hasBoardingRecord($appointment->id);
+            }
+            
+            if (!$recordExists) {
+                $allRecordsComplete = false;
+                $missingRecords[] = "$pet->name - " . $service->name;
+            }
+        }
+    }
+    
+    if (!$allRecordsComplete) {
+        $missingList = implode(', ', $missingRecords);
+        return redirect()->route('admin.pet-records.show', $appointment->id)
+            ->with('error', "Cannot finalize: Missing records for $missingList");
+    }
+    
+    // All records are complete, mark the appointment as finalized
+    $appointment->update([
+        'status' => 'finalized',
+    ]);
+    
+    // Redirect to the appointments list with success message
+    return redirect()->route('admin.appointments.approved')
+        ->with('success', 'Appointment has been finalized with all service records completed.');
+}
     // ✅ Reject an appointment
     public function reject(Appointment $appointment)
     {
@@ -149,4 +229,5 @@ public function all(Request $request)
         $appointment->delete();
         return redirect()->route('admin.appointments')->with('success', 'Appointment deleted successfully.');
     }
+    
 }

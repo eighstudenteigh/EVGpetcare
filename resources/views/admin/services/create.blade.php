@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container mx-auto px-4 py-6">
-    <h2 class="text-3xl font-bold mb-6 text-gray-800">➕ Add New Service</h2>
+    <h2 class="text-3xl font-bold mb-6 text-gray-800">Add New Service</h2>
 
     @if ($errors->any())
         <div class="bg-red-100 text-red-700 p-3 rounded-md mb-4">
@@ -23,6 +23,23 @@
         <div class="mb-4">
             <label class="text-gray-700 font-medium">Service Name</label>
             <input type="text" name="name" class="w-full p-2 border rounded focus:border-orange-500 focus:outline-none" required>
+        </div>
+
+        <!-- 🏷 Service Type -->
+        <div class="mb-4">
+            <label class="text-gray-700 font-medium">Service Type</label>
+            <select name="service_type" class="w-full p-2 border rounded focus:border-orange-500 focus:outline-none" required>
+                <option value="">Select Service Type</option>
+                <option value="grooming">Grooming</option>
+                <option value="medical">Medical</option>
+                <option value="boarding">Boarding</option>
+            </select>
+        </div>
+
+        <!-- 📝 Description -->
+        <div class="mb-4">
+            <label class="text-gray-700 font-medium">Description</label>
+            <textarea name="description" rows="3" class="w-full p-2 border rounded focus:border-orange-500 focus:outline-none" required></textarea>
         </div>
 
         <!-- 🐾 Select Pet Types -->
@@ -80,7 +97,5 @@
             checkbox.addEventListener("change", updatePriceInputs);
         });
     });
-    </script>
-
-
+</script>
 @endsection

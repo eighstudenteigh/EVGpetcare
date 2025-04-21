@@ -4,12 +4,12 @@
 
 @section('content')
 <div class="container mx-auto px-4 py-6">
-    <h2 class="text-3xl font-bold mb-6 text-gray-800">📋 All Appointments</h2>
+    <h2 class="text-3xl font-bold mb-6 text-gray-800"> All Appointments</h2>
 
     <!-- 🔹 Status Filters (Navigation) -->
     <div class="flex gap-2 mb-6">
         <a href="{{ route('admin.appointments') }}" class="bg-orange-400 text-white px-4 py-2 rounded">Pending</a>
-        <a href="{{ route('admin.appointments.approved') }}" class="bg-orange-600 text-white px-4 py-2 rounded">Approved</a>
+        <a href="{{ route('admin.appointments.approved') }}" class="bg-blue-600 text-white px-4 py-2 rounded">Approved</a>
         <a href="{{ route('admin.appointments.rejected') }}" class="bg-gray-700 text-white px-4 py-2 rounded">Rejected</a>
         <a href="{{ route('admin.appointments.all') }}" class="bg-gray-500 text-white px-4 py-2 rounded">All</a>
     </div>
@@ -68,7 +68,7 @@
                         @if ($appointment->status == 'pending')
                             <span class="px-3 py-1 text-white bg-orange-400 rounded-lg">Pending</span>
                         @elseif ($appointment->status == 'approved')
-                            <span class="px-3 py-1 text-white bg-orange-600 rounded-lg">Approved</span>
+                            <span class="px-3 py-1 text-white bg-blue-600 rounded-lg">Approved</span>
                         @elseif ($appointment->status == 'rejected')
                             <span class="px-3 py-1 text-white bg-gray-700 rounded-lg">Rejected</span>
                         @endif
@@ -79,7 +79,7 @@
                         <div class="flex gap-2">
                             <form action="{{ route('admin.appointments.approve', $appointment) }}" method="POST">
                                 @csrf
-                                <button type="submit" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded">
+                                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
                                     Approve
                                 </button>
                             </form>

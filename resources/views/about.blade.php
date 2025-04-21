@@ -17,7 +17,7 @@
     <div class="flex flex-col md:flex-row items-center justify-center gap-4">
         <p class="text-gray-700 text-lg md:text-xl">Every pet receives the care they deserve.</p>
         <a href="{{ route('customer.appointments.create') }}" 
-           class="bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transform transition-all duration-300 hover:scale-105 flex items-center whitespace-nowrap">
+           class="bg-orange-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transform transition-all duration-300 hover:scale-105 flex items-center whitespace-nowrap">
             
             Book Now
         </a>

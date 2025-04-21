@@ -26,7 +26,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
-              <span class="font-bold text-white tracking-wide">Visit Us</span>
+              <span class="font-bold uppercase tracking-wider text-white ">Visit Us</span>
             </button>
   
             <a href="{{ route('customer.appointments.create') }}" class="font-bold uppercase tracking-wider px-8 py-4 bg-orange-500 text-white rounded-lg shadow hover:bg-gray-600 transition duration-300">
@@ -174,7 +174,7 @@
                     </p>
                     <div class="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4">
                     <div class="flex justify-center md:justify-start">
-                        <a href="#" class="font-bold uppercase tracking-wider px-8 py-4 bg-orange-500 text-white rounded-lg shadow hover:bg-gray-600 transition duration-300">
+                        <a href="{{ route('team') }}" class="font-bold uppercase tracking-wider px-8 py-4 bg-orange-500 text-white rounded-lg shadow hover:bg-gray-600 transition duration-300">
                             Meet Our Team
                         </a>
                     </div>

@@ -1,3 +1,4 @@
+{{-- resources\views\customer\pets\index.blade.php --}}
 @extends('layouts.customer')
 
 @section('content')
@@ -54,10 +55,10 @@
                                         class="px-3 py-1 text-xs font-semibold text-white bg-orange-600 rounded-lg hover:bg-orange-700">
                                         Edit
                                     </button>
-                                    <button onclick="deletePet({{ $pet->id }})" 
+                                    {{-- <button onclick="deletePet({{ $pet->id }})" 
                                         class="px-3 py-1 text-xs font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700">
                                         Delete
-                                    </button>
+                                    </button> --}}
                                 </div>
                             </div>
                         </td>
@@ -71,14 +72,14 @@
                         <td class="px-4 py-3 text-gray-700">{{ ucfirst($pet->gender) }}</td>
                         <td class="px-4 py-3 text-gray-700">{{ $pet->age }} years</td>
                         <td class="px-4 py-3 flex gap-2">
-                            {{-- <button onclick="openEditModal({{ $pet }})" 
+                            <button onclick="openEditModal({{ $pet }})" 
                                 class="px-3 py-1 text-xs font-semibold text-white bg-orange-600 rounded-lg hover:bg-orange-700">
                                 Edit
-                            </button> --}}
-                            <button onclick="deletePet({{ $pet->id }})" 
+                            </button> 
+                            {{-- <button onclick="deletePet({{ $pet->id }})" 
                                 class="px-3 py-1 text-xs font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700">
                                 Delete
-                            </button>
+                            </button> --}}
                         </td>
                     </tr>
                     @empty

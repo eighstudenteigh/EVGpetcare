@@ -19,34 +19,34 @@ class AdminServiceController extends Controller
 
     public function create()
     {
-        $petTypes = PetType::orderBy('name')->get(); // Get all pet types
+        $petTypes = PetType::orderBy('name')->get();
         return view('admin.services.create', compact('petTypes'));
     }
 
     public function store(Request $request)
-{
-    $validated = $request->validate([
-        'name' => 'required|string|max:255|unique:services,name',
-        'prices' => 'required|array', // Prices are required
-        'prices.*' => 'required|numeric|min:0', // Each price must be a valid number
-        'animal_types' => 'required|array', // At least one pet type must be selected
-        'animal_types.*' => 'integer|exists:pet_types,id',
-    ]);
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255|unique:services,name',
+            'service_type' => 'required|in:grooming,medical,boarding',
+            'prices' => 'required|array',
+            'prices.*' => 'required|numeric|min:0',
+            'animal_types' => 'required|array',
+            'animal_types.*' => 'integer|exists:pet_types,id',
+        ]);
 
-    // ✅ Create the service (No animal_type column)
-    $service = Service::create([
-        'name' => $validated['name'],
-    ]);
+        $service = Service::create([
+            'name' => $validated['name'],
+            'service_type' => $validated['service_type'],
+        ]);
 
-    // ✅ Attach pet types with individual prices
-    $service->animalTypes()->sync(
-        collect($validated['animal_types'])->mapWithKeys(function ($typeId) use ($validated) {
-            return [$typeId => ['price' => $validated['prices'][$typeId] ?? 0]];
-        })
-    );
+        $service->animalTypes()->sync(
+            collect($validated['animal_types'])->mapWithKeys(function ($typeId) use ($validated) {
+                return [$typeId => ['price' => $validated['prices'][$typeId] ?? 0]];
+            })
+        );
 
-    return redirect()->route('admin.services.index')->with('success', 'Service added successfully.');
-}
+        return redirect()->route('admin.services.index')->with('success', 'Service added successfully.');
+    }
  
     public function edit(Service $service)
     {
@@ -60,20 +60,20 @@ class AdminServiceController extends Controller
         try {
             $validated = $request->validate([
                 'name' => 'required|string|max:255|unique:services,name,' . $service->id,
-                'description' => 'required|string', // Add description validation
+                'service_type' => 'required|in:grooming,medical,boarding',
+                'description' => 'required|string',
                 'animal_types' => 'required|array',
                 'animal_types.*' => 'integer|exists:pet_types,id',
                 'prices' => 'required|array',
                 'prices.*' => 'required|numeric|min:0',
             ]);
     
-            // Update service
             $service->update([
                 'name' => $validated['name'],
+                'service_type' => $validated['service_type'],
                 'description' => $validated['description'],
             ]);
     
-            // Sync pet types with prices
             $syncData = [];
             foreach ($validated['animal_types'] as $petTypeId) {
                 if (isset($validated['prices'][$petTypeId])) {

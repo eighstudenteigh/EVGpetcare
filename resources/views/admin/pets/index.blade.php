@@ -114,7 +114,7 @@
                     <td class="p-3">{{ $pet->customer->name }} ({{ $pet->customer->email }})</td>
                     <td class="p-3 flex justify-center gap-2">
                         <!-- ✅ Edit Button - added data-gender attribute -->
-                        <button class="edit-pet-btn bg-gray-500 hover:bg-gray-700 text-white px-3 py-1 rounded"
+                        {{-- <button class="edit-pet-btn bg-gray-500 hover:bg-gray-700 text-white px-3 py-1 rounded"
                                 data-id="{{ $pet->id }}" data-name="{{ $pet->name }}"
                                 data-type="{{ $pet->type }}" data-breed="{{ $pet->breed }}"
                                 data-age="{{ $pet->age }}" data-gender="{{ $pet->gender }}">
@@ -124,8 +124,8 @@
                          <!-- ❌ Delete Button -->
                          <button class="delete-pet-btn bg-red-500 hover:bg-red-700 text-white px-3 py-1 rounded"
                          data-id="{{ $pet->id }}">
-                     Delete
-                 </button>
+                            Delete
+                        </button> --}}
                     </td>
                 </tr>
                 @endforeach

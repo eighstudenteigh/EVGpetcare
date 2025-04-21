@@ -19,31 +19,29 @@ use App\Http\Controllers\Admin\CRUDServiceController;
 use App\Http\Controllers\Admin\AdminPetController;
 use App\Http\Controllers\Admin\AdminPetTypeController;
 use App\Http\Controllers\Auth\EmailVerificationController;
+use App\Http\Controllers\Admin\PetRecordController;
+use App\Http\Controllers\Admin\RecordsController;
 
-
-
-Route::get('/our-team', function () {
-    return view('team');
-})->name('team');
 
 //  Public Pages (No Middleware)
-    Route::get('/', [PageController::class, 'home'])->name('home');
-    Route::get('/verify-email/{id}', [EmailVerificationController::class, 'verify'])->name('verify.email');
+
+        Route::get('/', [PageController::class, 'home'])->name('home');
+        Route::get('/verify-email/{id}', [EmailVerificationController::class, 'verify'])->name('verify.email');
    
-//services
-    Route::get('/services', [GuestServiceController::class, 'index'])->name('services');
-    Route::get('/services/all', [GuestServiceController::class, 'getAllServices']);
-    Route::get('/services/by-animal', [GuestServiceController::class, 'getServicesByAnimal']);
-    Route::get('/about-us', [AboutController::class, 'index'])->name('about.us');
+    //services
+        Route::get('/services', [GuestServiceController::class, 'index'])->name('services');
+        Route::get('/services/all', [GuestServiceController::class, 'getAllServices']);
+        Route::get('/services/by-animal', [GuestServiceController::class, 'getServicesByAnimal']);
+        Route::get('/about-us', [AboutController::class, 'index'])->name('about.us');
 
-//inquiry
-    Route::get('/inquiry', [InquiryController::class, 'create'])->name('customer.inquiry');
-    Route::post('/inquiry', [InquiryController::class, 'store'])->name('customer.inquiry.store');
-    
+    //inquiry
+        Route::get('/inquiry', [InquiryController::class, 'create'])->name('customer.inquiry');
+        Route::post('/inquiry', [InquiryController::class, 'store'])->name('customer.inquiry.store');
 
-    Route::get('/appointments', [PageController::class, 'appointments'])->name('appointments');
-    Route::get('/testimonials', [PageController::class, 'testimonials'])->name('testimonials');
-    Route::get('/contact', [PageController::class, 'contact'])->name('contact');
+    //about-us
+    Route::get('/our-team', function () {
+        return view('team');})->name('team');    
+
 
 // Authentication Routes
     Route::middleware('guest')->group(function () {
@@ -57,7 +55,8 @@ Route::get('/our-team', function () {
 // Authenticated Routes
 Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'redirectToDashboard'])->name('dashboard');
-
+        Route::get('/get-calendar-data', [DashboardController::class, 'getCalendarData']);
+        
         // Profile Routes - available to all authenticated users
         Route::controller(ProfileController::class)->group(function () {
         Route::get('/profile', 'edit')->name('profile.edit');
@@ -93,10 +92,38 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
         Route::post('/admin/update-max-appointments', [AdminDashboardController::class, 'updateMaxAppointments'])->name('admin.updateMaxAppointments');
         
+    //pet records
+        Route::get('appointments/{appointment}/records', [PetRecordController::class, 'show'])
+        ->name('admin.pet-records.show');
+        // Grooming
+        Route::get('appointments/{appointment}/pets/{pet}/grooming/create', [PetRecordController::class, 'createGroomingRecord'])
+        ->name('admin.pet-records.create-grooming');
+        Route::post('appointments/{appointment}/pets/{pet}/grooming', [PetRecordController::class, 'storeGroomingRecord'])->name('admin.pet-records.store-grooming');
+        // Medical
+        Route::get('appointments/{appointment}/pets/{pet}/medical/create', [PetRecordController::class, 'createMedicalRecord'])
+        ->name('admin.pet-records.create-medical');
+        Route::post('appointments/{appointment}/medical', [PetRecordController::class, 'storeMedicalRecord'])
+        ->name('admin.pet-records.store-medical');
+        // Boarding
+        Route::get('appointments/{appointment}/pets/{pet}/boarding/create', [PetRecordController::class, 'createBoardingRecord'])
+        ->name('admin.pet-records.create-boarding');
+        Route::post('appointments/{appointment}/boarding', [PetRecordController::class, 'storeBoardingRecord'])
+        ->name('admin.pet-records.store-boarding');
+
+        Route::post('appointments/{appointment}/finalize', [AdminAppointmentController::class, 'finalize'])
+        ->name('admin.appointments.finalize');
+
+        //service records/reports
+        
+        Route::get('/records', [RecordsController::class, 'index'])->name('admin.records.index');
+        Route::get('/records/export', [RecordsController::class, 'export'])->name('reports.export');
+        Route::get('/records/{id}', [RecordsController::class, 'show'])->name('admin.records.show');
+
         //appointments
         Route::get('/admin/appointments', [AdminAppointmentController::class, 'index'])->name('admin.appointments');
         Route::get('/admin/approved', [AdminAppointmentController::class, 'approved'])->name('admin.appointments.approved');
         Route::get('/admin/appointments/rejected', [AdminAppointmentController::class, 'rejected'])->name('admin.appointments.rejected');
+        Route::post('/appointments/{appointment}/complete', [AdminAppointmentController::class, 'complete'])->name('admin.appointments.complete');
         Route::get('/admin/appointments/all', [AdminAppointmentController::class, 'all'])->name('admin.appointments.all');
 
         //customers

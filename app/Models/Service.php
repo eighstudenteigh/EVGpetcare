@@ -9,20 +9,17 @@ class Service extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'price', 'description'];
+    protected $fillable = ['name', 'price', 'description', 'service_type'];
 
+    public function petTypes()
+    {
+        return $this->belongsToMany(PetType::class, 'service_pet_type', 'service_id', 'pet_type_id')
+                    ->withPivot('price');
+    }
+
+    // Add this alias if you need to keep using animalTypes in your code
     public function animalTypes()
     {
-        return $this->belongsToMany(PetType::class, 'service_pet_type', 'service_id', 'pet_type_id') ->withPivot('price');
+        return $this->petTypes();
+    }
 }
-    public function petTypes()
-{
-    return $this->belongsToMany(PetType::class, 'service_pet_type', 'service_id', 'pet_type_id')
-                ->withTimestamps(); 
-}
-public function services()
-{
-    return $this->belongsToMany(Service::class, 'service_pet_type', 'pet_type_id', 'service_id');
-}
-}
-

@@ -56,7 +56,7 @@
                 <div>
                     <x-input-label for="password" :value="__('Password')" />
                     <x-text-input id="password" class="block mt-1 w-full border-gray-300 focus:border-orange-500 focus:ring-orange-500 rounded-md shadow-sm" 
-                        type="password" name="password" required />
+                        type="password" name="password" required placeholder="must be at least 8 characters" />
                     <x-input-error :messages="$errors->get('password')" class="mt-2" />
                 </div>
 
@@ -64,19 +64,20 @@
                 <div>
                     <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
                     <x-text-input id="password_confirmation" class="block mt-1 w-full border-gray-300 focus:border-orange-500 focus:ring-orange-500 rounded-md shadow-sm" 
-                        type="password" name="password_confirmation" required />
+                        type="password" name="password_confirmation" required required placeholder="must be at least 8 characters"/>
                     <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
                 </div>
 
-                <!-- Register Button -->
-                <div class="flex items-center justify-between mt-4">
-                    <a class="text-sm text-gray-600 hover:text-orange-600" href="{{ route('login') }}">
-                        {{ __('Already registered?') }}
-                    </a>
-                    <x-primary-button class="bg-orange-600 hover:bg-orange-700 focus:ring-orange-500">
-                        {{ __('Register') }}
-                    </x-primary-button>
-                </div>
+                <!-- Register and Login Buttons -->
+<div class="flex items-center justify-between mt-4">
+    <a href="{{ route('login') }}" class="px-5 bg-blue-600 text-white font-bold py-2 rounded hover:bg-gray-700 transition-colors text-center">
+        {{ __('Login') }}
+    </a>
+    
+    <button type="submit" class="px-5 bg-orange-500 text-white font-bold py-2 rounded hover:bg-gray-600 transition-colors">
+        {{ __('Register') }}
+    </button>
+</div>
             </form>
         </div>
         <script>

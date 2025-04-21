@@ -6,9 +6,9 @@
 <div class="container mx-auto px-4 py-6">
     <h2 class="text-3xl font-bold mb-6 text-gray-800">🛠 Manage Services</h2>
 
-    <!-- 🔍 Search Box -->
-    <div class="mb-4">
-        <div class="relative">
+    <!-- 🔍 Search and Filter Box -->
+    <div class="mb-4 flex flex-col md:flex-row gap-4">
+        <div class="relative flex-grow">
             <input type="text" id="searchBox" placeholder="Search services..." 
                 class="w-full p-2 pl-10 border rounded focus:border-orange-500 focus:outline-none">
             <div class="absolute left-3 top-2.5 text-gray-500">
@@ -17,6 +17,13 @@
                 </svg>
             </div>
         </div>
+        
+        <select id="serviceTypeFilter" class="p-2 border rounded focus:border-orange-500 focus:outline-none">
+            <option value="">All Service Types</option>
+            <option value="grooming">Grooming</option>
+            <option value="medical">Medical</option>
+            <option value="boarding">Boarding</option>
+        </select>
     </div>
     
     <a href="{{ route('admin.services.create') }}" class="bg-orange-500 hover:bg-gray-700 text-white px-4 py-2 rounded mb-4 inline-block">
@@ -32,6 +39,7 @@
             <thead class="bg-gray-700 text-white">
                 <tr>
                     <th class="p-3 text-left">Service Name</th>
+                    <th class="p-3 text-left">Type</th>
                     <th class="p-3 text-left">Animal Type</th>
                     <th class="p-3 text-left">Price</th>
                     <th class="p-3 text-left">Actions</th>
@@ -41,11 +49,20 @@
                 @foreach ($services as $service)
                     @if ($service->animalTypes->isNotEmpty())
                         @foreach ($service->animalTypes as $index => $animal)
-                            <tr class="border-b service-row" data-id="{{ $service->id }}">
+                            <tr class="border-b service-row" data-id="{{ $service->id }}" data-type="{{ $service->service_type }}">
                                 @if ($index === 0)
                                     <!-- Service Name (Only on the first row per service) -->
                                     <td class="p-3 font-semibold align-top" rowspan="{{ $service->animalTypes->count() }}">
                                         {{ $service->name }}
+                                    </td>
+                                    <!-- Service Type (Only on the first row per service) -->
+                                    <td class="p-3 align-top" rowspan="{{ $service->animalTypes->count() }}">
+                                        <span class="px-2 py-1 rounded-full text-xs 
+                                            @if($service->service_type === 'grooming') bg-blue-100 text-blue-800
+                                            @elseif($service->service_type === 'medical') bg-red-100 text-red-800
+                                            @else bg-green-100 text-green-800 @endif">
+                                            {{ ucfirst($service->service_type) }}
+                                        </span>
                                     </td>
                                 @endif
                                 <!-- Animal Type -->
@@ -59,6 +76,7 @@
                                         <button class="edit-service-btn bg-orange-500 hover:bg-gray-700 text-white px-3 py-1 rounded"
                                             data-id="{{ $service->id }}"
                                             data-name="{{ $service->name }}"
+                                            data-service-type="{{ $service->service_type }}"
                                             data-description="{{ $service->description }}"
                                             data-prices="{{ json_encode($service->animalTypes->pluck('pivot.price', 'id')) }}"
                                             data-animals="{{ json_encode($service->animalTypes->pluck('id')->toArray()) }}">
@@ -69,15 +87,24 @@
                             </tr>
                         @endforeach
                     @else
-                        <!-- If no animal types are linked, show the service with "No animal types assigned" -->
-                        <tr class="border-b service-row" data-id="{{ $service->id }}">
+                        <!-- If no animal types are linked -->
+                        <tr class="border-b service-row" data-id="{{ $service->id }}" data-type="{{ $service->service_type }}">
                             <td class="p-3 font-semibold">{{ $service->name }}</td>
+                            <td class="p-3">
+                                <span class="px-2 py-1 rounded-full text-xs 
+                                    @if($service->service_type === 'grooming') bg-blue-100 text-blue-800
+                                    @elseif($service->service_type === 'medical') bg-red-100 text-red-800
+                                    @else bg-green-100 text-green-800 @endif">
+                                    {{ ucfirst($service->service_type) }}
+                                </span>
+                            </td>
                             <td class="p-3 text-gray-500">No animal types assigned</td>
                             <td class="p-3">-</td>
                             <td class="p-3 flex gap-2">
                                 <button class="edit-service-btn bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 rounded"
                                     data-id="{{ $service->id }}"
                                     data-name="{{ $service->name }}"
+                                    data-service-type="{{ $service->service_type }}"
                                     data-description="{{ $service->description }}">
                                     Edit
                                 </button>
@@ -93,77 +120,79 @@
         </table>
     </div>
     
-    
     <!-- 🛠 Edit Service Modal -->
-<div id="editServiceModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden items-center justify-center z-50">
-    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <h2 class="text-xl font-bold mb-4">Edit Service</h2>
-        
-        <form id="editServiceForm">
-            @csrf
-            @method('PUT')
-            <input type="hidden" id="editServiceId" name="id">
+    <div id="editServiceModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <h2 class="text-xl font-bold mb-4">Edit Service</h2>
+            
+            <form id="editServiceForm">
+                @csrf
+                @method('PUT')
+                <input type="hidden" id="editServiceId" name="id">
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Left Column -->
-                <div class="space-y-4">
-                    <!-- Service Name -->
-                    <div>
-                        <label class="text-gray-700 font-medium block mb-1">Service Name *</label>
-                        <input type="text" id="editServiceName" name="service_name" 
-                            class="w-full p-2 border rounded focus:border-orange-500 focus:outline-none" required>
-                    </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Left Column -->
+                    <div class="space-y-4">
+                        <!-- Service Name -->
+                        <div>
+                            <label class="text-gray-700 font-medium block mb-1">Service Name *</label>
+                            <input type="text" id="editServiceName" name="service_name" 
+                                class="w-full p-2 border rounded focus:border-orange-500 focus:outline-none" required>
+                        </div>
 
-                    <!-- Pet Types -->
-                    <div>
-                        <label class="text-gray-700 font-medium block mb-1">Available for Pet Types *</label>
-                        <div id="petTypeSelection" class="flex flex-wrap gap-2">
-                            @foreach($petTypes as $petType)
-                            <label class="flex items-center space-x-2 bg-gray-100 px-3 py-2 rounded cursor-pointer">
-                                <input type="checkbox" name="pet_types[]" value="{{ $petType->id }}" 
-                                    class="pet-type-checkbox">
-                                <span>{{ $petType->name }}</span>
-                            </label>
-                            @endforeach
+                        <!-- Service Type -->
+                        <div>
+                            <label class="text-gray-700 font-medium block mb-1">Service Type *</label>
+                            <select id="editServiceType" name="service_type" 
+                                class="w-full p-2 border rounded focus:border-orange-500 focus:outline-none" required>
+                                <option value="grooming">Grooming</option>
+                                <option value="medical">Medical</option>
+                                <option value="boarding">Boarding</option>
+                            </select>
+                        </div>
+
+                        <!-- Pet Types -->
+                        <div>
+                            <label class="text-gray-700 font-medium block mb-1">Available for Pet Types *</label>
+                            <div id="petTypeSelection" class="flex flex-wrap gap-2">
+                                @foreach($petTypes as $petType)
+                                <label class="flex items-center space-x-2 bg-gray-100 px-3 py-2 rounded cursor-pointer">
+                                    <input type="checkbox" name="pet_types[]" value="{{ $petType->id }}" 
+                                        class="pet-type-checkbox">
+                                    <span>{{ $petType->name }}</span>
+                                </label>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        <!-- Price Inputs -->
+                        <div id="priceInputsContainer" class="space-y-3">
+                            <label class="text-gray-700 font-medium block mb-1">Pricing by Pet Type *</label>
+                            <!-- Dynamic price inputs will be inserted here -->
                         </div>
                     </div>
 
-                    <!-- Price Inputs -->
-                    <div id="priceInputsContainer" class="space-y-3">
-                        <label class="text-gray-700 font-medium block mb-1">Pricing by Pet Type *</label>
-                        @foreach($petTypes as $petType)
-                        <div class="flex items-center justify-between">
-                            <span class="font-medium">{{ $petType->name }} Price (₱)</span>
-                            <input type="number" name="prices[{{ $petType->id }}]" 
-                                class="w-24 p-2 border rounded focus:border-orange-500 focus:outline-none" 
-                                step="0.01" min="0">
+                    <!-- Right Column - Description -->
+                    <div>
+                        <div class="h-full flex flex-col">
+                            <label class="text-gray-700 font-medium block mb-1">Service Description *</label>
+                            <textarea id="editServiceDescription" name="description" rows="10"
+                                class="flex-grow w-full p-2 border rounded focus:border-orange-500 focus:outline-none whitespace-pre-wrap"></textarea>
                         </div>
-                        @endforeach
                     </div>
                 </div>
 
-                <!-- Right Column - Description -->
-                <div>
-                    <div class="h-full flex flex-col">
-                        <label class="text-gray-700 font-medium block mb-1">Service Description *</label>
-                        <textarea id="editServiceDescription" name="description" rows="10"
-                            class="flex-grow w-full p-2 border rounded focus:border-orange-500 focus:outline-none whitespace-pre-wrap"></textarea>
-                        <p class="text-sm text-gray-500 mt-1">Note: Line breaks will be preserved in display.</p>
-                    </div>
+                <div class="flex justify-end gap-2 mt-6">
+                    <button type="button" id="closeEditModal" class="bg-gray-600 hover:bg-gray-800 text-white px-4 py-2 rounded transition">
+                        Cancel
+                    </button>
+                    <button type="submit" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded transition">
+                        Save Changes
+                    </button>
                 </div>
-            </div>
-
-            <div class="flex justify-end gap-2 mt-6">
-                <button type="button" id="closeEditModal" class="bg-gray-600 hover:bg-gray-800 text-white px-4 py-2 rounded transition">
-                    Cancel
-                </button>
-                <button type="submit" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded transition">
-                    Save Changes
-                </button>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
-</div>
 </div>
 
 <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -211,6 +240,7 @@ document.addEventListener("DOMContentLoaded", function () {
         button.addEventListener("click", function () {
             const serviceId = this.dataset.id;
             const serviceName = this.dataset.name;
+            const serviceType = this.dataset.serviceType;
             const serviceDescription = this.dataset.description || '';
             const serviceAnimals = JSON.parse(this.dataset.animals || "[]");
             const servicePrices = JSON.parse(this.dataset.prices || "{}");
@@ -218,6 +248,7 @@ document.addEventListener("DOMContentLoaded", function () {
             // Set form fields
             document.getElementById("editServiceId").value = serviceId;
             document.getElementById("editServiceName").value = serviceName;
+            document.getElementById("editServiceType").value = serviceType;
             document.getElementById("editServiceDescription").value = serviceDescription;
             document.getElementById("editServiceId").dataset.prices = JSON.stringify(servicePrices);
 
@@ -232,6 +263,23 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
+    // Service Type Filter
+    const serviceTypeFilter = document.getElementById("serviceTypeFilter");
+    if (serviceTypeFilter) {
+        serviceTypeFilter.addEventListener("change", function() {
+            const selectedType = this.value;
+            const serviceRows = document.querySelectorAll(".service-row");
+            
+            serviceRows.forEach(row => {
+                const rowType = row.dataset.type;
+                if (!selectedType || rowType === selectedType) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            });
+        });
+    }
     // Close Modal
     closeEditModal.addEventListener("click", function () {
         editServiceModal.classList.remove("flex");

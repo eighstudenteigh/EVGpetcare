@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container mx-auto px-4 py-6">
-    <h2 class="text-3xl font-bold mb-6 text-gray-800">❌ Rejected Appointments</h2>
+    <h2 class="text-3xl font-bold mb-6 text-gray-800"> Rejected Appointments</h2>
     <h4 class="text-2xl font-bold mb-6 text-gray-800"> Appointments Status links</h4>
     <!-- status routes -->
     <div class="flex gap-2 mb-6">

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Appointment extends Model
@@ -11,31 +12,48 @@ class Appointment extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'appointment_date', 'appointment_time', 'status', 'approved_at'
+        'user_id',
+        'appointment_date',
+        'appointment_time',
+        'status',
+        'approved_at',
+        'completed_at',
+        'finalized_at',
     ];
 
-    /**
-     * Relationship: An appointment can have multiple pets.
-     */
-    public function pets(): BelongsToMany
-{
-    return $this->belongsToMany(Pet::class, 'appointment_pet', 'appointment_id', 'pet_id');
-}
-
-
-    /**
-     * Relationship: An appointment can have multiple services through pets.
-     */
-    public function services()
-{
-    return $this->belongsToMany(Service::class, 'appointment_service');
-}
+    protected $casts = [
+        'appointment_date' => 'datetime',
+        'approved_at' => 'datetime',
+        'completed_at' => 'datetime',
+        'finalized_at' => 'datetime', 
+    ];
+    
 
     /**
-     * Relationship: An appointment belongs to a user (customer).
+     * An appointment belongs to a user (customer).
      */
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
+
+    /**
+     * An appointment can have multiple pets.
+     */
+    public function pets(): BelongsToMany
+    {
+        return $this->belongsToMany(Pet::class, 'appointment_pet', 'appointment_id', 'pet_id');
+    }
+
+    /**
+     * An appointment can have multiple services (usually linked through pets).
+     */
+    public function services(): BelongsToMany
+    {
+        return $this->belongsToMany(Service::class, 'appointment_service', 'appointment_id', 'service_id');
+    }
+    public function groomingRecords()
+{
+    return $this->hasMany(GroomingRecord::class);
+}
 }

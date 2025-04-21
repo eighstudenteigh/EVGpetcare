@@ -60,11 +60,22 @@ class DashboardController extends Controller
         foreach ($acceptedAppointments as $date => $count) {
             $availableSlots[$date] = max($maxAppointments - $count, 0);
         }
+        // Get COUNT of upcoming appointments instead of full records
+        $upcomingAppointmentsCount = Appointment::where('status', 'approved')
+        ->where('appointment_date', '>=', now()->toDateString())
+        ->count();
+
+         // Get approved appointments grouped by date
+        $appointmentsByDate = Appointment::where('status', 'approved')
+        ->selectRaw('DATE(appointment_date) as date, COUNT(*) as count')
+        ->groupBy('date')
+        ->get()
+        ->keyBy('date');
 
         return view('admin.dashboard', compact(
             'totalCustomers', 'pendingAppointments', 'totalPets', 'totalServices',
             'maxAppointments', 'closedDays', 'upcomingAppointments', 'recentActivities',
-            'acceptedAppointments', 'availableSlots', 'acceptedAppointmentsToday'
+            'acceptedAppointments', 'availableSlots', 'acceptedAppointmentsToday', 'upcomingAppointmentsCount',
         ));
     }
 
@@ -84,4 +95,40 @@ class DashboardController extends Controller
 
         return response()->json($closedDays);
     }
+
+    public function getCalendarData()
+{
+    // Get approved appointments grouped by date
+    $approvedCounts = Appointment::where('status', 'approved')
+        ->selectRaw('DATE(appointment_date) as date, COUNT(*) as count')
+        ->groupBy('date')
+        ->get()
+        ->map(function ($item) {
+            return [
+                'title' => $item->count . ' appt(s)',
+                'start' => $item->date,
+                'display' => 'background', // Optional: change to 'auto' if you want it as normal event
+                'extendedProps' => [
+                    'count' => $item->count
+                ],
+                'classNames' => ['approved-count']
+            ];
+        });
+
+    // Get closed days
+    $closedDays = ClosedDay::pluck('date')->map(function ($date) {
+        return [
+            'title' => 'Closed',
+            'start' => \Carbon\Carbon::parse($date)->format('Y-m-d'),
+            'color' => '#FF0000',
+            'classNames' => ['closed-day']
+        ];
+    });
+
+    // Merge both collections
+    $calendarEvents = $closedDays->merge($approvedCounts);
+
+    return response()->json($calendarEvents);
+}
+
 }

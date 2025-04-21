@@ -52,12 +52,12 @@
                     @endif
                 </div>
 
-                <!-- Submit Button -->
-                <div class="mt-6">
-                    <x-primary-button class="w-full bg-orange-600 text-white py-2 rounded-lg hover:bg-orange-700 transition duration-200">
-                        {{ __('Log in') }}
-                    </x-primary-button>
-                </div>
+                    <!-- Submit Button -->
+                    <div class="mt-6">
+                        <x-primary-button class="w-full bg-orange-500 text-white py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                            {{ __('Log in') }}
+                        </x-primary-button>
+                    </div>
             </form>
         </div>
     </div>

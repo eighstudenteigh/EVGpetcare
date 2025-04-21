@@ -40,7 +40,7 @@
                 <tbody>
                     @forelse ($appointments as $appointment)
                         @foreach ($appointment->pets as $index => $pet)
-                            <tr class="border-b appointment-row hover:bg-gray-100 transition" data-appointment-id="{{ $appointment->id }}">
+                            <tr class="border-b appointment-row bg-white hover:bg-gray-200 transition" data-appointment-id="{{ $appointment->id }}">
                                 <!-- Pet Column -->
                                 <td class="px-4 py-3 font-semibold text-gray-800">
                                     {{ $pet->name }} ({{ ucfirst($pet->type) }})
@@ -71,15 +71,15 @@
 
                                     <td class="px-4 py-3" rowspan="{{ count($appointment->pets) }}">
                                         @if ($appointment->status == 'pending')
-                                            <span class="px-3 py-1 text-xs font-semibold text-yellow-800 bg-yellow-200 rounded-lg">
+                                            <span class="px-2 py-1 text-sm font-bold rounded text-yellow-800 bg-yellow-300 ">
                                                 Pending
                                             </span>
                                         @elseif ($appointment->status == 'approved')
-                                            <span class="px-3 py-1 text-xs font-semibold text-green-800 bg-green-200 rounded-lg">
+                                            <span class="px-2 py-1 text-sm font-bold rounded text-green-800 bg-green-300">
                                                 Approved
                                             </span>
                                         @elseif ($appointment->status == 'rejected')
-                                            <span class="px-3 py-1 text-xs font-semibold text-red-800 bg-red-200 rounded-lg">
+                                            <span class="px-2 py-1 text-sm font-bold rounded text-red-800 bg-red-300">
                                                 Rejected
                                             </span>
                                         @endif

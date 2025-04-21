@@ -1,3 +1,4 @@
+{{-- resources\views\partials\admin-sidebar.blade.php --}}
 <aside class="bg-blue-800 text-white w-full h-full p-4 overflow-y-auto">
     <!-- Branding Section -->
     <div class="flex items-center justify-between px-1 py-1">
@@ -11,22 +12,29 @@
 
         <!--  Dashboard -->
         <a href="{{ route('admin.dashboard') }}" 
-           class="flex items-center px-4 py-3 rounded-md hover:bg-blue-700 transition duration-300 
-                  {{ request()->routeIs('admin.dashboard') ? 'bg-blue-600 shadow-md shadow-blue-900 text-white font-bold' : '' }}">
+           class="flex items-center px-4 py-3 rounded-md hover:bg-blue-600 transition duration-300 
+                  {{ request()->routeIs('admin.dashboard') ? 'bg-blue-700 shadow-md shadow-blue-900 text-white font-bold' : '' }}">
             <i class="ph ph-gauge w-5 h-5 mr-2"></i>
             Dashboard
         </a>
 
         <hr class="border-t border-blue-500 my-2">
 
-        <!-- 🔹 Management Section -->
-        <p class="text-sm uppercase text-blue-200 font-bold px-4 mt-2">Management</p>
+
 
         <a href="{{ route('admin.appointments') }}" 
            class="flex items-center px-4 py-3 rounded-md hover:bg-blue-700 transition duration-300 
                   {{ request()->routeIs('admin.appointments') ? 'bg-blue-600 shadow-md shadow-blue-900 text-white font-bold' : '' }}">
             <i class="ph ph-calendar-check w-5 h-5 mr-2"></i>
             Requests
+        </a>
+
+        <!-- Records -->
+        <a href="{{ route('admin.records.index') }}" 
+        class="flex items-center px-4 py-3 rounded-md hover:bg-blue-700 transition duration-300 
+            {{ request()->routeIs('admin.records.*') ? 'bg-blue-600 shadow-md shadow-blue-900 text-white font-bold' : '' }}">
+            <i class="ph ph-file-text w-5 h-5 mr-2"></i>
+        Service Records
         </a>
 
         <a href="{{ route('admin.inquiries') }}"
@@ -38,8 +46,7 @@
 
         <hr class="border-t border-blue-500 my-2">
 
-        <!-- 🔹 Reports Section -->
-        <p class="text-sm uppercase text-blue-200 font-bold px-4 mt-2">Reports</p>
+        
 
         <a href="{{ route('admin.services.index') }}" 
            class="flex items-center px-4 py-3 rounded-md hover:bg-blue-700 transition duration-300 
@@ -57,8 +64,7 @@
 
         <hr class="border-t border-blue-500 my-2">
 
-        <!-- 🔹 Settings Section -->
-        <p class="text-sm uppercase text-blue-200 font-bold px-4 mt-2">Settings</p>
+       
 
         <a href="{{ route('admins.index') }}" 
            class="flex items-center px-4 py-3 rounded-md hover:bg-blue-700 transition duration-300 

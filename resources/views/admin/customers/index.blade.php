@@ -45,7 +45,7 @@
                     <td class="p-3">{{ $customer->phone ?? 'N/A' }}</td>
                     <td class="p-3">{{ $customer->address ?? 'N/A' }}</td>
                     <td class="p-3 flex gap-2">
-                        <!-- ✏️ Edit Button -->
+                        {{-- <!--  Edit Button -->
                         <button class="edit-customer-btn bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 rounded"
                             data-id="{{ $customer->id }}"
                             data-name="{{ $customer->name }}"
@@ -55,11 +55,11 @@
                             Edit
                         </button>
 
-                        <!-- ❌ Delete Button -->
+                        <!--  Delete Button -->
                         <button class="delete-customer-btn bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
                             data-id="{{ $customer->id }}">
                             Delete
-                        </button>
+                        </button> --}}
                     </td>
                 </tr>
                 @endforeach
