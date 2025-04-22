@@ -21,7 +21,7 @@ use App\Http\Controllers\Admin\AdminPetTypeController;
 use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Admin\PetRecordController;
 use App\Http\Controllers\Admin\RecordsController;
-
+use App\Http\Controllers\Admin\RecordController;
 
 //  Public Pages (No Middleware)
 
@@ -55,8 +55,7 @@ use App\Http\Controllers\Admin\RecordsController;
 // Authenticated Routes
 Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'redirectToDashboard'])->name('dashboard');
-        Route::get('/get-calendar-data', [DashboardController::class, 'getCalendarData']);
-        
+       
         // Profile Routes - available to all authenticated users
         Route::controller(ProfileController::class)->group(function () {
         Route::get('/profile', 'edit')->name('profile.edit');
@@ -85,46 +84,79 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::get('/appointments/availability', [AppointmentController::class, 'getAvailability'])->name('customer.appointments.availability');
         Route::get('/appointments/closed-days', [AdminDashboardController::class, 'getClosedDays']);
+        
     });
 
     // Admin Routes
     Route::middleware(['role:admin'])->group(function () {
         Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
         Route::post('/admin/update-max-appointments', [AdminDashboardController::class, 'updateMaxAppointments'])->name('admin.updateMaxAppointments');
-        
-    //pet records
-        Route::get('appointments/{appointment}/records', [PetRecordController::class, 'show'])
-        ->name('admin.pet-records.show');
-        // Grooming
-        Route::get('appointments/{appointment}/pets/{pet}/grooming/create', [PetRecordController::class, 'createGroomingRecord'])
-        ->name('admin.pet-records.create-grooming');
-        Route::post('appointments/{appointment}/pets/{pet}/grooming', [PetRecordController::class, 'storeGroomingRecord'])->name('admin.pet-records.store-grooming');
-        // Medical
-        Route::get('appointments/{appointment}/pets/{pet}/medical/create', [PetRecordController::class, 'createMedicalRecord'])
-        ->name('admin.pet-records.create-medical');
-        Route::post('appointments/{appointment}/medical', [PetRecordController::class, 'storeMedicalRecord'])
-        ->name('admin.pet-records.store-medical');
-        // Boarding
-        Route::get('appointments/{appointment}/pets/{pet}/boarding/create', [PetRecordController::class, 'createBoardingRecord'])
-        ->name('admin.pet-records.create-boarding');
-        Route::post('appointments/{appointment}/boarding', [PetRecordController::class, 'storeBoardingRecord'])
-        ->name('admin.pet-records.store-boarding');
-
-        Route::post('appointments/{appointment}/finalize', [AdminAppointmentController::class, 'finalize'])
-        ->name('admin.appointments.finalize');
-
-        //service records/reports
-        
-        Route::get('/records', [RecordsController::class, 'index'])->name('admin.records.index');
-        Route::get('/records/export', [RecordsController::class, 'export'])->name('reports.export');
-        Route::get('/records/{id}', [RecordsController::class, 'show'])->name('admin.records.show');
-
+        Route::get('/admin/dashboard/calendar-data', [AdminDashboardController::class, 'getCalendarData'])->name('admin.dashboard.calendar-data');
+    
         //appointments
         Route::get('/admin/appointments', [AdminAppointmentController::class, 'index'])->name('admin.appointments');
         Route::get('/admin/approved', [AdminAppointmentController::class, 'approved'])->name('admin.appointments.approved');
+        Route::get('/admin/appointments/completed', [AdminAppointmentController::class, 'completed'])->name('admin.appointments.completed');
         Route::get('/admin/appointments/rejected', [AdminAppointmentController::class, 'rejected'])->name('admin.appointments.rejected');
-        Route::post('/appointments/{appointment}/complete', [AdminAppointmentController::class, 'complete'])->name('admin.appointments.complete');
         Route::get('/admin/appointments/all', [AdminAppointmentController::class, 'all'])->name('admin.appointments.all');
+
+        Route::post('/appointments/{appointment}/complete', [AdminAppointmentController::class, 'complete'])->name('admin.appointments.complete');
+        Route::get('/admin/appointments/{appointment}/completed', [AdminAppointmentController::class, 'showCompleted'])->name('admin.appointments.show-completed');
+        Route::post('appointments/{appointment}/finalize', [AdminAppointmentController::class, 'finalize'])->name('admin.appointments.finalize');
+        
+        Route::get('/admin/appointments/{appointment}/pets/{pet}/services/{service}/edit',[RecordController::class, 'edit'])->name('admin.records.edit');
+        
+        Route::prefix('admin')->group(function() {
+            // Vaccination Routes
+            Route::get('/appointments/{appointment}/pets/{pet}/services/{service}/create-vaccination', 
+                [App\Http\Controllers\Admin\RecordController::class, 'createVaccination'])
+                ->name('admin.records.create.vaccination');
+            
+            Route::post('/appointments/{appointment}/pets/{pet}/services/{service}/store-vaccination', 
+                [App\Http\Controllers\Admin\RecordController::class, 'storeVaccination'])
+                ->name('admin.records.store.vaccination');
+        
+            // Check-Up Routes
+            Route::get('/appointments/{appointment}/pets/{pet}/services/{service}/create-checkup', 
+                [App\Http\Controllers\Admin\RecordController::class, 'createCheckup'])
+                ->name('admin.records.create.checkup');
+            
+            Route::post('/appointments/{appointment}/pets/{pet}/services/{service}/store-checkup', 
+                [App\Http\Controllers\Admin\RecordController::class, 'storeCheckup'])
+                ->name('admin.records.store.checkup');
+        
+            // Surgery Routes
+            Route::get('/appointments/{appointment}/pets/{pet}/services/{service}/create-surgery', 
+                [App\Http\Controllers\Admin\RecordController::class, 'createSurgery'])
+                ->name('admin.records.create.surgery');
+            
+            Route::post('/appointments/{appointment}/pets/{pet}/services/{service}/store-surgery', 
+                [App\Http\Controllers\Admin\RecordController::class, 'storeSurgery'])
+                ->name('admin.records.store.surgery');
+        
+            // Grooming Routes
+            Route::get('/appointments/{appointment}/pets/{pet}/services/{service}/create-grooming', 
+                [App\Http\Controllers\Admin\RecordController::class, 'createGrooming'])
+                ->name('admin.records.create.grooming');
+            
+            Route::post('/appointments/{appointment}/pets/{pet}/services/{service}/store-grooming', 
+                [App\Http\Controllers\Admin\RecordController::class, 'storeGrooming'])
+                ->name('admin.records.store.grooming');
+        
+            // Boarding Routes
+            Route::get('/appointments/{appointment}/pets/{pet}/services/{service}/create-boarding', 
+                [App\Http\Controllers\Admin\RecordController::class, 'createBoarding'])
+                ->name('admin.records.create.boarding');
+            
+            Route::post('/appointments/{appointment}/pets/{pet}/services/{service}/store-boarding', 
+                [App\Http\Controllers\Admin\RecordController::class, 'storeBoarding'])
+                ->name('admin.records.store.boarding');
+        });
+
+        //service records
+        Route::get('/records', [RecordsController::class, 'index'])->name('admin.records.index');
+        Route::get('/records/{id}', [RecordsController::class, 'show'])->name('admin.records.show');
+         
 
         //customers
         Route::get('/admin/customers', [CustomerController::class, 'index'])->name('admin.customers.index');

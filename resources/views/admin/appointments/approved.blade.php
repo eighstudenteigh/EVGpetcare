@@ -23,6 +23,7 @@
     <div class="flex gap-2 mb-6">
         <a href="{{ route('admin.appointments') }}" class="bg-orange-400 text-white px-4 py-2 rounded">Pending</a>
         <a href="{{ route('admin.appointments.approved') }}" class="bg-blue-600 text-white px-4 py-2 rounded">Approved</a>
+        <a href="{{ route('admin.appointments.completed') }}" class="bg-blue-800 text-white px-4 py-2 rounded">Completed</a>
         <a href="{{ route('admin.appointments.rejected') }}" class="bg-gray-700 text-white px-4 py-2 rounded">Rejected</a>
         <a href="{{ route('admin.appointments.all') }}" class="bg-gray-500 text-white px-4 py-2 rounded">All</a>
     </div>
@@ -43,20 +44,20 @@
                     </p>
                 </div>
 
-                <!-- ✅ Pets & Services -->
-                <div class="space-y-3">
-                    @foreach ($appointment->pets as $pet)
-                        <div class="flex justify-between items-center p-3 bg-gray-100 rounded mb-2">
-                            <p class="font-semibold text-gray-800">
-                                {{ $pet->name }} ({{ ucfirst($pet->type) }})
-                            </p>
-                            <p class="text-gray-600">
-                                <span class="font-medium text-gray-700">Services:</span>
-                                {{ $pet->services->pluck('name')->unique()->join(', ') ?: 'None' }}
-                            </p>
-                        </div>
-                    @endforeach
-                </div>
+              <!-- ✅ Pets & Services -->
+            <div class="space-y-3">
+                @foreach ($appointment->pets as $pet)
+                    <div class="flex justify-between items-center p-3 bg-gray-100 rounded mb-2">
+                        <p class="font-semibold text-gray-800">
+                            {{ $pet->name }} ({{ ucfirst($pet->type) }})
+                        </p>
+                        <p class="text-gray-600">
+                            <span class="font-medium text-gray-700">Services:</span>
+                            {{ $pet->services->pluck('name')->unique()->join(', ') ?: 'None' }}
+                        </p>
+                    </div>
+                @endforeach
+            </div>
 
                 <!-- ✅ Status & Completion Button -->
                 <div class="flex justify-between items-center mt-4">
@@ -69,7 +70,7 @@
                         @endif
                     </div>
                     
-                    @if(\Carbon\Carbon::parse($appointment->appointment_date)->isToday())
+                    {{-- @if(\Carbon\Carbon::parse($appointment->appointment_date)->isToday()) --}}
                         <form action="{{ route('admin.appointments.complete', $appointment) }}" method="POST">
                             @csrf
                             <button type="submit" 
@@ -81,7 +82,7 @@
                                 Mark Completed
                             </button>
                         </form>
-                    @endif
+                    {{-- @endif --}}
                 </div>
             </div>
         @endforeach

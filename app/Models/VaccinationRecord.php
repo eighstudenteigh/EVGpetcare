@@ -5,19 +5,20 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class GroomingRecord extends Model
+class VaccinationRecord extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'record_id',
-        'groomer_name',
-        'grooming_type',
-        'products_used',
-        'coat_condition',
-        'skin_condition',
-        'behavior_notes',
-        'special_instructions'
+        'vaccine_type',
+        'batch_number',
+        'administered_by',
+        'next_due_date'
+    ];
+
+    protected $casts = [
+        'next_due_date' => 'date',
     ];
 
     public function record()
@@ -25,8 +26,8 @@ class GroomingRecord extends Model
         return $this->belongsTo(Record::class);
     }
 
-    public function service()
+    public function pet()
     {
-        return $this->through('record')->has('service');
+        return $this->through('record')->has('pet');
     }
 }

@@ -27,12 +27,14 @@
         <form method="GET" action="{{ route('admin.records.index') }}">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
-                    <label for="type" class="block text-sm font-medium text-gray-700 mb-1">Service Type</label>
-                    <select name="type" id="type" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">All Types</option>
-                        <option value="grooming" {{ request('type') == 'grooming' ? 'selected' : '' }}>Grooming</option>
-                        <option value="medical" {{ request('type') == 'medical' ? 'selected' : '' }}>Medical</option>
-                        <option value="boarding" {{ request('type') == 'boarding' ? 'selected' : '' }}>Boarding</option>
+                    <label for="service" class="block text-sm font-medium text-gray-700 mb-1">Service Name</label>
+                    <select name="service" id="service" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">All Services</option>
+                        @foreach($services as $service)
+                        <option value="{{ $service }}" {{ request('service') == $service ? 'selected' : '' }}>
+                            {{ $service }}
+                        </option>
+                        @endforeach
                     </select>
                 </div>
                 
@@ -97,32 +99,11 @@
                             <div class="font-medium">{{ $appointment->user->name }}</div>
                             <div class="text-xs text-gray-500">{{ $appointment->user->email }}</div>
                         </td>
-                        <td class="px-6 py-4">
-                            <div class="flex flex-col gap-2">
-                                @foreach($appointment->pets as $pet)
-                                <div class="flex items-center gap-2">
-                                    <span>{{ $pet->name }}</span>
-                                    @if($pet->groomingRecords->isNotEmpty())
-                                    <span class="text-xs text-blue-600" title="Grooming Record"></span>
-                                    @endif
-                                    @if($pet->medicalRecords->isNotEmpty())
-                                    <span class="text-xs text-red-600" title="Medical Record"></span>
-                                    @endif
-                                    @if($pet->boardingRecords->isNotEmpty())
-                                    <span class="text-xs text-yellow-600" title="Boarding Record"></span>
-                                    @endif
-                                </div>
-                                @endforeach
-                            </div>
-                        </td>
+                        
                         <td class="px-6 py-4">
                             <div class="flex flex-wrap gap-2">
                                 @foreach($appointment->services as $service)
-                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium 
-                                    @if($service->service_type == 'grooming') bg-blue-300 text-blue-800
-                                    @elseif($service->service_type == 'medical') bg-red-300 text-red-800
-                                    @else bg-yellow-300 text-yellow-800 @endif">
-                                    
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-200 text-gray-800">
                                     {{ $service->name }}
                                 </span>
                                 @endforeach

@@ -88,13 +88,7 @@ class DashboardController extends Controller
         return back()->with('success', 'Max appointments updated successfully.');
     }
 
-    public function getClosedDays()
-    {
-        // ✅ Fix: Ensure dates are formatted correctly
-        $closedDays = ClosedDay::pluck('date')->map(fn ($date) => Carbon::parse($date)->format('Y-m-d'))->toArray();
-
-        return response()->json($closedDays);
-    }
+    
 
     public function getCalendarData()
 {
@@ -105,9 +99,11 @@ class DashboardController extends Controller
         ->get()
         ->map(function ($item) {
             return [
-                'title' => $item->count . ' appt(s)',
+                
                 'start' => $item->date,
-                'display' => 'background', // Optional: change to 'auto' if you want it as normal event
+                'display' => 'background',
+                'backgroundColor' => 'rgba(59, 130, 246, 0.2)', // Light blue background
+                'borderColor' => 'transparent',
                 'extendedProps' => [
                     'count' => $item->count
                 ],
@@ -119,7 +115,7 @@ class DashboardController extends Controller
     $closedDays = ClosedDay::pluck('date')->map(function ($date) {
         return [
             'title' => 'Closed',
-            'start' => \Carbon\Carbon::parse($date)->format('Y-m-d'),
+            'start' => Carbon::parse($date)->format('Y-m-d'),
             'color' => '#FF0000',
             'classNames' => ['closed-day']
         ];
@@ -130,5 +126,4 @@ class DashboardController extends Controller
 
     return response()->json($calendarEvents);
 }
-
 }

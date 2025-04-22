@@ -14,8 +14,8 @@
     <!-- 🔍 Search & Add Admin -->
     <div class="flex justify-between items-center mb-4">
         <input type="text" id="searchBox" placeholder="Search admin..." class="w-96 p-2 border rounded">
-        <a href="{{ route('admins.create') }}" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded">
-            + Add New Admin
+        <a href="{{ route('admins.create') }}" class="px-6 bg-orange-500 text-white font-bold py-2 rounded hover:bg-gray-600 transition-colors">
+             Add New Admin
         </a>
     </div>
 

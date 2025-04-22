@@ -4,24 +4,24 @@
 <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8">
     <h2 class="text-2xl sm:text-3xl font-bold text-gray-700 mb-6">My Appointments</h2>
 
-    <!-- Book New Appointment Button -->
-    <div class="flex justify-end mb-4">
-        @if($petsCount === 0)
-            <div class="text-center">
-                <a href="#" 
-                   class="px-6 bg-orange-500 text-white hover:bg-gray-600 transition-colors font-bold py-2 rounded opacity-50 cursor-not-allowed"
-                   aria-disabled="true" tabindex="-1">
-                     Book New Appointment
+        <!-- Book New Appointment Button -->
+        <div class="flex justify-end mb-4">
+            @if($petsCount === 0)
+                <div class="text-center">
+                    <a href="#" 
+                    class="px-6 bg-orange-500 text-white hover:bg-gray-600 transition-colors font-bold py-2 rounded opacity-50 cursor-not-allowed"
+                    aria-disabled="true" tabindex="-1">
+                        Book New Appointment
+                    </a>
+                    <p class="text-sm text-gray-400 mt-2">You need to register at least one pet to book an appointment.</p>
+                </div>
+            @else
+                <a href="{{ route('customer.appointments.create') }}" 
+                class="px-6 bg-orange-500 text-white font-bold py-2 rounded hover:bg-gray-600 transition-colors">
+                    Book New Appointment
                 </a>
-                <p class="text-sm text-gray-400 mt-2">You need to register at least one pet to book an appointment.</p>
-            </div>
-        @else
-            <a href="{{ route('customer.appointments.create') }}" 
-               class="px-6 bg-orange-500 text-white font-bold py-2 rounded hover:bg-gray-600 transition-colors">
-                 Book New Appointment
-            </a>
-        @endif
-    </div>
+            @endif
+        </div>
 
     <!-- Desktop Table -->
     <div class="hidden sm:block shadow-md rounded-lg overflow-hidden">

@@ -5,6 +5,25 @@
         Welcome, <span class="text-blue-700">{{ Auth::user()->name }}</span>!
     </h2>
 
+    <!-- Book New Appointment Button -->
+    <div class="flex justify-end mb-4">
+        @if($petsCount === 0)
+            <div class="text-center">
+                <a href="#" 
+                   class="px-6 bg-orange-500 text-white hover:bg-gray-600 transition-colors font-bold py-2 rounded opacity-50 cursor-not-allowed"
+                   aria-disabled="true" tabindex="-1">
+                     Book New Appointment
+                </a>
+                <p class="text-sm text-gray-400 mt-2">You need to register at least one pet to book an appointment.</p>
+            </div>
+        @else
+            <a href="{{ route('customer.appointments.create') }}" 
+               class="px-6 bg-orange-500 text-white font-bold py-2 rounded hover:bg-gray-600 transition-colors">
+                 Book New Appointment
+            </a>
+        @endif
+    </div>
+
     <!-- 🚨 Next Appointment Section -->
     <div class="bg-white p-6 rounded-lg shadow-md mb-6 ">
         <h3 class="text-xl font-bold text-gray-800 mb-4">Next Appointment</h3>
@@ -108,23 +127,5 @@
         </div>
     </div>
 
-    {{-- <!-- 🐾 Your Pets -->
-    <div class="bg-white p-6 rounded-lg shadow-md mt-6">
-        <h3 class="text-xl font-bold text-gray-800 mb-4">Your Pets</h3>
-        @forelse($pets as $pet)
-            <div class="flex items-center gap-3 py-3 border-b border-gray-200">
-                <span class="text-gray-500">🐶</span>
-                <p class="text-gray-800"><strong>{{ $pet->name }}</strong> ({{ ucfirst($pet->type) }} - {{ $pet->breed }})</p>
-            </div>
-        @empty
-            <p class="text-gray-500 py-2">No pets registered yet.</p>
-        @endforelse
-
-        <div class="mt-4">
-            <a href="{{ route('customer.pets.index') }}" 
-               class="px-6 bg-orange-500 text-white font-bold py-2 rounded hover:bg-gray-600 transition-colors">
-                View Pet Profiles
-            </a>
-        </div>
-    </div> --}}
+    
 @endsection

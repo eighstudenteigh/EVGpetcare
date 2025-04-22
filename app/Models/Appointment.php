@@ -52,8 +52,25 @@ class Appointment extends Model
     {
         return $this->belongsToMany(Service::class, 'appointment_service', 'appointment_id', 'service_id');
     }
-    public function groomingRecords()
+   
+public function servicesForPet($petId)
 {
-    return $this->hasMany(GroomingRecord::class);
+    return $this->services->filter(function($service) use ($petId) {
+        return $service->pivot->pet_id == $petId;
+    });
+}
+public function records()
+{
+    return $this->hasMany(Record::class);
+}
+
+public function petRecords(Pet $pet)
+{
+    return $this->records()->where('pet_id', $pet->id);
+}
+
+public function serviceRecords(Service $service)
+{
+    return $this->records()->where('service_id', $service->id);
 }
 }

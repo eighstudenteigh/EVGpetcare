@@ -8,96 +8,137 @@ use App\Models\Pet;
 use App\Models\GroomingRecord;
 use App\Models\MedicalRecord;
 use App\Models\BoardingRecord;
+use App\Models\Service;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class PetRecordController extends Controller
 {
-    public function show(Appointment $appointment)
+    public function show($id)
 {
-    $appointment->load(['pets', 'services', 'user']);
-    
-    return view('admin.pet-records.show', [
-        'appointment' => $appointment,
-        'pets' => $appointment->pets,
-        'services' => $appointment->services
-    ]);
+    $appointment = Appointment::with([
+        'user',
+        'pets' => function($query) use ($id) {
+            $query->with([
+                'groomingRecords' => function($q) use ($id) {
+                    $q->where('appointment_id', $id);
+                },
+                'medicalRecords' => function($q) use ($id) {
+                    $q->where('appointment_id', $id);
+                },
+                'boardingRecords' => function($q) use ($id) {
+                    $q->where('appointment_id', $id);
+                }
+            ]);
+        },
+        'services', // Ensure services are loaded
+    ])->findOrFail($id);
+
+    return view('admin.records.show', compact('appointment'));
 }
 public function createGroomingRecord(Appointment $appointment, Pet $pet)
 {
-    // Check if record already exists for edit
-    $record = GroomingRecord::where('appointment_id', $appointment->id)
-                          ->where('pet_id', $pet->id)
-                          ->first();
-
     return view('admin.forms.grooming-form', [
         'appointment' => $appointment,
         'pet' => $pet,
-        'record' => $record
+        'record' => null // Explicitly no record for create
     ]);
 }
 
-public function storeGroomingRecord(Request $request, Appointment $appointment, Pet $pet)
-{
-    $request->merge(['pet_id' => $pet->id]);
-
-    // Try to find existing grooming record
-    $record = GroomingRecord::where('appointment_id', $appointment->id)
-                             ->where('pet_id', $pet->id)
-                             ->first();
-
-    return $this->updateGroomingRecord($request, $appointment, $record); 
-}
-
-
-public function updateGroomingRecord(Request $request, Appointment $appointment, GroomingRecord $record = null)
+public function storeGrooming(Request $request, Appointment $appointment, Pet $pet)
 {
     $validated = $request->validate([
-        'notes' => 'required|string',
-        'products_used' => 'nullable|string',
-        'before_photos' => 'nullable|array|max:3',
-        'before_photos.*' => 'image|mimes:jpeg,png,jpg|max:2048',
-        'after_photos' => 'nullable|array|max:3',
-        'after_photos.*' => 'image|mimes:jpeg,png,jpg|max:2048'
+        'notes' => 'required',
+        'products_used' => 'nullable|string', // Ensure this matches your DB
+        'before_photos.*' => 'nullable|image|max:2048',
+        'after_photos.*' => 'nullable|image|max:2048'
     ]);
 
-    // Handle photos
-    $beforePhotos = $record ? json_decode($record->before_photo_path, true) ?? [] : [];
-    $afterPhotos = $record ? json_decode($record->after_photo_path, true) ?? [] : [];
+    // Convert products_used to JSON if your DB expects it
+    $productsUsed = !empty($validated['products_used']) 
+        ? json_encode(explode(',', $validated['products_used']))
+        : null;
 
+    // Handle file uploads
+    $beforePhotos = [];
     if ($request->hasFile('before_photos')) {
         foreach ($request->file('before_photos') as $photo) {
-            $path = $photo->store('grooming/before', 'public');
-            $beforePhotos[] = $path;
+            $path = $photo->store('public/grooming/before');
+            $beforePhotos[] = basename($path);
         }
     }
 
+    $afterPhotos = [];
     if ($request->hasFile('after_photos')) {
         foreach ($request->file('after_photos') as $photo) {
-            $path = $photo->store('grooming/after', 'public');
-            $afterPhotos[] = $path;
+            $path = $photo->store('public/grooming/after');
+            $afterPhotos[] = basename($path);
         }
     }
 
-    $data = [
+    $record = new GroomingRecord([
+        'pet_id' => $pet->id,
         'appointment_id' => $appointment->id,
-        'pet_id' => $request->input('pet_id'),
         'notes' => $validated['notes'],
-        'products_used' => json_encode(explode(',', $validated['products_used'])),
-        'before_photo_path' => json_encode($beforePhotos),
-        'after_photo_path' => json_encode($afterPhotos)
-    ];
+        'products_used' => $productsUsed, // Use the processed value
+        'before_photo_path' => !empty($beforePhotos) ? json_encode($beforePhotos) : null,
+        'after_photo_path' => !empty($afterPhotos) ? json_encode($afterPhotos) : null
+    ]);
 
-    if ($record) {
-        $record->update($data);
-    } else {
-        $record = GroomingRecord::create($data);
-    }
+    $record->save();
 
     return redirect()->route('admin.pet-records.show', $appointment->id)
-        ->with('success', 'Grooming record ' . ($record->wasRecentlyCreated ? 'created' : 'updated') . ' successfully');
+        ->with('success', 'Grooming record created successfully.');
 }
 
+
+    
+
+public function editGroomingRecord(Appointment $appointment, GroomingRecord $grooming_record)
+{
+    return view('admin.forms.grooming-form', [
+        'appointment' => $appointment,
+        'pet' => $grooming_record->pet,
+        'record' => $grooming_record
+    ]);
+}
+public function updateGrooming(Request $request, Appointment $appointment, GroomingRecord $grooming_record)
+{
+    $validated = $request->validate([
+        'notes' => 'required',
+        'products_used' => 'nullable|string',
+        'before_photos.*' => 'nullable|image|max:2048',
+        'after_photos.*' => 'nullable|image|max:2048'
+    ]);
+
+    // Handle file uploads - before photos
+    $currentBeforePhotos = json_decode($grooming_record->before_photo_path) ?? [];
+    if ($request->hasFile('before_photos')) {
+        foreach ($request->file('before_photos') as $photo) {
+            $path = $photo->store('public/grooming/before');
+            $currentBeforePhotos[] = basename($path);
+        }
+    }
+
+    // Handle file uploads - after photos
+    $currentAfterPhotos = json_decode($grooming_record->after_photo_path) ?? [];
+    if ($request->hasFile('after_photos')) {
+        foreach ($request->file('after_photos') as $photo) {
+            $path = $photo->store('public/grooming/after');
+            $currentAfterPhotos[] = basename($path);
+        }
+    }
+
+    $grooming_record->update([
+        'notes' => $validated['notes'],
+        'products_used' => $validated['products_used'],
+        'before_photo_path' => !empty($currentBeforePhotos) ? json_encode($currentBeforePhotos) : null,
+        'after_photo_path' => !empty($currentAfterPhotos) ? json_encode($currentAfterPhotos) : null
+    ]);
+
+    return redirect()->route('admin.pet-records.show', $appointment->id)
+        ->with('success', 'Grooming record updated successfully.');
+}
 public function deleteGroomingPhoto(Request $request, GroomingRecord $record)
 {
     $request->validate([
@@ -121,64 +162,4 @@ public function deleteGroomingPhoto(Request $request, GroomingRecord $record)
         return response()->json(['success' => false], 500);
     }
 }
-    public function storeMedicalRecord(Request $request, Appointment $appointment)
-    {
-        $validated = $request->validate([
-            'diagnosis' => 'required|string',
-            'treatment' => 'required|string',
-            'weight' => 'nullable|numeric',
-            'temperature' => 'nullable|numeric',
-            'follow_up_date' => 'nullable|date',
-            'prescriptions' => 'array',
-            'prescriptions.*.name' => 'required|string',
-            'prescriptions.*.dosage' => 'required|string',
-        ]);
-
-        $record = MedicalRecord::create([
-            'appointment_id' => $appointment->id,
-            'pet_id' => $appointment->pets->first()->id,
-            'diagnosis' => $validated['diagnosis'],
-            'treatment' => $validated['treatment'],
-            'vitals' => json_encode([
-                'weight' => $validated['weight'],
-                'temperature' => $validated['temperature']
-            ]),
-            'follow_up_date' => $validated['follow_up_date'],
-            'prescriptions' => json_encode($validated['prescriptions'])
-        ]);
-
-        return redirect()->route('admin.appointments.approved')
-            ->with('success', 'Medical record created successfully');
-    }
-    public function storeBoardingRecord(Request $request, Appointment $appointment)
-{
-    $validated = $request->validate([
-        'check_in' => 'required|date',
-        'check_out' => 'nullable|date|after_or_equal:check_in',
-        'daily_notes' => 'nullable|string'
-    ]);
-
-    BoardingRecord::create([
-        'appointment_id' => $appointment->id,
-        'pet_id' => $request->input('pet_id'),
-        'check_in' => $validated['check_in'],
-        'check_out' => $validated['check_out'],
-        'daily_notes' => $validated['daily_notes'],
-    ]);
-
-    return redirect()->route('admin.appointments.approved')
-        ->with('success', 'Boarding record created successfully');
-}
-
-
-public function createMedicalRecord(Appointment $appointment, Pet $pet)
-{
-    return view('admin.forms.medical-form', compact('appointment', 'pet'));
-}
-
-public function createBoardingRecord(Appointment $appointment, Pet $pet)
-{
-    return view('admin.forms.boarding-form', compact('appointment', 'pet'));
-}
-
 }

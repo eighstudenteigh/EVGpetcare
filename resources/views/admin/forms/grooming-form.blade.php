@@ -1,4 +1,4 @@
-{{-- resources/views/admin/forms/grooming-form.blade.php --}}
+
 @extends('layouts.admin')
 
 @section('title', 'Grooming Service Record')
@@ -7,7 +7,11 @@
 <div class="container mx-auto px-4 py-6">
     <h2 class="text-3xl font-bold text-gray-800 mb-6">Grooming Record</h2>
     
-    <form action="{{ isset($record) ? route('admin.pet-records.update-grooming', ['appointment' => $appointment->id, 'grooming_record' => $record->id]) : route('admin.pet-records.store-grooming', ['appointment' => $appointment->id, 'pet' => $pet->id]) }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ isset($record) 
+    ? route('admin.pet-records.update-grooming', ['appointment' => $appointment->id, 'grooming_record' => $record->id]) 
+    : route('admin.pet-records.store-grooming', ['appointment' => $appointment->id, 'pet' => $pet->id]) }}" 
+    method="POST"
+    enctype="multipart/form-data">
         @csrf
         @isset($record) @method('PUT') @endisset
         <input type="hidden" name="pet_id" value="{{ $pet->id }}">
@@ -38,32 +42,76 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <!-- Before Photos -->
                 <div>
                     <label class="block mb-2 text-gray-700 font-medium">Before Photos (Max 3)</label>
-                    <input type="file" name="before_photos[]" multiple accept="image/*" class="w-full">
+                    <input type="file" name="before_photos[]" multiple accept="image/*" class="w-full file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
+                    
                     @if(isset($record) && $record->before_photo_path)
-                        <div class="mt-4 grid grid-cols-3 gap-2">
-                            @foreach(json_decode($record->before_photo_path) as $photo)
-                                <div class="relative">
-                                    <img src="{{ asset('storage/' . $photo) }}" class="h-24 w-full object-cover rounded">
-                                    <a href="#" class="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 text-xs delete-photo" data-url="{{ $photo }}">×</a>
-                                </div>
-                            @endforeach
+                        <div class="mt-4">
+                            <p class="text-sm text-gray-500 mb-2">Current Before Photos:</p>
+                            <div class="grid grid-cols-3 gap-2">
+                                @foreach(json_decode($record->before_photo_path) as $photo)
+                                    <div class="relative group">
+                                        <img src="{{ Storage::url('grooming/before/'.$photo) }}" 
+                                             class="h-24 w-full object-cover rounded border">
+                                        <div class="absolute inset-0 flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 bg-black bg-opacity-50 transition-opacity">
+                                            <a href="{{ Storage::url('grooming/before/'.$photo) }}" 
+                                               target="_blank" 
+                                               class="p-1 text-white hover:text-orange-300">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                                </svg>
+                                            </a>
+                                            <button type="button" 
+                                                    class="p-1 text-white hover:text-red-300 delete-photo" 
+                                                    data-url="{{ $photo }}" 
+                                                    data-type="before">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
                         </div>
                     @endif
                 </div>
                 
+                <!-- After Photos -->
                 <div>
                     <label class="block mb-2 text-gray-700 font-medium">After Photos (Max 3)</label>
-                    <input type="file" name="after_photos[]" multiple accept="image/*" class="w-full">
+                    <input type="file" name="after_photos[]" multiple accept="image/*" class="w-full file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
+                    
                     @if(isset($record) && $record->after_photo_path)
-                        <div class="mt-4 grid grid-cols-3 gap-2">
-                            @foreach(json_decode($record->after_photo_path) as $photo)
-                                <div class="relative">
-                                    <img src="{{ asset('storage/' . $photo) }}" class="h-24 w-full object-cover rounded">
-                                    <a href="#" class="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 text-xs delete-photo" data-url="{{ $photo }}">×</a>
-                                </div>
-                            @endforeach
+                        <div class="mt-4">
+                            <p class="text-sm text-gray-500 mb-2">Current After Photos:</p>
+                            <div class="grid grid-cols-3 gap-2">
+                                @foreach(json_decode($record->after_photo_path) as $photo)
+                                    <div class="relative group">
+                                        <img src="{{ Storage::url('grooming/after/'.$photo) }}" 
+                                             class="h-24 w-full object-cover rounded border">
+                                        <div class="absolute inset-0 flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 bg-black bg-opacity-50 transition-opacity">
+                                            <a href="{{ Storage::url('grooming/after/'.$photo) }}" 
+                                               target="_blank" 
+                                               class="p-1 text-white hover:text-orange-300">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                                </svg>
+                                            </a>
+                                            <button type="button" 
+                                                    class="p-1 text-white hover:text-red-300 delete-photo" 
+                                                    data-url="{{ $photo }}" 
+                                                    data-type="after">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
                         </div>
                     @endif
                 </div>
