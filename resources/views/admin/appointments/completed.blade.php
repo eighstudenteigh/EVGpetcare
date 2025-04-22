@@ -37,25 +37,30 @@
                 </div>
 
                 <!-- ✅ Pets & Services -->
-                <div class="space-y-3">
-                    @foreach ($appointment->pets as $pet)
-                        <div class="flex justify-between items-center p-3 bg-gray-100 rounded mb-2">
-                            <p class="font-semibold text-gray-800">
-                                {{ $pet->name }} ({{ ucfirst($pet->type) }})
-                            </p>
-                            <p class="text-gray-600">
-                                <span class="font-medium text-gray-700">Services:</span>
-                                @php
-                                    // Get services for this pet in this specific appointment
-                                    $appointmentServices = $appointment->services->filter(function($service) use ($pet) {
-                                        return $service->pivot->pet_id == $pet->id;
-                                    });
-                                @endphp
-                                {{ $appointmentServices->pluck('name')->join(', ') ?: 'None' }}
-                            </p>
-                        </div>
-                    @endforeach
-                </div>
+<div class="space-y-3">
+    @foreach ($appointment->pets as $pet)
+        <div class="flex justify-between items-center p-3 bg-gray-100 rounded mb-2">
+            <p class="font-semibold text-gray-800">
+                {{ $pet->name }} ({{ ucfirst($pet->type) }})
+            </p>
+            <p class="text-gray-600">
+                <span class="font-medium text-gray-700">Services:</span>
+                @php
+                    // Method 1: Using appointmentServices relationship
+                    $services = $appointment->appointmentServices
+                        ->where('pet_id', $pet->id)
+                        ->pluck('service.name');
+                    
+                    // OR Method 2: Using services relationship with pivot
+                    // $services = $appointment->services
+                    //     ->where('pivot.pet_id', $pet->id)
+                    //     ->pluck('name');
+                @endphp
+                {{ $services->join(', ') ?: 'None' }}
+            </p>
+        </div>
+    @endforeach
+</div>
 
                 <!-- ✅ Status & Finalization Button -->
                 <div class="flex justify-between items-center mt-4">

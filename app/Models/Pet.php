@@ -38,67 +38,14 @@ class Pet extends Model
     {
         return $this->photo_path ? asset('storage/' . $this->photo_path) : null;
     }
-
-    /**
-     * Check if a pet has a grooming record for a specific appointment
-     */
-    public function hasGroomingRecord($appointment_id)
-    {
-        return GroomingRecord::where('appointment_id', $appointment_id)
-            ->whereHas('appointment', function($query) {
-                $query->whereHas('pets', function($q) {
-                    $q->where('pets.id', $this->id);
-                });
-            })->exists();
-    }
-
-    /**
-     * Check if a pet has a medical record for a specific appointment
-     */
-    public function hasMedicalRecord($appointment_id)
-    {
-        return MedicalRecord::where('appointment_id', $appointment_id)
-            ->whereHas('appointment', function($query) {
-                $query->whereHas('pets', function($q) {
-                    $q->where('pets.id', $this->id);
-                });
-            })->exists();
-    }
-
-    /**
-     * Check if a pet has a boarding record for a specific appointment
-     */
-    public function hasBoardingRecord($appointment_id)
-    {
-        return BoardingRecord::where('appointment_id', $appointment_id)
-            ->whereHas('appointment', function($query) {
-                $query->whereHas('pets', function($q) {
-                    $q->where('pets.id', $this->id);
-                });
-            })->exists();
-    }
-
-    /**
-     * Get grooming records for this pet
-     */
-    public function groomingRecords()
+    public function appointmentServices()
 {
-    return $this->hasMany(GroomingRecord::class);
+    return $this->hasMany(AppointmentService::class);
 }
+   
 
-    /**
-     * Get medical records for this pet
-     */
-    public function medicalRecords()
-{
-    return $this->hasMany(MedicalRecord::class);
-}
+    
 
-    /**
-     * Get boarding records for this pet
-     */
-    public function boardingRecords()
-{
-    return $this->hasMany(BoardingRecord::class);
-}
+   
+
 }

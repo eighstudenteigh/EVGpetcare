@@ -87,71 +87,66 @@
                                     </a>
                                 @else
                                     <!-- Dynamic Add Record link based on service type -->
-                                    @switch($service->service_type)
-                                        @case('vaccination')
+                                    @switch($service->name)
+                                        @case('Vaccination')
                                             <a href="{{ route('admin.records.create.vaccination', [
                                                 'appointment' => $appointment->id,
                                                 'pet' => $pet->id,
                                                 'service' => $service->id
                                             ]) }}" 
-                                               class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm">
+                                            class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm">
                                                 Add Vaccination Records
                                             </a>
                                             @break
                                         
-                                        @case('checkup')
+                                        @case('Check-Up / Wellness Exams') 
                                             <a href="{{ route('admin.records.create.checkup', [
                                                 'appointment' => $appointment->id,
                                                 'pet' => $pet->id,
                                                 'service' => $service->id
                                             ]) }}" 
-                                               class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm">
+                                            class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm">
                                                 Add Checkup Records
                                             </a>
                                             @break
                                         
-                                        @case('surgery')
+                                        @case('Surgery')
                                             <a href="{{ route('admin.records.create.surgery', [
                                                 'appointment' => $appointment->id,
                                                 'pet' => $pet->id,
                                                 'service' => $service->id
                                             ]) }}" 
-                                               class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm">
+                                            class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm">
                                                 Add Surgery Records
                                             </a>
                                             @break
                                         
-                                        @case('grooming')
+                                        @case('Grooming')
                                             <a href="{{ route('admin.records.create.grooming', [
                                                 'appointment' => $appointment->id,
                                                 'pet' => $pet->id,
                                                 'service' => $service->id
                                             ]) }}" 
-                                               class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm">
+                                            class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm">
                                                 Add Grooming Records
                                             </a>
                                             @break
                                         
-                                        @case('boarding')
+                                        @case('Boarding')
                                             <a href="{{ route('admin.records.create.boarding', [
                                                 'appointment' => $appointment->id,
                                                 'pet' => $pet->id,
                                                 'service' => $service->id
                                             ]) }}" 
-                                               class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm">
+                                            class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm">
                                                 Add Boarding Records
                                             </a>
                                             @break
                                         
-                                        {{-- @default
-                                            <a href="{{ route('admin.records.create', [
-                                                'appointment' => $appointment->id,
-                                                'pet' => $pet->id,
-                                                'service' => $service->id
-                                            ]) }}" 
-                                               class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm">
-                                                Add Record
-                                            </a> --}}
+                                        @default
+                                            <a href="#" class="px-3 py-1 bg-gray-500 text-white rounded text-sm">
+                                                Unknown Service Type
+                                            </a>
                                     @endswitch
                                 @endif
                             </div>
@@ -160,15 +155,15 @@
                                 <div class="mt-3 pl-3 border-l-2 border-gray-200 space-y-2">
                                     <p><span class="font-medium">Notes:</span> {{ $record->notes ?? 'N/A' }}</p>
                                     
-                                    @if($service->service_type === 'grooming' && $record->products_used)
+                                    @if($service->name === 'Grooming' && $record->products_used)
                                         <p><span class="font-medium">Products Used:</span> {{ $record->products_used }}</p>
                                     @endif
                                     
-                                    @if($service->service_type === 'medical' && $record->diagnosis)
+                                    @if($service->name === 'Check-Up' && $record->diagnosis)
                                         <p><span class="font-medium">Diagnosis:</span> {{ $record->diagnosis }}</p>
                                     @endif
                                     
-                                    @if($service->service_type === 'vaccination' && $record->vaccine_type)
+                                    @if($service->name === 'Vaccination' && $record->vaccine_type)
                                         <p><span class="font-medium">Vaccine:</span> {{ $record->vaccine_type }}</p>
                                         <p><span class="font-medium">Batch #:</span> {{ $record->batch_number }}</p>
                                     @endif

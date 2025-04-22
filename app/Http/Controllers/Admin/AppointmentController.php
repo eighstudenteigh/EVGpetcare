@@ -77,35 +77,19 @@ class AppointmentController extends Controller
 
     return view('admin.appointments.approved', compact('appointments', 'acceptedAppointmentsToday', 'maxAppointments'));
 }
-    public function completed()
+public function completed()
 {
-   // Fetch approved appointments with necessary relationships
-   $appointments = Appointment::with([
-    'user',
-    'pets',
-    'services'
-])
-->where('status', 'completed')
-->orderBy('appointment_date', 'asc')
-->get();
-
-// For each appointment, attach the specific services to each pet
-$appointments->each(function ($appointment) {
-    $appointment->pets->each(function ($pet) use ($appointment) {
-        // Get service IDs for this appointment
-        $serviceIds = $appointment->services->pluck('id')->toArray();
-        
-        // Load only services that belong to both the pet AND this appointment
-        $pet->load(['services' => function($query) use ($serviceIds) {
-            $query->whereIn('services.id', $serviceIds);
-        }]);
-    });
-});
-
-$maxAppointments = Setting::first()->max_appointments_per_day ?? 10;
-    $acceptedAppointmentsToday = Appointment::whereDate('appointment_date', now())
-        ->where('status', 'approved')
-        ->count();
+    $appointments = Appointment::with([
+        'user',
+        'pets',
+        'services' => function($query) {
+            $query->withPivot('pet_id');
+        },
+        'appointmentServices.service'
+    ])
+    ->where('status', 'completed')
+    ->orderBy('appointment_date', 'asc')
+    ->get();
 
     return view('admin.appointments.completed', compact('appointments'));
 }

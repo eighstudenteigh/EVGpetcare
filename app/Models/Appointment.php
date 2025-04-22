@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
+
 class Appointment extends Model
 {
     use HasFactory;
@@ -32,7 +33,7 @@ class Appointment extends Model
     /**
      * An appointment belongs to a user (customer).
      */
-    public function user(): BelongsTo
+    public function user()
     {
         return $this->belongsTo(User::class);
     }
@@ -40,18 +41,7 @@ class Appointment extends Model
     /**
      * An appointment can have multiple pets.
      */
-    public function pets(): BelongsToMany
-    {
-        return $this->belongsToMany(Pet::class, 'appointment_pet', 'appointment_id', 'pet_id');
-    }
-
-    /**
-     * An appointment can have multiple services (usually linked through pets).
-     */
-    public function services(): BelongsToMany
-    {
-        return $this->belongsToMany(Service::class, 'appointment_service', 'appointment_id', 'service_id');
-    }
+    
    
 public function servicesForPet($petId)
 {
@@ -72,5 +62,20 @@ public function petRecords(Pet $pet)
 public function serviceRecords(Service $service)
 {
     return $this->records()->where('service_id', $service->id);
+}
+public function pets(): BelongsToMany
+{
+    return $this->belongsToMany(Pet::class, 'appointment_pet', 'appointment_id', 'pet_id');
+}
+
+public function services()
+{
+    return $this->belongsToMany(Service::class, 'appointment_service');
+}
+
+
+public function appointmentServices()
+{
+    return $this->hasMany(AppointmentService::class);
 }
 }
