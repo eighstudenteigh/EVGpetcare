@@ -70,19 +70,14 @@
                                     </td>
 
                                     <td class="px-4 py-3" rowspan="{{ count($appointment->pets) }}">
-                                        @if ($appointment->status == 'pending')
-                                            <span class="px-2 py-1 text-sm font-bold rounded text-yellow-800 bg-yellow-300 ">
-                                                Pending
-                                            </span>
-                                        @elseif ($appointment->status == 'approved')
-                                            <span class="px-2 py-1 text-sm font-bold rounded text-green-800 bg-green-300">
-                                                Approved
-                                            </span>
-                                        @elseif ($appointment->status == 'rejected')
-                                            <span class="px-2 py-1 text-sm font-bold rounded text-red-800 bg-red-300">
-                                                Rejected
-                                            </span>
-                                        @endif
+                                        <span class="px-2 py-1 text-sm font-bold rounded 
+                                            {{ $appointment->status === 'approved' ? 'bg-green-300 text-green-800' : '' }}
+                                            {{ $appointment->status === 'pending' ? 'bg-yellow-300 text-yellow-800' : '' }}
+                                            {{ $appointment->status === 'rejected' ? 'bg-red-300 text-red-800' : '' }}
+                                            {{ $appointment->status === 'completed' ? 'bg-blue-300 text-blue-800' : '' }}
+                                            {{ $appointment->status === 'finalized' ? 'bg-blue-700 text-white'  : '' }}"> 
+                                            {{ ucfirst($appointment->status) }}
+                                        </span>
                                     </td>
 
                                     <td class="px-4 py-3" rowspan="{{ count($appointment->pets) }}">

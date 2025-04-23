@@ -66,14 +66,28 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Customer Routes
     Route::middleware(['role:customer'])->group(function () {
         Route::get('/customer/dashboard', [CustomerDashboardController::class, 'index'])->name('customer.dashboard');
-    //pets    
+   
+        /*  //pets    
         Route::get('/pets', [PetController::class, 'index'])->name('customer.pets.index');
         Route::get('/pets/create', [PetController::class, 'create'])->name('customer.pets.create');
         Route::post('/pets/store', [PetController::class, 'store'])->name('customer.pets.store');
         Route::get('/pets/{pet}/edit', [PetController::class, 'edit'])->name('customer.pets.edit');
         Route::put('/pets/{pet}/update', [PetController::class, 'update'])->name('customer.pets.update');
         Route::delete('/pets/{pet}/delete', [PetController::class, 'destroy'])->name('customer.pets.destroy');
-    
+        Route::get('/customer/pets/{pet}', [PetController::class, 'show'])->name('customer.pets.show'); */
+
+    // Pet routes
+        Route::get('/customer/pets', [PetController::class, 'index'])->name('customer.pets.index');
+        Route::get('/customer/pets/create', [PetController::class, 'create'])->name('customer.pets.create');
+        Route::post('/customer/pets', [PetController::class, 'store'])->name('customer.pets.store');
+        Route::get('/customer/pets/{pet}', [PetController::class, 'show'])->name('customer.pets.show');
+        Route::get('/customer/pets/{pet}/edit', [PetController::class, 'edit'])->name('customer.pets.edit');
+        Route::put('/customer/pets/{pet}', [PetController::class, 'update'])->name('customer.pets.update');
+        Route::delete('/customer/pets/{pet}', [PetController::class, 'destroy'])->name('customer.pets.destroy');
+
+        Route::get('/customer/pets/appointments/{appointment}', [AppointmentController::class, 'show'])
+        ->name('customer.appointments.show');
+  
     //appointments
         Route::get('/appointments', [AppointmentController::class, 'index'])->name('customer.appointments.index');
         Route::get('/appointments/create', [AppointmentController::class, 'create'])->name('customer.appointments.create');
@@ -159,10 +173,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('admin.records.index');
         Route::get('/admin/records/{appointment}', [RecordsController::class, 'show'])
         ->name('admin.records.show');
-
-        
-        
-         
 
         //customers
         Route::get('/admin/customers', [CustomerController::class, 'index'])->name('admin.customers.index');

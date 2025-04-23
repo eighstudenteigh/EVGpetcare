@@ -18,12 +18,7 @@
             </div>
         </div>
         
-        <select id="serviceTypeFilter" class="p-2 border rounded focus:border-orange-500 focus:outline-none">
-            <option value="">All Service Types</option>
-            <option value="grooming">Grooming</option>
-            <option value="medical">Medical</option>
-            <option value="boarding">Boarding</option>
-        </select>
+        
     </div>
     
     <a href="{{ route('admin.services.create') }}" class="bg-orange-500 hover:bg-gray-700 text-white px-4 py-2 rounded mb-4 inline-block">
@@ -58,9 +53,9 @@
                                     <!-- Service Type (Only on the first row per service) -->
                                     <td class="p-3 align-top" rowspan="{{ $service->animalTypes->count() }}">
                                         <span class="px-2 py-1 rounded-full text-xs 
-                                            @if($service->service_type === 'grooming') bg-blue-100 text-blue-800
-                                            @elseif($service->service_type === 'medical') bg-red-100 text-red-800
-                                            @else bg-green-100 text-green-800 @endif">
+                                            @if($service->service_type === 'grooming') 
+                                            @elseif($service->service_type === 'medical')
+                                             @endif">
                                             {{ ucfirst($service->service_type) }}
                                         </span>
                                     </td>
@@ -92,9 +87,9 @@
                             <td class="p-3 font-semibold">{{ $service->name }}</td>
                             <td class="p-3">
                                 <span class="px-2 py-1 rounded-full text-xs 
-                                    @if($service->service_type === 'grooming') bg-blue-100 text-blue-800
-                                    @elseif($service->service_type === 'medical') bg-red-100 text-red-800
-                                    @else bg-green-100 text-green-800 @endif">
+                                    @if($service->service_type === 'grooming')
+                                    @elseif($service->service_type === 'medical') 
+                                     @endif">
                                     {{ ucfirst($service->service_type) }}
                                 </span>
                             </td>

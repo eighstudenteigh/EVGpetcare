@@ -1,7 +1,7 @@
 @extends('layouts.customer')
 
 @section('content')
-    <h2 class="text-2xl sm:text-3xl font-bold mb-6 text-gray-800">
+    <h2 class="text-2xl sm:text-3xl font-bold mb-6 text-gray-800 py-8">
         Welcome, <span class="text-blue-700">{{ Auth::user()->name }}</span>!
     </h2>
 
@@ -10,7 +10,7 @@
         @if($petsCount === 0)
             <div class="text-center">
                 <a href="#" 
-                   class="px-6 bg-orange-500 text-white hover:bg-gray-600 transition-colors font-bold py-2 rounded opacity-50 cursor-not-allowed"
+                   class="px-6 bg-orange-400 text-white hover:bg-gray-500 transition-colors font-bold py-2 rounded opacity-50 cursor-not-allowed"
                    aria-disabled="true" tabindex="-1">
                      Book New Appointment
                 </a>
@@ -18,7 +18,7 @@
             </div>
         @else
             <a href="{{ route('customer.appointments.create') }}" 
-               class="px-6 bg-orange-500 text-white font-bold py-2 rounded hover:bg-gray-600 transition-colors">
+               class="px-6 bg-orange-400 text-white font-bold py-2 rounded hover:bg-gray-500 transition-colors">
                  Book New Appointment
             </a>
         @endif
@@ -50,10 +50,10 @@
                 @endif
             </div>
         @else
-            <div class="text-center py-4">
+            <div class="text-center ">
                 <p class="text-gray-600 mb-4">You don't have any upcoming appointments.</p>
                 <a href="{{ route('customer.appointments.create') }}" 
-                   class="px-6 bg-orange-500 text-white font-bold py-2 rounded hover:bg-gray-600 transition-colors">
+                   class="px-6 bg-orange-400 text-white font-bold py-2 rounded hover:bg-gray-500 transition-colors">
                     Book New Appointment
                 </a>
             </div>
@@ -108,7 +108,9 @@
                 <span class="px-2 py-1 text-sm font-bold rounded 
                     {{ $appointment->status === 'approved' ? 'bg-green-300 text-green-800' : '' }}
                     {{ $appointment->status === 'pending' ? 'bg-yellow-300 text-yellow-800' : '' }}
-                    {{ $appointment->status === 'rejected' ? 'bg-red-300 text-red-800' : '' }}">
+                    {{ $appointment->status === 'rejected' ? 'bg-red-300 text-red-800' : '' }}
+                    {{ $appointment->status === 'completed' ? 'bg-blue-300 text-blue-800' : '' }}
+                     {{ $appointment->status === 'finalized' ? 'bg-blue-700 text-white'  : '' }}"> 
                     {{ ucfirst($appointment->status) }}
                 </span>
             </div>
@@ -121,7 +123,7 @@
 
         <div class="mt-4">
             <a href="{{ route('customer.appointments.index') }}" 
-               class="px-6 bg-orange-500 text-white font-bold py-2 rounded hover:bg-gray-600 transition-colors">
+               class="px-6 bg-orange-400 text-white font-bold py-2 rounded hover:bg-gray-500 transition-colors">
                 View Full History
             </a>
         </div>

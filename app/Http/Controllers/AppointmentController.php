@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
+
 class AppointmentController extends Controller
 {
     // Show user's appointments
@@ -177,5 +178,23 @@ class AppointmentController extends Controller
 
         $appointment->delete();
         return redirect()->route('customer.appointments.index')->with('success', 'Appointment canceled.');
+    }
+    public function show(Appointment $appointment)
+    {
+        // Verify the appointment belongs to the authenticated user
+        if ($appointment->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        // Load the appointment with all necessary relationships
+        $appointment->load([
+            'pets',
+            'services',
+            'records' => function($query) {
+                $query->with(['pet', 'service']);
+            }
+        ]);
+
+        return view('customer.appointments.show', compact('appointment'));
     }
 }

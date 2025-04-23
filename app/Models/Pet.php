@@ -11,7 +11,9 @@ class Pet extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['customer_id', 'name', 'type', 'breed', 'gender', 'age', 'photo_path'];
+    protected $fillable = ['customer_id', 'name', 'type', 'breed', 'gender', 'age',  'image',
+    'weight',
+    'notes'];
 
     public function customer()
     {
@@ -34,10 +36,7 @@ class Pet extends Model
         return $this->belongsTo(PetType::class, 'type', 'name'); 
     }
     
-    public function getPhotoUrlAttribute()
-    {
-        return $this->photo_path ? asset('storage/' . $this->photo_path) : null;
-    }
+    
     public function appointmentServices()
 {
     return $this->hasMany(AppointmentService::class);
