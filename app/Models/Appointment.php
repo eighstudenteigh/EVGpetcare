@@ -78,4 +78,8 @@ public function appointmentServices()
 {
     return $this->hasMany(AppointmentService::class);
 }
+public function grooming()
+{
+    return $this->hasOne(\App\Models\GroomingRecord::class, 'record_id');
+}
 }

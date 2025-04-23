@@ -58,7 +58,7 @@
     <div id="sidebarOverlay" class="md:hidden fixed inset-0 z-30 bg-black bg-opacity-50 hidden"></div>
 
     <!-- Admin Header -->
-    <header class=" text-blue-900 py-4 shadow-md pl-4 md:pl-64 sticky top-0 z-20 transition-all duration-300">
+    <header class="text-blue-900 py-4 shadow-md pl-4 md:pl-64">
         <div class="flex items-center justify-end px-6 gap-4">
             <!-- Admin Profile & Logout -->
             <div class="relative">

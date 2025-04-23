@@ -4,10 +4,16 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Record; // Add this import
-use App\Models\Appointment; // Add these other required models
+use App\Models\Record;
+use App\Models\GroomingRecord;
+use App\Models\VaccinationRecord;
+use App\Models\CheckupRecord;
+use App\Models\SurgeryRecord;
+use App\Models\BoardingRecord;
+use App\Models\Appointment;
 use App\Models\Pet;
 use App\Models\Service;
+use Illuminate\Support\Facades\DB;
 
 class RecordController extends Controller
 {
@@ -30,22 +36,28 @@ class RecordController extends Controller
 
     public function storeVaccination(Request $request, Appointment $appointment, Pet $pet, Service $service)
     {
-        $validated = $request->validate([
-            'vaccine_type' => 'required|string|max:255',
-            'batch_number' => 'required|string|max:255',
-            'administered_by' => 'required|string|max:255',
-            'next_due_date' => 'required|date',
-            'notes' => 'nullable|string',
-        ]);
+        return DB::transaction(function () use ($request, $appointment, $pet, $service) {
+            // Create base record
+            $record = Record::create([
+                'appointment_id' => $appointment->id,
+                'pet_id' => $pet->id,
+                'service_id' => $service->id,
+                'type' => 'vaccination',
+                'notes' => $request->notes
+            ]);
 
-        $record = new Record($validated);
-        $record->appointment()->associate($appointment);
-        $record->pet()->associate($pet);
-        $record->service()->associate($service);
-        $record->save();
+            // Create vaccination-specific record
+            VaccinationRecord::create([
+                'record_id' => $record->id,
+                'vaccine_type' => $request->vaccine_type,
+                'batch_number' => $request->batch_number,
+                'administered_by' => $request->administered_by,
+                'next_due_date' => $request->next_due_date
+            ]);
 
-        return redirect()->route('admin.appointments.show-completed', $appointment)
-            ->with('success', 'Vaccination record created successfully');
+            return redirect()->route('admin.appointments.show-completed', $appointment)
+                ->with('success', 'Vaccination record created successfully');
+        });
     }
 
     // Check-Up
@@ -56,24 +68,28 @@ class RecordController extends Controller
 
     public function storeCheckup(Request $request, Appointment $appointment, Pet $pet, Service $service)
     {
-        $validated = $request->validate([
-            'weight' => 'required|numeric',
-            'temperature' => 'required|numeric',
-            'heart_rate' => 'required|numeric',
-            'respiratory_rate' => 'required|numeric',
-            'diagnosis' => 'nullable|string',
-            'treatment_plan' => 'nullable|string',
-            'notes' => 'nullable|string',
-        ]);
+        return DB::transaction(function () use ($request, $appointment, $pet, $service) {
+            $record = Record::create([
+                'appointment_id' => $appointment->id,
+                'pet_id' => $pet->id,
+                'service_id' => $service->id,
+                'type' => 'checkup',
+                'notes' => $request->notes
+            ]);
 
-        $record = new Record($validated);
-        $record->appointment()->associate($appointment);
-        $record->pet()->associate($pet);
-        $record->service()->associate($service);
-        $record->save();
+            CheckupRecord::create([
+                'record_id' => $record->id,
+                'weight' => $request->weight,
+                'temperature' => $request->temperature,
+                'heart_rate' => $request->heart_rate,
+                'respiratory_rate' => $request->respiratory_rate,
+                'diagnosis' => $request->diagnosis,
+                'treatment_plan' => $request->treatment_plan
+            ]);
 
-        return redirect()->route('admin.appointments.show-completed', $appointment)
-            ->with('success', 'Check-up record created successfully');
+            return redirect()->route('admin.appointments.show-completed', $appointment)
+                ->with('success', 'Check-up record created successfully');
+        });
     }
 
     // Surgery
@@ -84,26 +100,30 @@ class RecordController extends Controller
 
     public function storeSurgery(Request $request, Appointment $appointment, Pet $pet, Service $service)
     {
-        $validated = $request->validate([
-            'procedure_name' => 'required|string|max:255',
-            'anesthesia_type' => 'required|string|max:255',
-            'surgeon_name' => 'required|string|max:255',
-            'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time',
-            'complications' => 'nullable|string',
-            'post_op_instructions' => 'required|string',
-            'medications' => 'nullable|string',
-            'notes' => 'nullable|string',
-        ]);
+        return DB::transaction(function () use ($request, $appointment, $pet, $service) {
+            $record = Record::create([
+                'appointment_id' => $appointment->id,
+                'pet_id' => $pet->id,
+                'service_id' => $service->id,
+                'type' => 'surgery',
+                'notes' => $request->notes
+            ]);
 
-        $record = new Record($validated);
-        $record->appointment()->associate($appointment);
-        $record->pet()->associate($pet);
-        $record->service()->associate($service);
-        $record->save();
+            SurgeryRecord::create([
+                'record_id' => $record->id,
+                'procedure_name' => $request->procedure_name,
+                'anesthesia_type' => $request->anesthesia_type,
+                'surgeon_name' => $request->surgeon_name,
+                'start_time' => $request->start_time,
+                'end_time' => $request->end_time,
+                'complications' => $request->complications,
+                'post_op_instructions' => $request->post_op_instructions,
+                'medications' => $request->medications
+            ]);
 
-        return redirect()->route('admin.appointments.show-completed', $appointment)
-            ->with('success', 'Surgery record created successfully');
+            return redirect()->route('admin.appointments.show-completed', $appointment)
+                ->with('success', 'Surgery record created successfully');
+        });
     }
 
     // Grooming
@@ -114,25 +134,29 @@ class RecordController extends Controller
 
     public function storeGrooming(Request $request, Appointment $appointment, Pet $pet, Service $service)
     {
-        $validated = $request->validate([
-            'groomer_name' => 'required|string|max:255',
-            'grooming_type' => 'required|string|max:255',
-            'products_used' => 'required|string',
-            'coat_condition' => 'required|string|max:255',
-            'skin_condition' => 'required|string|max:255',
-            'behavior_notes' => 'nullable|string',
-            'special_instructions' => 'nullable|string',
-            'notes' => 'nullable|string',
-        ]);
+        return DB::transaction(function () use ($request, $appointment, $pet, $service) {
+            $record = Record::create([
+                'appointment_id' => $appointment->id,
+                'pet_id' => $pet->id,
+                'service_id' => $service->id,
+                'type' => 'grooming',
+                'notes' => $request->notes
+            ]);
 
-        $record = new Record($validated);
-        $record->appointment()->associate($appointment);
-        $record->pet()->associate($pet);
-        $record->service()->associate($service);
-        $record->save();
+            GroomingRecord::create([
+                'record_id' => $record->id,
+                'groomer_name' => $request->groomer_name,
+                'grooming_type' => $request->grooming_type,
+                'products_used' => $request->products_used,
+                'coat_condition' => $request->coat_condition,
+                'skin_condition' => $request->skin_condition,
+                'behavior_notes' => $request->behavior_notes,
+                'special_instructions' => $request->special_instructions
+            ]);
 
-        return redirect()->route('admin.appointments.show-completed', $appointment)
-            ->with('success', 'Grooming record created successfully');
+            return redirect()->route('admin.appointments.show-completed', $appointment)
+                ->with('success', 'Grooming record created successfully');
+        });
     }
 
     // Boarding
@@ -143,25 +167,29 @@ class RecordController extends Controller
 
     public function storeBoarding(Request $request, Appointment $appointment, Pet $pet, Service $service)
     {
-        $validated = $request->validate([
-            'kennel_number' => 'required|string|max:255',
-            'check_in_time' => 'required|date_format:H:i',
-            'check_out_time' => 'required|date_format:H:i|after:check_in_time',
-            'feeding_schedule' => 'required|string',
-            'medications_administered' => 'nullable|string',
-            'activity_notes' => 'nullable|string',
-            'behavior_notes' => 'nullable|string',
-            'special_instructions' => 'nullable|string',
-            'notes' => 'nullable|string',
-        ]);
+        return DB::transaction(function () use ($request, $appointment, $pet, $service) {
+            $record = Record::create([
+                'appointment_id' => $appointment->id,
+                'pet_id' => $pet->id,
+                'service_id' => $service->id,
+                'type' => 'boarding',
+                'notes' => $request->notes
+            ]);
 
-        $record = new Record($validated);
-        $record->appointment()->associate($appointment);
-        $record->pet()->associate($pet);
-        $record->service()->associate($service);
-        $record->save();
+            BoardingRecord::create([
+                'record_id' => $record->id,
+                'kennel_number' => $request->kennel_number,
+                'check_in_time' => $request->check_in_time,
+                'check_out_time' => $request->check_out_time,
+                'feeding_schedule' => $request->feeding_schedule,
+                'medications_administered' => $request->medications_administered,
+                'activity_notes' => $request->activity_notes,
+                'behavior_notes' => $request->behavior_notes,
+                'special_instructions' => $request->special_instructions
+            ]);
 
-        return redirect()->route('admin.appointments.show-completed', $appointment)
-            ->with('success', 'Boarding record created successfully');
+            return redirect()->route('admin.appointments.show-completed', $appointment)
+                ->with('success', 'Boarding record created successfully');
+        });
     }
 }

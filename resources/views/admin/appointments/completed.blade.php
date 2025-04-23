@@ -5,7 +5,7 @@
 
 @section('content')
 <div class="container mx-auto px-4 py-6">
-    <h2 class="text-3xl font-bold mb-6 text-gray-800">Completed Appointments</h2>
+    <h2 class="text-3xl font-bold mb-6 text-gray-800">Need to Update Records</h2>
 
     
 
@@ -15,9 +15,9 @@
     <div class="flex gap-2 mb-6">
         <a href="{{ route('admin.appointments') }}" class="bg-orange-400 text-white px-4 py-2 rounded">Pending</a>
         <a href="{{ route('admin.appointments.approved') }}" class="bg-blue-600 text-white px-4 py-2 rounded">Approved</a>
-        <a href="{{ route('admin.appointments.completed') }}" class="bg-blue-800 text-white px-4 py-2 rounded">Completed</a>
+        <a href="{{ route('admin.appointments.completed') }}" class="bg-blue-800 text-white px-4 py-2 rounded">Needs Records</a>
         <a href="{{ route('admin.appointments.rejected') }}" class="bg-gray-700 text-white px-4 py-2 rounded">Rejected</a>
-        <a href="{{ route('admin.appointments.all') }}" class="bg-gray-500 text-white px-4 py-2 rounded">All</a>
+        {{-- <a href="{{ route('admin.appointments.all') }}" class="bg-gray-500 text-white px-4 py-2 rounded">All</a> --}}
     </div>
 
     <!-- ✅ Completed Appointments List -->
@@ -83,17 +83,7 @@
                                 </svg>
                                 View Records
                             </a>
-                            <form action="{{ route('admin.appointments.finalize', $appointment->id) }}" method="POST">
-                                @csrf
-                                <button type="submit" 
-                                        class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition flex items-center gap-2"
-                                        onclick="return confirm('Finalize this appointment? This will mark all services as completed and cannot be undone.')">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                                    </svg>
-                                    Finalize
-                                </button>
-                            </form>
+                           
                         </div>
                     @endif
                 </div>

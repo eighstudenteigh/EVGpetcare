@@ -15,11 +15,9 @@ use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\AdminServiceController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\ClosedDaysController;
-use App\Http\Controllers\Admin\CRUDServiceController;
 use App\Http\Controllers\Admin\AdminPetController;
 use App\Http\Controllers\Admin\AdminPetTypeController;
 use App\Http\Controllers\Auth\EmailVerificationController;
-use App\Http\Controllers\Admin\PetRecordController;
 use App\Http\Controllers\Admin\RecordsController;
 use App\Http\Controllers\Admin\RecordController;
 
@@ -101,10 +99,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/admin/appointments/all', [AdminAppointmentController::class, 'all'])->name('admin.appointments.all');
 
         Route::post('/appointments/{appointment}/complete', [AdminAppointmentController::class, 'complete'])->name('admin.appointments.complete');
+        Route::get('/admin/records/{appointment}/pets/{pet}/services/{service}/edit',[RecordController::class, 'edit'])->name('admin.records.edit');
+
         Route::get('/admin/appointments/{appointment}/completed', [AdminAppointmentController::class, 'showCompleted'])->name('admin.appointments.show-completed');
+        
         Route::post('appointments/{appointment}/finalize', [AdminAppointmentController::class, 'finalize'])->name('admin.appointments.finalize');
         
-        Route::get('/admin/appointments/{appointment}/pets/{pet}/services/{service}/edit',[RecordController::class, 'edit'])->name('admin.records.edit');
+        Route::get('/admin/appointments/{appointment}/pets/{pet}/services/{service}/edit',[RecordController::class, 'edit'])->name('admin.record.edit');
         
         Route::prefix('admin')->group(function() {
             // Vaccination Routes
@@ -154,8 +155,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         });
 
         //service records
-        Route::get('/records', [RecordsController::class, 'index'])->name('admin.records.index');
-        Route::get('/records/{id}', [RecordsController::class, 'show'])->name('admin.records.show');
+        Route::get('/admin/records', [RecordsController::class, 'index'])
+        ->name('admin.records.index');
+        Route::get('/admin/records/{appointment}', [RecordsController::class, 'show'])
+        ->name('admin.records.show');
+
+        
+        
          
 
         //customers

@@ -4,6 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\VaccinationRecord;
+use App\Models\CheckupRecord;
+use App\Models\SurgeryRecord;
+use App\Models\GroomingRecord;
+use App\Models\BoardingRecord;
 
 class Record extends Model
 {
@@ -13,19 +18,8 @@ class Record extends Model
         'appointment_id',
         'pet_id',
         'service_id',
-        'notes',
-        'products_used',
-        'diagnosis',
-        'treatment',
-        'before_photos',
-        'after_photos',
         'type', 
-        'notes'
-    ];
-
-    protected $casts = [
-        'before_photos' => 'array',
-        'after_photos' => 'array'
+        'notes',
     ];
 
     public function appointment()
@@ -42,16 +36,30 @@ class Record extends Model
     {
         return $this->belongsTo(Service::class);
     }
-   
-    public function specificRecord()
+
+    // Specific record relationships
+    public function vaccination()
     {
-        return match($this->type) {
-            'vaccination' => $this->hasOne(VaccinationRecord::class),
-            'checkup' => $this->hasOne(CheckupRecord::class),
-            'surgery' => $this->hasOne(SurgeryRecord::class),
-            'grooming' => $this->hasOne(GroomingRecord::class),
-            'boarding' => $this->hasOne(BoardingRecord::class),
-            default => null,
-        };
+        return $this->hasOne(VaccinationRecord::class);
+    }
+
+    public function checkup()
+    {
+        return $this->hasOne(CheckupRecord::class);
+    }
+
+    public function surgery()
+    {
+        return $this->hasOne(SurgeryRecord::class);
+    }
+
+    public function grooming()
+    {
+        return $this->hasOne(GroomingRecord::class);
+    }
+
+    public function boarding()
+    {
+        return $this->hasOne(BoardingRecord::class);
     }
 }

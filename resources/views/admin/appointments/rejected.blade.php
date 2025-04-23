@@ -6,12 +6,14 @@
 <div class="container mx-auto px-4 py-6">
     <h2 class="text-3xl font-bold mb-6 text-gray-800"> Rejected Appointments</h2>
     <h4 class="text-2xl font-bold mb-6 text-gray-800"> Appointments Status links</h4>
+   
     <!-- status routes -->
     <div class="flex gap-2 mb-6">
         <a href="{{ route('admin.appointments') }}" class="bg-orange-400 text-white px-4 py-2 rounded">Pending</a>
-        <a href="{{ route('admin.appointments.approved') }}" class="bg-orange-600 text-white px-4 py-2 rounded">Approved</a>
+        <a href="{{ route('admin.appointments.approved') }}" class="bg-blue-600 text-white px-4 py-2 rounded">Approved</a>
+        <a href="{{ route('admin.appointments.completed') }}" class="bg-blue-800 text-white px-4 py-2 rounded">Needs Records</a>
         <a href="{{ route('admin.appointments.rejected') }}" class="bg-gray-700 text-white px-4 py-2 rounded">Rejected</a>
-        <a href="{{ route('admin.appointments.all') }}" class="bg-gray-500 text-white px-4 py-2 rounded">All</a>
+{{--         <a href="{{ route('admin.appointments.all') }}" class="bg-gray-500 text-white px-4 py-2 rounded">All</a> --}}
     </div>
 
     <!-- ✅ Rejected Appointments List -->

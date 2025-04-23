@@ -1,3 +1,4 @@
+{{-- resources\views\admin\appointments\show-completed.blade.php --}}
 @extends('layouts.admin')
 
 @section('content')
@@ -70,112 +71,108 @@
                         @endphp
 
                         <div class="p-3 border rounded-lg">
-                            <div class="flex justify-between items-center">
-                                <div>
-                                    <h4 class="font-medium">{{ $service->name }}</h4>
-                                    
-                                </div>
-                                
-                                @if($record)
-                                    <a href="{{ route('admin.records.edit', [
-                                        'appointment' => $appointment->id,
-                                        'pet' => $pet->id,
-                                        'service' => $service->id
-                                    ]) }}" 
-                                       class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm">
-                                        Edit Record
-                                    </a>
-                                @else
-                                    <!-- Dynamic Add Record link based on service type -->
-                                    @switch($service->name)
-                                        @case('Vaccination')
-                                            <a href="{{ route('admin.records.create.vaccination', [
-                                                'appointment' => $appointment->id,
-                                                'pet' => $pet->id,
-                                                'service' => $service->id
-                                            ]) }}" 
-                                            class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm">
-                                                Add Vaccination Records
-                                            </a>
-                                            @break
-                                        
-                                        @case('Check-Up / Wellness Exams') 
-                                            <a href="{{ route('admin.records.create.checkup', [
-                                                'appointment' => $appointment->id,
-                                                'pet' => $pet->id,
-                                                'service' => $service->id
-                                            ]) }}" 
-                                            class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm">
-                                                Add Checkup Records
-                                            </a>
-                                            @break
-                                        
-                                        @case('Surgery')
-                                            <a href="{{ route('admin.records.create.surgery', [
-                                                'appointment' => $appointment->id,
-                                                'pet' => $pet->id,
-                                                'service' => $service->id
-                                            ]) }}" 
-                                            class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm">
-                                                Add Surgery Records
-                                            </a>
-                                            @break
-                                        
-                                        @case('Grooming')
-                                            <a href="{{ route('admin.records.create.grooming', [
-                                                'appointment' => $appointment->id,
-                                                'pet' => $pet->id,
-                                                'service' => $service->id
-                                            ]) }}" 
-                                            class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm">
-                                                Add Grooming Records
-                                            </a>
-                                            @break
-                                        
-                                        @case('Boarding')
-                                            <a href="{{ route('admin.records.create.boarding', [
-                                                'appointment' => $appointment->id,
-                                                'pet' => $pet->id,
-                                                'service' => $service->id
-                                            ]) }}" 
-                                            class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm">
-                                                Add Boarding Records
-                                            </a>
-                                            @break
-                                        
-                                        @default
-                                            <a href="#" class="px-3 py-1 bg-gray-500 text-white rounded text-sm">
-                                                Unknown Service Type
-                                            </a>
-                                    @endswitch
-                                @endif
-                            </div>
+    <div class="flex justify-between items-center">
+        <div>
+            <h4 class="font-medium">{{ $service->name }}</h4>
+        </div>
+        
+        @unless($appointment->status === 'finalized')
+            @if($record)
+                <span class="px-3 py-1 bg-gray-200 text-gray-800 rounded text-sm">
+                    Record Exists
+                </span>
+            @else
+                <!-- Dynamic Add Record link based on service type -->
+                @switch($service->name)
+                    @case('Vaccination')
+                        <a href="{{ route('admin.records.create.vaccination', [
+                            'appointment' => $appointment->id,
+                            'pet' => $pet->id,
+                            'service' => $service->id
+                        ]) }}" 
+                        class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm">
+                            Add Vaccination Records
+                        </a>
+                        @break
+                    
+                    @case('Check-Up / Wellness Exams') 
+                        <a href="{{ route('admin.records.create.checkup', [
+                            'appointment' => $appointment->id,
+                            'pet' => $pet->id,
+                            'service' => $service->id
+                        ]) }}" 
+                        class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm">
+                            Add Checkup Records
+                        </a>
+                        @break
+                    
+                    @case('Surgery')
+                        <a href="{{ route('admin.records.create.surgery', [
+                            'appointment' => $appointment->id,
+                            'pet' => $pet->id,
+                            'service' => $service->id
+                        ]) }}" 
+                        class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm">
+                            Add Surgery Records
+                        </a>
+                        @break
+                    
+                    @case('Grooming')
+                        <a href="{{ route('admin.records.create.grooming', [
+                            'appointment' => $appointment->id,
+                            'pet' => $pet->id,
+                            'service' => $service->id
+                        ]) }}" 
+                        class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm">
+                            Add Grooming Records
+                        </a>
+                        @break
+                    
+                    @case('Boarding')
+                        <a href="{{ route('admin.records.create.boarding', [
+                            'appointment' => $appointment->id,
+                            'pet' => $pet->id,
+                            'service' => $service->id
+                        ]) }}" 
+                        class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm">
+                            Add Boarding Records
+                        </a>
+                        @break
+                    
+                    @default
+                        <a href="#" class="px-3 py-1 bg-gray-500 text-white rounded text-sm">
+                            Unknown Service Type
+                        </a>
+                @endswitch
+            @endif
+        @endunless
+    </div>
 
-                            @if($record)
-                                <div class="mt-3 pl-3 border-l-2 border-gray-200 space-y-2">
-                                    <p><span class="font-medium">Notes:</span> {{ $record->notes ?? 'N/A' }}</p>
-                                    
-                                    @if($service->name === 'Grooming' && $record->products_used)
-                                        <p><span class="font-medium">Products Used:</span> {{ $record->products_used }}</p>
-                                    @endif
-                                    
-                                    @if($service->name === 'Check-Up' && $record->diagnosis)
-                                        <p><span class="font-medium">Diagnosis:</span> {{ $record->diagnosis }}</p>
-                                    @endif
-                                    
-                                    @if($service->name === 'Vaccination' && $record->vaccine_type)
-                                        <p><span class="font-medium">Vaccine:</span> {{ $record->vaccine_type }}</p>
-                                        <p><span class="font-medium">Batch #:</span> {{ $record->batch_number }}</p>
-                                    @endif
-                                    
-                                    @if($record->created_at)
-                                        <p class="text-xs text-gray-500 mt-2">
-                                            Record created: {{ $record->created_at->format('M d, Y h:i A') }}
-                                        </p>
-                                    @endif
-                                </div>
-                            @endif
-                        </div>
+    @if($record)
+        <div class="mt-3 pl-3 border-l-2 border-gray-200 space-y-2">
+            <p><span class="font-medium">Notes:</span> {{ $record->notes ?? 'N/A' }}</p>
+            
+            @if($service->name === 'Grooming' && $record->products_used)
+                <p><span class="font-medium">Products Used:</span> {{ $record->products_used }}</p>
+            @endif
+            
+            @if($service->name === 'Check-Up' && $record->diagnosis)
+                <p><span class="font-medium">Diagnosis:</span> {{ $record->diagnosis }}</p>
+            @endif
+            
+            @if($service->name === 'Vaccination' && $record->vaccine_type)
+                <p><span class="font-medium">Vaccine:</span> {{ $record->vaccine_type }}</p>
+                <p><span class="font-medium">Batch #:</span> {{ $record->batch_number }}</p>
+            @endif
+            
+            @if($record->created_at)
+                <p class="text-xs text-gray-500 mt-2">
+                    Record created: {{ $record->created_at->format('M d, Y h:i A') }}
+                </p>
+            @endif
+        </div>
+    @endif
+</div>
                     @endforeach
                 </div>
             </div>

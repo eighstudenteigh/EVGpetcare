@@ -214,57 +214,53 @@ public function showCompleted(Appointment $appointment)
  * @param Appointment $appointment
  * @return \Illuminate\Http\RedirectResponse
  */
+/**
+ * Finalize an appointment after all service records are completed
+ */
 public function finalize(Appointment $appointment)
 {
     // Verify appointment is completed
     if ($appointment->status !== 'completed') {
-        return redirect()->route('admin.pet-records.show', $appointment->id)
+        return redirect()->route('admin.appointments.show-completed', $appointment)
             ->with('error', 'Only completed appointments can be finalized.');
     }
-    
-    // Get services and pets for this appointment
-    $services = $appointment->services;
-    $pets = $appointment->pets;
-    
-    // Check if all services for all pets have been recorded
+
+    // Load pets, services, and records for the appointment
+    $appointment->load(['pets', 'services', 'records']);
+
     $allRecordsComplete = true;
     $missingRecords = [];
-    
-    foreach ($pets as $pet) {
-        foreach ($services as $service) {
-            $recordExists = false;
-            
-            if ($service->service_type === 'grooming') {
-                $recordExists = $pet->hasGroomingRecord($appointment->id);
-            } elseif ($service->service_type === 'medical') {
-                $recordExists = $pet->hasMedicalRecord($appointment->id);
-            } elseif ($service->service_type === 'boarding') {
-                $recordExists = $pet->hasBoardingRecord($appointment->id);
-            }
-            
+
+    foreach ($appointment->pets as $pet) {
+        foreach ($appointment->services as $service) {
+            $recordExists = $appointment->records->contains(function ($record) use ($pet, $service) {
+                return $record->pet_id === $pet->id && $record->service_id === $service->id;
+            });
+
             if (!$recordExists) {
                 $allRecordsComplete = false;
-                $missingRecords[] = "$pet->name - " . $service->name;
+                $missingRecords[] = "{$pet->name} - {$service->name}";
             }
         }
     }
-    
+
     if (!$allRecordsComplete) {
         $missingList = implode(', ', $missingRecords);
-        return redirect()->route('admin.pet-records.show', $appointment->id)
-            ->with('error', "Cannot finalize: Missing records for $missingList");
+        return redirect()->route('admin.appointments.show-completed', $appointment)
+            ->with('error', 'Cannot finalize. Missing records for: ' . $missingList);
     }
-    
+
     // All records are complete, mark the appointment as finalized
     $appointment->update([
         'status' => 'finalized',
+        'updated_at' => now(),
     ]);
-    
-    // Redirect to the appointments list with success message
-    return redirect()->route('admin.appointments.approved')
-        ->with('success', 'Appointment has been finalized with all service records completed.');
+
+    return redirect()->route('admin.records.show', $appointment)
+        ->with('success', 'Appointment finalized. All records are complete.');
 }
-    // ✅ Reject an appointment
+
+    //  Reject an appointment
     public function reject(Appointment $appointment)
     {
         if ($appointment->status !== 'pending') {
@@ -275,8 +271,7 @@ public function finalize(Appointment $appointment)
 
         return redirect()->route('admin.appointments')->with('success', 'Appointment rejected.');
     }
-
-    // ✅ Delete an appointment (new addition)
+    //  Delete an appointment
     public function destroy(Appointment $appointment)
     {
         if (!in_array($appointment->status, ['pending', 'rejected'])) {

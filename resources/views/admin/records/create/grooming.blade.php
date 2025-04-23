@@ -1,3 +1,4 @@
+{{-- resources\views\admin\records\create\grooming.blade.php --}}
 @extends('layouts.admin')
 
 @section('content')

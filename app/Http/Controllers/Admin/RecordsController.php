@@ -10,81 +10,58 @@ use App\Models\Service;
 
 class RecordsController extends Controller
 {
-    public function index(Request $request)
-    {
-        $query = Appointment::with([
-            'user',
-            'pets' => function($query) {
-                $query->with([
-                    'groomingRecords',
-                    'medicalRecords',
-                    'boardingRecords'
-                ]);
-            },
-            'services',
-        ])
-        ->whereIn('status', ['finalized'])
-        ->latest();
-    
-        // Apply filters - changed to search by service name instead of type
-        if ($request->filled('service')) {
-            $query->whereHas('services', function($q) use ($request) {
-                $q->where('name', 'like', '%'.$request->service.'%');
-            });
-        }
-    
-        if ($request->filled('date')) {
-            $query->whereDate('appointment_date', $request->date);
-        }
-    
-        if ($request->filled('pet_type')) {
-            $query->whereHas('pets', function($q) use ($request) {
-                $q->where('type', $request->pet_type);
-            });
-        }
-    
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->whereHas('user', function($userQuery) use ($search) {
-                    $userQuery->where('name', 'like', "%{$search}%");
-                })
-                ->orWhereHas('pets', function($petQuery) use ($search) {
-                    $petQuery->where('name', 'like', "%{$search}%");
-                })
-                ->orWhereHas('services', function($serviceQuery) use ($search) {
-                    $serviceQuery->where('name', 'like', "%{$search}%");
-                });
-            });
-        }
-    
-        $appointments = $query->paginate(10);
-        $services = Service::distinct('name')->orderBy('name')->pluck('name'); // Get distinct service names
-        
-        return view('admin.records.index', compact('appointments', 'services')); // Pass services to the view
-    }
-    public function show($id)
+// Finalized Records Index
+    public function index()
 {
-    $appointment = Appointment::with([
+    // Base query - only fetch finalized appointments
+    $query = Appointment::with([
+        'user:id,name,email',
+        'pets:id,name', 
+        'services:id,name',
+        
+        'records'
+    ])
+        ->where('status', 'finalized')
+        ->whereNotNull('updated_at');
+    // Simple search (client/pet name only)
+    if(request('search')) {
+        $query->where(function($q) {
+            $q->whereHas('user', fn($user) => $user->where('name', 'like', '%'.request('search').'%'))
+              ->orWhereHas('pets', fn($pet) => $pet->where('name', 'like', '%'.request('search').'%'));
+        });
+    }
+
+    // Date filter only (removed pet type/service filters)
+    if(request('date')) {
+        $query->whereDate('finalized_at', request('date'));
+    }
+
+    // Final results
+    $appointments = $query->orderBy('finalized_at', 'desc')
+                         ->paginate(10);
+
+    return view('admin.records.index', compact('appointments'));
+}
+public function show(Appointment $appointment)
+{
+    // Ensure only finalized appointments can be viewed
+    abort_unless($appointment->status === 'finalized', 404);
+
+    // Load all necessary relationships
+    $appointment->load([
         'user',
-        'pets' => function($query) use ($id) {
-            $query->with([
-                'groomingRecords' => function($q) use ($id) {
-                    $q->where('appointment_id', $id);
-                },
-                'medicalRecords' => function($q) use ($id) {
-                    $q->where('appointment_id', $id);
-                },
-                'boardingRecords' => function($q) use ($id) {
-                    $q->where('appointment_id', $id);
-                }
-            ]);
-        },
+        'pets.services',
         'services',
-    ])->findOrFail($id);
+        'records.vaccination',
+        'records.grooming',
+        'records.checkup',
+        'records.surgery',
+        'records.boarding',
+        'records.pet',
+        'records.service',
+    ]);
 
     return view('admin.records.show', compact('appointment'));
 }
 
-   
 }
