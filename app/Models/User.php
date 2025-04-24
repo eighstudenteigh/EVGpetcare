@@ -63,4 +63,8 @@ class User extends Authenticatable
     {
         return $this->hasMany(Pet::class, 'customer_id');
     }
+    public function isSuperAdmin()
+{
+    return $this->email === 'evgadmintest@gmail.com';
+}
 }

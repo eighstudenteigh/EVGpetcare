@@ -29,9 +29,16 @@
               <span class="font-bold uppercase tracking-wider text-white ">Visit Us</span>
             </button>
   
+            @auth
             <a href="{{ route('customer.appointments.create') }}" class="font-bold uppercase tracking-wider px-8 py-4 bg-orange-500 text-white rounded-lg shadow hover:bg-gray-600 transition duration-300">
-              Book Appointment Now
+                Book Appointment Now
             </a>
+            @else
+            <a href="{{ route('login') }}" class="font-bold uppercase tracking-wider px-8 py-4 bg-orange-500 text-white rounded-lg shadow hover:bg-gray-600 transition duration-300">
+                Book Appointment Now
+            </a>
+            @endauth
+
           </div>
         </div>
   
@@ -157,14 +164,14 @@
     </div>
 </section>
   
-<!-- Meet Our Team Section -->
+<!-- DR EVG Section -->
 <section class="py-16 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Featured Team Member -->
         <div class="bg-gray-50 rounded-xl shadow-sm overflow-hidden mb-8">
             <div class="md:flex">
                 <div class="md:w-1/3">
-                  <img src="{{ asset('images/dr.jpeg') }}" alt="Dr. Ericko Vien G. Juico" class="h-64 w-full object-cover md:h-full">
+                  <img src="{{ asset('images/Dr EVG.jpg') }}" alt="Dr. Ericko Vien G. Juico" class="h-64 w-full object-cover md:h-full">
                 </div>
                 <div class="p-8 md:w-2/3">
                     <h3 class="tracking-normal text-2xl font-bold text-gray-900 mb-2">Dr. Ericko Vien G. Juico</h3>

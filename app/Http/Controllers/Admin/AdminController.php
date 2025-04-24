@@ -49,26 +49,37 @@ class AdminController extends Controller
     return redirect()->route('admins.index')->with('success', 'Admin created successfully.');
 }
 
-    public function destroy($id)
+public function destroy($id)
 {
     $admin = User::findOrFail($id);
-
-    // Get the logged-in admin's email
-    $loggedInAdminEmail = Auth::user()->email;
+    $loggedInAdmin = Auth::user();
 
     // List of protected admin emails
-    $protectedEmails = ['supacustoma333@gmail.com', 'evgadmintest@gmail.com'];
+    $protectedEmails = ['evgadmintest@gmail.com', 'evgadmintest@gmail.com'];
 
-    // Prevent deleting the main super admin, protected admins, or own account
+    // Prevent deleting protected admins
     if (in_array($admin->email, $protectedEmails)) {
         return response()->json(['success' => false, 'message' => 'Cannot delete a protected admin.']);
     }
 
-    if ($admin->email === $loggedInAdminEmail) {
+    // Only allow the real owner (specific email) to delete admins
+    if ($loggedInAdmin->email !== 'evgadmintest@gmail.com') {
+        return response()->json(['success' => false, 'message' => 'Only the super admin can delete admin accounts.']);
+    }
+
+    // Prevent self-deletion
+    if ($admin->id === $loggedInAdmin->id) {
         return response()->json(['success' => false, 'message' => 'You cannot delete your own account.']);
     }
 
     $admin->delete();
+
+    // Log this action
+    ActivityLog::create([
+        'user_id' => $loggedInAdmin->id,
+        'action' => 'Deleted admin account',
+        'details' => "Deleted admin: {$admin->email}"
+    ]);
 
     return response()->json(['success' => true, 'message' => 'Admin deleted successfully.']);
 }

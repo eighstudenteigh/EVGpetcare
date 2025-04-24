@@ -35,10 +35,13 @@
                     <td class="p-3">{{ $admin->name }}</td>
                     <td class="p-3">{{ $admin->email }}</td>
                     <td class="p-3 flex gap-2">
-                        <!--  Delete Button -->
-                        <button data-id="{{ $admin->id }}" class="delete-admin-btn bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded">
-                            Delete
-                        </button>
+                        @if(Auth::user()->email === 'evgadmintest@gmail.com' && $admin->email !== 'evgadmintest@gmail.com')
+                            <button data-id="{{ $admin->id }}" class="delete-admin-btn bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded">
+                                Delete
+                            </button>
+                        @else
+                            <span class="text-gray-400">Not allowed</span>
+                        @endif
                     </td>
                 </tr>
                 @endforeach

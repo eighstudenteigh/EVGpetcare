@@ -64,18 +64,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // Customer Routes
-    Route::middleware(['role:customer'])->group(function () {
+    Route::middleware(['auth', 'role:customer'])->group(function () {
         Route::get('/customer/dashboard', [CustomerDashboardController::class, 'index'])->name('customer.dashboard');
    
-        /*  //pets    
-        Route::get('/pets', [PetController::class, 'index'])->name('customer.pets.index');
-        Route::get('/pets/create', [PetController::class, 'create'])->name('customer.pets.create');
-        Route::post('/pets/store', [PetController::class, 'store'])->name('customer.pets.store');
-        Route::get('/pets/{pet}/edit', [PetController::class, 'edit'])->name('customer.pets.edit');
-        Route::put('/pets/{pet}/update', [PetController::class, 'update'])->name('customer.pets.update');
-        Route::delete('/pets/{pet}/delete', [PetController::class, 'destroy'])->name('customer.pets.destroy');
-        Route::get('/customer/pets/{pet}', [PetController::class, 'show'])->name('customer.pets.show'); */
-
     // Pet routes
         Route::get('/customer/pets', [PetController::class, 'index'])->name('customer.pets.index');
         Route::get('/customer/pets/create', [PetController::class, 'create'])->name('customer.pets.create');

@@ -171,6 +171,35 @@
         background-color: #2563eb !important;
         border-color: #2563eb !important;
     }
+    .closed-day .fc-daygrid-day-number {
+        color: #FF0000;
+        text-decoration: line-through;
+    }
+
+    
+    .fc-daygrid-day.closed-day {
+        background-color: #fee2e2 !important; /* Light red */
+        position: relative;
+        cursor: not-allowed;
+    }
+
+    .fc-daygrid-day.closed-day:hover {
+        background-color: #fca5a5 !important; 
+    }
+
+    .closed-day .fc-daygrid-day-number {
+        color: #b91c1c !important;
+        font-weight: bold;
+        text-decoration: line-through;
+    }
+    .fc-daygrid-day.closed-day::after {
+        content: '🔒';
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        font-size: 1rem;
+        color: #991b1b;
+    }
 </style>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
