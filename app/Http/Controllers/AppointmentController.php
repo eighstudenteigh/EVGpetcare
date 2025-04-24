@@ -16,18 +16,60 @@ use Illuminate\Support\Facades\Log;
 class AppointmentController extends Controller
 {
     // Show user's appointments
-    public function index()
-    {
-        $userId = Auth::id();
-        $appointments = Appointment::where('user_id', $userId)
-            ->with(['pets', 'services'])
-            ->orderBy('appointment_date', 'asc')
-            ->get();
+    public function index(Request $request)
+{
+    $userId = Auth::id();
+    
+    // Start building the query
+    $query = Appointment::where('user_id', $userId)
+        ->with(['pets', 'services'])
+        ->orderBy('appointment_date', 'asc')
+        ->orderBy('appointment_time', 'asc');
 
-        $petsCount = Pet::where('customer_id', $userId)->count();
-
-        return view('customer.appointments.index', compact('appointments', 'petsCount'));
+    // Status Filter
+    if ($request->has('status') && $request->status != 'all') {
+        $query->where('status', $request->status);
     }
+
+    // Date Range Filter
+    if ($request->has('date_range')) {
+        switch ($request->date_range) {
+            case 'upcoming':
+                $query->where('appointment_date', '>=', now()->format('Y-m-d'));
+                break;
+            case 'past':
+                $query->where('appointment_date', '<', now()->format('Y-m-d'));
+                break;
+            case 'custom' && $request->has(['start_date', 'end_date']):
+                $query->whereBetween('appointment_date', [
+                    $request->start_date,
+                    $request->end_date
+                ]);
+                break;
+        }
+    }
+
+    // Pet Filter
+    if ($request->has('pet_id') && $request->pet_id != 'all') {
+        $query->whereHas('pets', function($q) use ($request) {
+            $q->where('pets.id', $request->pet_id);
+        });
+    }
+
+    // Service Filter
+    if ($request->has('service_id') && $request->service_id != 'all') {
+        $query->whereHas('services', function($q) use ($request) {
+            $q->where('services.id', $request->service_id);
+        });
+    }
+
+    $appointments = $query->get();
+    $pets = Pet::where('customer_id', $userId)->get();
+    $services = Service::all();
+    $petsCount = $pets->count();
+
+    return view('customer.appointments.index', compact('appointments', 'pets', 'services', 'petsCount'));
+}
 
     // Get available time slots
     public function getAvailability(Request $request)

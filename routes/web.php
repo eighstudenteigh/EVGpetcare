@@ -84,7 +84,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/customer/pets/{pet}/edit', [PetController::class, 'edit'])->name('customer.pets.edit');
         Route::put('/customer/pets/{pet}', [PetController::class, 'update'])->name('customer.pets.update');
         Route::delete('/customer/pets/{pet}', [PetController::class, 'destroy'])->name('customer.pets.destroy');
-
+        Route::get('/appointments/{appointment}', [AppointmentController::class, 'show'])
+        ->name('customer.appointments.show');
+        
         Route::get('/customer/pets/appointments/{appointment}', [AppointmentController::class, 'show'])
         ->name('customer.appointments.show');
   
