@@ -11,8 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('appointments', function (Blueprint $table) {
-            $table->dropColumn('pet_id');
+        Schema::table('service_vaccine_pricing', function (Blueprint $table) {
+            // Just add the new composite unique key
+            $table->unique(['service_id', 'vaccine_type_id', 'pet_type_id'], 
+                  'service_vaccine_pricing_composite_unique');
         });
     }
 
@@ -21,8 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('appointments', function (Blueprint $table) {
-            //
-        });
+        //
     }
 };

@@ -9,8 +9,10 @@ class Service extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'price', 'description', ];
-
+    protected $fillable = ['name', 'description', 'is_vaccination', ];
+    protected $casts = [
+        'is_vaccination' => 'boolean',
+    ];
     public function petTypes()
     {
         return $this->belongsToMany(PetType::class, 'service_pet_type', 'service_id', 'pet_type_id')
@@ -22,4 +24,23 @@ class Service extends Model
     {
         return $this->petTypes();
     }
+    public function vaccinePricings()
+{
+    return $this->hasMany(ServiceVaccinePricing::class)
+        ->with(['vaccineType', 'petType']); // Eager load both relationships
 }
+    
+    public function vaccineTypes()
+    {
+        return $this->belongsToMany(VaccineType::class, 'service_vaccine_pricing')
+                   ->withPivot(['pet_type_id', 'price']);
+    }
+
+public function universalVaccines()
+{
+    return $this->belongsToMany(VaccineType::class, 'service_vaccine_pricing')
+                ->withPivot(['pet_type_id', 'price'])
+                ->wherePivotNull('pet_type_id'); // Vaccines without animal types
+}
+    
+}   

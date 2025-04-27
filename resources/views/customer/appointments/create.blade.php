@@ -1,686 +1,613 @@
 @extends('layouts.customer')
 
 @section('content')
-
-<div class="px-4 sm:px-6 py-6">
-    <h2 class="text-2xl sm:text-3xl font-bold mb-6 text-darkGray text-center">Book an Appointment</h2>
-
-    @if(session('success'))
-        <div class="mb-6 p-4 bg-green-500 text-white rounded-lg">
-            {{ session('success') }}
-        </div>
-    @endif
-    
-    @if(session('error'))
-        <div class="mb-6 p-4 bg-red-500 text-white rounded-lg">
-            {{ session('error') }}
-        </div>
-    @endif
-
-    <form action="{{ route('customer.appointments.store') }}" method="POST" 
-    id="appointmentForm" class="appointment-form">
-
-        @csrf
-
-        <!-- Pet Selection Section -->
-<div class="mb-6 border-b border-orange-500 pb-4">
-    <h3 class="text-lg sm:text-xl font-semibold mb-3 text-white flex items-center">
-        <span class="mr-2">1.</span> Select Pet(s)
-        <span class="ml-2 text-sm text-orange-300">*required</span>
-    </h3>
-    <div class="mt-2 p-4 rounded-lg bg-gray-700 text-white">
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3" id="petSelectionCards">
-
-            @foreach ($pets as $pet)
-            <div class="pet-card border rounded-lg p-3 sm:p-4 cursor-pointer transition w-full text-center
-                        bg-secondary text-gray-800 hover:bg-white hover:text-orange-500"
-                 data-pet-id="{{ $pet->id }}"
-                 data-pet-name="{{ $pet->name }}"
-                 data-pet-type="{{ strtolower($pet->type) }}">
-                <input type="checkbox" name="pet_ids[]" value="{{ $pet->id }}" 
-                       id="pet_{{ $pet->id }}" class="hidden pet-checkbox">
-
-                <span class="pet-icon text-xl sm:text-2xl block">
-                    @if(strtolower($pet->type) == 'dog') 🐕 
-                    @elseif(strtolower($pet->type) == 'cat') 🐈
-                    @else 🐾
-                    @endif
-                </span>
-
-                <span class="font-medium text-sm sm:text-base">{{ $pet->name }}</span>
-                <span class="text-xs sm:text-sm block">({{ ucfirst($pet->type) }})</span>
-            </div>
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">Book New Appointment</h1>
+    @if($errors->any())
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        <ul>
+            @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
             @endforeach
+        </ul>
+    </div>
+    @endif
+    <form id="appointment-form" action="{{ route('customer.appointments.store') }}" method="POST">
+        @csrf
+        <input type="hidden" name="selected_pets" id="selected-pets-data">
+        
 
+        <!-- Step 1: Pet Selection -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6 step-section" id="step-1">
+            <h2 class="text-xl font-semibold mb-4">1. Select Your Pet(s)</h2>
+            <p class="text-gray-600 mb-4">You can select one or more pets for this appointment.</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                @foreach($pets as $pet)
+                <div class="border rounded-lg p-4 pet-card hover:bg-gray-50 cursor-pointer transition"
+                     data-pet-id="{{ $pet->id }}"
+                     data-pet-type-id="{{ $pet->petType->id }}"
+                     data-pet-type-name="{{ $pet->petType->name }}">
+                    <div class="flex items-center">
+                        @if($pet->image)
+                        <img src="{{ asset('storage/'.$pet->image) }}" alt="{{ $pet->name }}" class="w-16 h-16 rounded-full object-cover mr-4">
+                        @else
+                        <div class="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center mr-4">
+                            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                        </div>
+                        @endif
+                        <div>
+                            <h3 class="font-medium">{{ $pet->name }}</h3>
+                            <p class="text-sm text-gray-600">{{ $pet->petType->name }}</p>
+                        </div>
+                    </div>
+                    <input type="checkbox" name="pet_ids[]" value="{{ $pet->id }}" class="hidden pet-checkbox">
+                </div>
+                @endforeach
+            </div>
+            
+            <div class="mt-6 flex justify-end">
+                <button type="button" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition next-step disabled:bg-gray-400"
+                        data-next="step-2" disabled>Next: Select Services</button>
+            </div>
         </div>
 
-        @if(count($pets) === 0)
-            <div class="text-center p-4">
-                <p>No pets found. Please add a pet first.</p>
-                <a href="{{ route('customer.pets.create') }}" class="mt-2 inline-block px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600">
-                    Add a Pet
-                </a>
-            </div>
-        @endif
-    </div>
-</div>
-
-
-        <!-- Service Selection Section -->
-<div class="mb-6 border-b border-orange-500 pb-4">
-    <h3 class="text-lg sm:text-xl font-semibold mb-3 text-white flex items-center">
-        <span class="mr-2">2.</span> Select Service(s)
-        <span class="ml-2 text-sm text-orange-300">*required</span>
-    </h3>
-    <div id="serviceSelectionArea" class="mt-2 p-4 rounded-lg bg-gray-700 text-white">
-        <p class="italic text-sm sm:text-base">Please select a pet first</p>
-    </div>
-</div>
-
-
-        <!-- Date & Time Selection -->
-        <div class="mb-6 border-b border-orange-500 pb-4">
-            <h3 class="text-lg sm:text-xl font-semibold mb-3 text-white flex items-center">
-                <span class="mr-2">3.</span> Select Date & Time
-                <span class="ml-2 text-sm text-orange-300">*required</span>
-            </h3>
+        <!-- Step 2: Service Selection -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6 step-section hidden" id="step-2">
+            <h2 class="text-xl font-semibold mb-4">2. Select Services</h2>
+            <p class="text-gray-600 mb-4">Choose services for each of your selected pets.</p>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div> 
-                    <label for="appointmentDate" class="block font-semibold text-white mb-2">Select Date:</label>
-                    <div id="calendarContainer" class="bg-lightGray rounded-lg overflow-hidden">
-                        <input type="text" name="appointment_date" id="appointmentDate" 
-                              class="w-full p-3 sm:p-4 border rounded-lg bg-lightGray text-black focus:ring-2 focus:ring-orange-500" 
-                              readonly placeholder="Click to select a date">
-                    </div>
-                    <div id="dateMessage" class="mt-2 text-sm hidden"></div>
-                </div>
+            <div id="services-container">
+                <!-- Will be populated by JavaScript -->
+            </div>
+            
+            <div class="mt-6 flex justify-between">
+                <button type="button" class="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 transition prev-step"
+                        data-prev="step-1">Back</button>
+                <button type="button" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition next-step"
+                        data-next="step-3">Next: Select Date & Time</button>
+            </div>
+        </div>
 
+        <!-- Step 3: Date & Time Selection -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6 step-section hidden" id="step-3">
+            <h2 class="text-xl font-semibold mb-4">3. Select Date & Time</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div>
-                    <label for="appointmentTime" class="block font-semibold text-white mb-2">Select Time:</label>
-                    <select name="appointment_time" id="appointmentTime" 
-                            class="w-full p-3 sm:p-4 border rounded-lg bg-lightGray text-black focus:ring-2 focus:ring-orange-500">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Appointment Date</label>
+                    <input type="date" name="appointment_date" id="appointment-date" 
+                           class="w-full border rounded px-3 py-2" 
+                           min="{{ date('Y-m-d', strtotime('+1 day')) }}"
+                           required>
+                    <div class="text-sm text-gray-500 mt-1">Closed on weekends and holidays</div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Available Time Slots</label>
+                    <select name="appointment_time" id="appointment-time" class="w-full border rounded px-3 py-2" disabled required>
                         <option value="">Select a date first</option>
                     </select>
-                    <div id="timeAvailabilityInfo" class="mt-2 text-sm text-orange-300">
-                        <p>Each time slot allows a maximum of 3 appointments</p>
+                </div>
+            </div>
+            
+            <div class="mt-6 flex justify-between">
+                <button type="button" class="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 transition prev-step"
+                        data-prev="step-2">Back</button>
+                <button type="button" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition next-step"
+                        data-next="step-4">Next: Review & Confirm</button>
+            </div>
+        </div>
+
+        <!-- Step 4: Review & Confirm -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6 step-section hidden" id="step-4">
+            <h2 class="text-xl font-semibold mb-4">4. Review Your Appointment</h2>
+            
+            <div class="mb-6">
+                <h3 class="text-lg font-medium mb-2">Selected Pets</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="review-pets">
+                    <!-- Filled by JavaScript -->
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-lg font-medium mb-2">Selected Services</h3>
+                <div class="space-y-4" id="review-services">
+                    <!-- Filled by JavaScript -->
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-lg font-medium mb-2">Appointment Details</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-gray-600">Date:</p>
+                        <p id="review-date" class="font-medium"></p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">Time:</p>
+                        <p id="review-time" class="font-medium"></p>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Notes Section -->
-        <div class="mb-6">
-            <h3 class="text-lg sm:text-xl font-semibold mb-3 text-white flex items-center">
-                <span class="mr-2">4.</span> Additional Notes
-                <span class="ml-2 text-sm text-gray-400">(optional)</span>
-            </h3>
-            <textarea name="notes" id="appointmentNotes" rows="3" 
-                    class="w-full p-3 sm:p-4 border rounded-lg bg-lightGray text-black focus:ring-2 focus:ring-orange-500"
-                    placeholder="Any special instructions or concerns..."></textarea>
-        </div>
-
-        <!-- Confirmation Modal -->
-        <div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
-            <div class="bg-gray-700 p-4 sm:p-6 rounded-lg shadow-lg max-w-md w-full text-white">
-                <h3 class="text-lg sm:text-xl font-bold mb-4">Confirm Appointment</h3>
-                <div id="confirmationContent" class="mb-4 text-sm sm:text-base"></div>
-                <div class="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3">
-                    <button id="cancelButton" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition">
-                        Back
-                    </button>
-                    <button id="confirmButton" class="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 transition">
-                        Confirm Booking
-                    </button>
+            
+            <div class="border-t pt-4">
+                <div class="flex justify-between items-center">
+                    <p class="text-lg font-medium">Total Estimated Cost:</p>
+                    <p class="text-xl font-bold" id="review-total">₱0.00</p>
                 </div>
             </div>
-        </div>
-
-        <!-- Submit Button -->
-        <div class="mt-6 flex justify-center">
-            @if($acceptedAppointmentsToday >= $maxAppointments)
-                <button 
-                    class="w-full sm:w-auto px-6 py-3 bg-gray-300 text-gray-500 cursor-not-allowed rounded-lg"
-                    disabled 
-                    data-tooltip="Appointments are maxed out for today. Try again tomorrow.">
-                    Request Appointment
+            
+            <div class="mt-6 flex justify-between">
+                <button type="button" class="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 transition prev-step"
+                        data-prev="step-3">Back</button>
+                <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition">
+                    Confirm Booking
                 </button>
-            @else
-                <button 
-                    id="submitButton"
-                    class="w-full sm:w-auto px-6 py-3 bg-gray-300 text-gray-500 cursor-not-allowed rounded-lg"
-                    type="submit" disabled>
-                    Request Appointment
-                </button>
-            @endif
+            </div>
         </div>
-
     </form>
-
 </div>
 
-
-
-<script>
-    
-document.addEventListener('DOMContentLoaded', function () {
-    console.log("Appointment script loaded");
-
-const dateInput = document.getElementById("appointmentDate");
-const dateMessage = document.getElementById("dateMessage");
-const confirmationModal = document.getElementById('confirmationModal');
-const confirmationContent = document.getElementById('confirmationContent');
-const cancelButton = document.getElementById('cancelButton');
-const confirmButton = document.getElementById('confirmButton');
-const submitButton = document.getElementById('submitButton');
-
-/** ✅ Fetch Closed Days FIRST, then Initialize Calendar */
-fetch('/admin/closed-days')
-        .then(response => {
-            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-            return response.json();
-        })
-        .then(data => {
-            console.log("✅ Closed Days Response:", data);
-
-            // ✅ Extract closed dates into an array of strings for Flatpickr
-            const closedDates = data.map(item => item.start.toString());
-
-            initializeCalendar(closedDates, data);
-        })
-        .catch(error => {
-            console.error("❌ Error fetching closed days:", error);
-            initializeCalendar([], []);
-            dateMessage.innerHTML = '<p class="text-red-500">⚠️ Unable to fetch closed days. Some dates may be incorrectly available.</p>';
-            dateMessage.classList.remove('hidden');
-        });
-
-    /** ✅ Initialize Flatpickr with Disabled Dates */
-    function initializeCalendar(closedDates, rawClosedDaysData) {
-        const calendar = flatpickr(dateInput, {
-            dateFormat: "Y-m-d",
-            minDate: new Date().fp_incr(1),
-            disable: [
-                function(date) { return date.getDay() === 0 || date.getDay() === 6; }, // Disable weekends
-                ...closedDates // ✅ Disable closed days
-            ],
-            onChange: function(selectedDates, dateStr) {
-                fetchAvailableTimes(dateStr);
-                validateForm();
-                dateMessage.classList.add('hidden');
-            },
-            onDayCreate: function(dObj, dStr, fp, dayElem) {
-                const dateString = dayElem.dateObj.toISOString().split('T')[0];
-
-                // ✅ Mark Closed Days
-                if (closedDates.includes(dateString)) {
-                    dayElem.classList.add('closed-day');
-                    const matchingDay = rawClosedDaysData.find(day => day.start === dateString);
-                    dayElem.setAttribute('title', matchingDay?.title || 'Closed day');
-                }
-
-                // ✅ Mark Weekends
-                if ([0, 6].includes(dayElem.dateObj.getDay())) {
-                    dayElem.classList.add('weekend-day');
-                    dayElem.setAttribute('title', 'Weekend - Not available');
-                }
-            }
-        });
-
-        window.appointmentCalendar = calendar; // Store globally if needed
-
-        // ✅ Refresh Button for Debugging
-        const calendarContainer = document.querySelector('.flatpickr-calendar');
-        if (calendarContainer) {
-            const refreshButton = document.createElement('button');
-            refreshButton.className = 'refresh-calendar-btn';
-            refreshButton.innerText = '↻ Refresh';
-            refreshButton.onclick = function(e) {
-                e.preventDefault();
-                location.reload(); // Simple refresh logic
-            };
-            calendarContainer.appendChild(refreshButton);
-        }
-    }
-    
-    /** ✅ 2️⃣ Pet Selection Handling */ 
-document.querySelectorAll('.pet-card').forEach(card => {
-    card.addEventListener('click', function () {
-        const checkbox = this.querySelector('.pet-checkbox');
-        checkbox.checked = !checkbox.checked;
-
-        // Logging pet selection details
-        const petId = this.dataset.petId;
-        const petName = this.dataset.petName;
-        const petType = this.dataset.petType;
-        console.log(`[PET SELECTION] ID: ${petId}, Name: ${petName}, Type: ${petType}, Checked: ${checkbox.checked}`);
-
-        if (checkbox.checked) {
-            this.classList.remove('bg-secondary', 'hover:bg-white', 'hover:text-orange-500'); 
-            this.classList.add('bg-orange-500', 'text-white', 'border-white'); 
-        } else {
-            this.classList.remove('bg-orange-500', 'text-white', 'border-white'); 
-            this.classList.add('bg-secondary', 'hover:bg-white', 'hover:text-orange-500'); 
-        }
-
-        updateServiceSelection();
-        validateForm();
-    });
-});
-
-/** ✅ 3️⃣ Update Service Selection */
-function updateServiceSelection() {
-    const selectedPets = document.querySelectorAll('.pet-checkbox:checked');
-    const serviceArea = document.getElementById('serviceSelectionArea');
-
-    if (selectedPets.length === 0) {
-        serviceArea.innerHTML = '<p class="text-gray-400 italic">Please select a pet first</p>';
-        return;
-    }
-
-    let html = '';
-    selectedPets.forEach(pet => {
-        const petId = pet.value;
-        const petName = pet.parentElement.querySelector('.font-medium').textContent;
-        const petType = pet.parentElement.querySelector('.text-xs').textContent.replace(/[()]/g, '').toLowerCase();
-
-        console.log(`[SERVICE SELECTION] Generating services for Pet ID: ${petId}, Name: ${petName}, Type: ${petType}`);
-
-        html += `<div class="mb-4 p-3 border border-gray-600 rounded-lg">
-                    <div class="font-medium mb-3 text-orange-300">Services for ${petName}:</div>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">`;
-
-        @json($services).forEach(service => {
-            // Only include services that match the selected pet type
-            if (service.pet_type && service.pet_type.toLowerCase() === petType) {
-                console.log(`[SERVICE] Service ID: ${service.id}, Name: ${service.name}, Type: ${service.pet_type}, Price: ${service.price}`);
-                console.log(`[SERVICE] Service ID: ${service.id}, Name: ${service.name}, Type: ${service.pet_type}, Price: ${service.price}`);
-
-                html += `
-                    <label class="service-card border rounded-lg p-3 cursor-pointer transition  
-                        bg-secondary text-gray-800 hover:bg-white hover:text-orange-500 flex flex-col justify-between h-full"
-                        data-service-id="${service.id}" data-service-name="${service.name}" data-service-price="${service.price}">
-                        <input type="checkbox" name="pet_services[${petId}][]" value="${service.id}" class="hidden service-checkbox">
-                        <span class="font-medium mb-1">${service.name}</span>
-                        <span class="text-xs">${service.description ? service.description : ''}</span>
-                        <span class="mt-2 font-semibold">₱${service.price}</span>
-                    </label>`;
-            }
-        });
-
-        html += `</div></div>`;
-    });
-
-    serviceArea.innerHTML = html;
-    setupServiceClickHandlers();
-    validateForm();
-}
-
-
-    /** ✅ 4️⃣ Attach Click Events to Service Selection */
-    function setupServiceClickHandlers() {
-        document.querySelectorAll('.service-card').forEach(card => {
-            card.addEventListener('click', function () {
-                const checkbox = this.querySelector('.service-checkbox');
-                checkbox.checked = !checkbox.checked;
-
-                if (checkbox.checked) {
-                    this.classList.remove('bg-secondary', 'hover:bg-white', 'hover:text-orange-500'); 
-                    this.classList.add('bg-orange-600', 'text-white', 'border-white'); 
-                } else {
-                    this.classList.remove('bg-orange-600', 'text-white', 'border-white'); 
-                    this.classList.add('bg-secondary', 'hover:bg-white', 'hover:text-orange-500'); 
-                }
-
-                validateForm();
-            });
-        });
-    }
-
-    /** ✅ 5️⃣ Generate Appointment Summary */
-    function generateSummary() {
-    const selectedPets = document.querySelectorAll('.pet-checkbox:checked');
-    let summaryHTML = '<div class="space-y-2">'; // Reduced space
-
-    // ✅ Appointment details section
-    summaryHTML += `
-        <div class="p-3 bg-gray-800 rounded-lg mb-3">
-            <p class="font-semibold text-orange-300">When:</p>
-            <p>${new Date(document.getElementById("appointmentDate").value).toLocaleDateString('en-US', {
-                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-            })}</p>
-            <p class="font-semibold text-orange-300 mt-2">Time:</p>
-            <p>${document.getElementById("appointmentTime").options[document.getElementById("appointmentTime").selectedIndex].text}</p>
-        </div>
-    `;
-
-    // ✅ Services per pet section
-    summaryHTML += '<div class="p-3 bg-gray-800 rounded-lg">';
-    summaryHTML += '<p class="font-semibold text-orange-300 mb-2">Selected Services:</p>';
-
-    let totalEstimate = 0;
-    let serviceCount = 0;
-
-    selectedPets.forEach(pet => {
-        const petId = pet.value;
-        const petName = pet.parentElement.querySelector('.font-medium').textContent;
-        const petType = pet.parentElement.querySelector('.text-xs').textContent.trim();
-        const selectedServices = document.querySelectorAll(`input[name="pet_services[${petId}][]"]:checked`);
-
-        if (selectedServices.length > 0) {
-            summaryHTML += `<p class="font-medium border-b border-gray-600 pb-1">${petName} ${petType}</p>`;
-            summaryHTML += `<p class="text-gray-300 text-sm">`;
-
-            selectedServices.forEach(serviceCheckbox => {
-                const serviceCard = serviceCheckbox.closest('.service-card');
-                const serviceName = serviceCard.querySelector('.font-medium').textContent;
-                const servicePrice = serviceCard.querySelector('.font-semibold').textContent.trim();
-
-                // ✅ Fix: Remove ₱ and commas before parsing price
-                const priceValue = parseFloat(servicePrice.replace(/[₱,]/g, ''));
-
-                if (!isNaN(priceValue)) {
-                    totalEstimate += priceValue;
-                    serviceCount++;
-                    summaryHTML += `${serviceName} (${servicePrice}), `;
-                }
-            });
-
-            summaryHTML = summaryHTML.replace(/, $/, ""); // Remove trailing comma
-            summaryHTML += `</p>`;
-        }
-    });
-
-    summaryHTML += `</div>`;
-
-    // ✅ Appointment Notes
-    const notes = document.getElementById('appointmentNotes')?.value.trim();
-    if (notes) {
-        summaryHTML += `
-            <div class="p-3 bg-gray-800 rounded-lg">
-                <p class="font-semibold text-orange-300">Notes:</p>
-                <p class="italic">"${notes}"</p>
-            </div>
-        `;
-    }
-
-    // ✅ Estimated Total
-    if (serviceCount > 0) {
-        summaryHTML += `
-            <div class="mt-2 pt-2 border-t border-gray-600 text-right">
-                <p class="font-bold">Estimated Total: <span class="text-orange-300">₱${totalEstimate.toFixed(2)}</span></p>
-                <p class="text-xs text-gray-400">Final prices may vary based on additional services required during grooming.</p>
-            </div>
-        `;
-    }
-
-    summaryHTML += '</div>';
-    return summaryHTML;
-}
-
-    /** ✅ 6️⃣ Fetch Available Time Slots */
-function fetchAvailableTimes(date) {
-    if (!date) return;
-
-    const timeSelect = document.getElementById('appointmentTime');
-    const timeAvailabilityInfo = document.getElementById('timeAvailabilityInfo');
-    
-    timeSelect.innerHTML = '<option value="">Loading...</option>';
-    timeSelect.disabled = true;
-    timeAvailabilityInfo.innerHTML = '<p class="text-gray-400">Loading available times...</p>';
-
-    fetch(`/appointments/availability?date=${date}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                console.error("🚨 API Error:", data.error);
-                timeSelect.innerHTML = '<option value="">No available slots</option>';
-                
-                // Show error message
-                timeAvailabilityInfo.innerHTML = `<p class="text-red-500">${data.error}</p>`;
-                return;
-            }
-
-            timeSelect.innerHTML = '<option value="">Select a time</option>';
-            timeSelect.disabled = false;
-
-            if (data.times.length === 0) {
-                let option = new Option("No slots available", "");
-                option.disabled = true;
-                timeSelect.appendChild(option);
-                
-                timeAvailabilityInfo.innerHTML = '<p class="text-red-500">All appointment slots for this date are fully booked.</p>';
-            } else {
-                data.times.forEach(timeStr => {
-                    // Convert 12-hour format to 24-hour for value
-                    const timeParts = timeStr.match(/(\d+):(\d+) ([AP]M)/);
-                    if (timeParts) {
-                        let hour = parseInt(timeParts[1]);
-                        const minute = timeParts[2];
-                        const period = timeParts[3];
-                        
-                        if (period === "PM" && hour < 12) hour += 12;
-                        if (period === "AM" && hour === 12) hour = 0;
-                        
-                        const value = `${hour.toString().padStart(2, '0')}:${minute}:00`;
-                        let option = new Option(timeStr, value);
-                        timeSelect.appendChild(option);
-                    }
-                });
-
-                // ✅ Update the message to reflect 3 per hour instead of 2
-                timeAvailabilityInfo.innerHTML = `
-                    
-                    <p class="text-sm text-gray-400">Each time slot allows a maximum of <strong>3 appointments</strong>.</p>
-                `;
-            }
-
-            validateForm();
-        })
-        .catch(error => {
-            console.error("❌ Error fetching time slots:", error);
-            timeSelect.innerHTML = '<option value="">Error loading times</option>';
-            timeSelect.disabled = true;
-            
-            // Show error message
-            timeAvailabilityInfo.innerHTML = '<p class="text-red-500">Failed to load available times. Please try again or contact support.</p>';
-        });
-}
-
-
-    /** ✅ 7️⃣ Form Validation */
-    function validateForm() {
-        const dateField = document.getElementById('appointmentDate');
-        const timeField = document.getElementById('appointmentTime');
-        
-        const petsSelected = document.querySelectorAll('.pet-checkbox:checked').length > 0;
-        const servicesSelected = document.querySelectorAll('.service-checkbox:checked').length > 0;
-        const dateSelected = dateField.value.trim() !== '';
-        const timeSelected = timeField.value.trim() !== '';
-
-        const isValid = petsSelected && servicesSelected && dateSelected && timeSelected;
-
-        if (isValid) {
-            submitButton.disabled = false;
-            submitButton.classList.remove("bg-gray-300", "text-gray-500", "cursor-not-allowed");
-            submitButton.classList.add("bg-orange-500", "text-white", "hover:bg-orange-600");
-        } else {
-            submitButton.disabled = true;
-            submitButton.classList.remove("bg-orange-500", "text-white", "hover:bg-orange-600");
-            submitButton.classList.add("bg-gray-300", "text-gray-500", "cursor-not-allowed");
-        }
-        
-        // Visual feedback on form sections
-        updateSectionStatus('petSelectionCards', petsSelected);
-        updateSectionStatus('serviceSelectionArea', servicesSelected);
-        updateSectionStatus('calendarContainer', dateSelected);
-        updateSectionStatus('appointmentTime', timeSelected);
-    }
-    
-    // Helper function to update visual status of form sections
-    function updateSectionStatus(elementId, isValid) {
-        const element = document.getElementById(elementId);
-        if (!element) return;
-        
-        if (isValid) {
-            element.classList.add('border-green-500');
-            element.classList.remove('border-red-500');
-        } else if (element.classList.contains('border-green-500')) {
-            element.classList.remove('border-green-500');
-        }
-    }
-
-    /** ✅ 8️⃣ Modal Handlers */
-    function openModal() {
-        // Generate and display the summary
-        confirmationContent.innerHTML = generateSummary();
-        
-        // Show the modal
-        confirmationModal.classList.remove('hidden');
-        confirmationModal.classList.add('flex');
-    }
-
-    function closeModal() {
-        confirmationModal.classList.remove('flex');
-        confirmationModal.classList.add('hidden');
-    }
-
-    function submitForm() {
-        let form = document.getElementById('appointmentForm');
-        if (form) {
-            // Add loading state to button
-            confirmButton.innerHTML = '<span class="inline-block animate-spin mr-2">↻</span> Booking...';
-            confirmButton.disabled = true;
-            
-            // Submit the form
-            form.submit();
-        } else {
-            console.error("❌ Form not found!");
-        }
-    }
-
-    /** ✅ 9️⃣ Attach Event Listeners */
-    // Form submit handler
-    const appointmentForm = document.getElementById('appointmentForm');
-    if (appointmentForm) {
-        appointmentForm.addEventListener('submit', function(event) {
-            event.preventDefault();
-            openModal();
-        });
-    }
-
-    // Cancel button click handler
-    if (cancelButton) {
-        cancelButton.addEventListener('click', function(event) {
-            event.preventDefault();
-            closeModal();
-        });
-    }
-
-    // Confirm button click handler
-    if (confirmButton) {
-        confirmButton.addEventListener('click', function() {
-            submitForm();
-        });
-    }
-
-    // Time select change handler
-    document.getElementById('appointmentTime').addEventListener('change', function() {
-        validateForm();
-    });
-
-    // Ensure the modal can be closed with Escape key
-    document.addEventListener('keydown', function(event) {
-        if (event.key === 'Escape') {
-            if (!confirmationModal.classList.contains('hidden')) {
-                closeModal();
-            }
-        }
-    });
-
-    // Allow clicking outside the modal to close it
-    confirmationModal.addEventListener('click', function(event) {
-        if (event.target === confirmationModal) {
-            closeModal();
-        }
-    });
-});
-</script>
-
-@push('styles')
 <style>
-    /* Custom Styles for Calendar */
-    .flatpickr-calendar {
-        background: #333 !important;
-        border: none !important;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3) !important;
+    .step-section {
+        transition: all 0.3s ease;
     }
-    
-    .flatpickr-day {
-        border-radius: 50% !important;
-        color: #fff !important;
-        background: transparent !important;
+    .pet-card, .service-card {
+        transition: all 0.2s ease;
     }
-    
-    .flatpickr-day.selected {
-        background: #f97316 !important;
-        border-color: #f97316 !important;
+    .pet-card:hover, .service-card:hover {
+        transform: translateY(-2px);
     }
-    
-    .flatpickr-day.today {
-        border-color: #f97316 !important;
+    .pet-card.selected {
+        border-color: #3b82f6;
+        background-color: #eff6ff;
+        border-width: 2px;
     }
-    
-    .flatpickr-day:hover {
-        background: rgba(249, 115, 22, 0.3) !important;
+    .pet-card.selected:hover {
+        background-color: #dbeafe;
     }
-    
-    .flatpickr-day.flatpickr-disabled, 
-    .flatpickr-day.flatpickr-disabled:hover,
-    .flatpickr-day.prevMonthDay, 
-    .flatpickr-day.nextMonthDay {
-        color: #666 !important;
+    .service-card.selected {
+        border-color: #3b82f6;
+        background-color: #eff6ff;
+        border-width: 2px;
     }
-    
-    .flatpickr-day.closed-day {
-        background-color: rgba(255, 0, 0, 0.2) !important;
-        text-decoration: line-through;
-        color: #ff6b6b !important;
-        cursor: not-allowed !important;
-    }
-
-    .flatpickr-months .flatpickr-month,
-    .flatpickr-weekdays,
-    .flatpickr-current-month .flatpickr-monthDropdown-months,
-    span.flatpickr-weekday {
-        background: #444 !important;
-        color: #fff !important;  
-    }
-    
-    .flatpickr-current-month {
-        color: #fff !important;
-    }
-    
-    /* Tooltip for hover info */
-    [data-tooltip] {
-        position: relative;
-    }
-    
-    [data-tooltip]:hover:after {
-        content: attr(data-tooltip);
+    .selected-count {
         position: absolute;
-        bottom: 100%;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #333;
+        top: -8px;
+        right: -8px;
+        background-color: #3b82f6;
         color: white;
-        padding: 5px 10px;
-        border-radius: 4px;
-        white-space: nowrap;
-        font-size: 14px;
-        margin-bottom: 5px;
-        z-index: 10;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: bold;
+    }
+    .pet-services-section {
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    .pet-services-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    .pet-services-title {
+        font-weight: 600;
+        margin-left: 0.75rem;
+    }
+    .service-checkbox-container {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+    .service-checkbox {
+        margin-right: 0.5rem;
+    }
+    .vaccine-checkboxes {
+        margin-left: 1.5rem;
+        margin-top: 0.5rem;
+    }
+    .vaccine-checkbox-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.25rem;
     }
 </style>
+
+@push('scripts')
+<script>
+    let selectedPets = [];
+    document.addEventListener('DOMContentLoaded', function() {
+        const closedDays = @json($closedDays);
+        const services = @json($services);
+        
+        var availabilityUrl = "{{ route('customer.appointments.availability') }}";
+    
+        // Initialize pet selection
+        updatePetSelection();
+    
+        // Step navigation
+        document.querySelectorAll('.next-step').forEach(button => {
+            button.addEventListener('click', function() {
+                const nextStep = this.dataset.next;
+                if (nextStep === 'step-2') {
+                    renderPetServices();
+                } else if (nextStep === 'step-4') {
+                    updateReviewSection();
+                }
+                document.getElementById(nextStep).classList.remove('hidden');
+                this.closest('.step-section').classList.add('hidden');
+            });
+        });
+    
+        document.querySelectorAll('.prev-step').forEach(button => {
+            button.addEventListener('click', function() {
+                const prevStep = this.dataset.prev;
+                document.getElementById(prevStep).classList.remove('hidden');
+                this.closest('.step-section').classList.add('hidden');
+            });
+        });
+    
+        // Pet selection
+        document.querySelectorAll('.pet-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const checkbox = this.querySelector('.pet-checkbox');
+                checkbox.checked = !checkbox.checked;
+                this.classList.toggle('selected', checkbox.checked);
+                updatePetSelection();
+                updateSelectedCount();
+    
+                const nextButton = document.querySelector('[data-next="step-2"]');
+                nextButton.disabled = !document.querySelectorAll('.pet-checkbox:checked').length;
+            });
+        });
+    
+        function updateSelectedCount() {
+            document.querySelectorAll('.pet-card').forEach(card => {
+                const existingBadge = card.querySelector('.selected-count');
+                if (existingBadge) existingBadge.remove();
+    
+                const checkbox = card.querySelector('.pet-checkbox');
+                if (checkbox.checked) {
+                    const selected = Array.from(document.querySelectorAll('.pet-checkbox:checked'));
+                    const position = selected.indexOf(checkbox) + 1;
+    
+                    const badge = document.createElement('div');
+                    badge.className = 'selected-count';
+                    badge.textContent = position;
+                    card.style.position = 'relative';
+                    card.appendChild(badge);
+                }
+            });
+        }
+    
+        function updatePetSelection() {
+            selectedPets = [];
+            document.querySelectorAll('.pet-checkbox:checked').forEach(checkbox => {
+                const petCard = checkbox.closest('.pet-card');
+                selectedPets.push({
+                    id: petCard.dataset.petId,
+                    typeId: petCard.dataset.petTypeId,
+                    typeName: petCard.dataset.petTypeName,
+                    name: petCard.querySelector('h3').textContent,
+                    photo: petCard.querySelector('img') ? petCard.querySelector('img').src : null
+                });
+            });
+    
+            document.getElementById('selected-pets-data').value = JSON.stringify(selectedPets);
+        }
+    
+        function renderPetServices() {
+            const container = document.getElementById('services-container');
+            container.innerHTML = '';
+    
+            selectedPets.forEach(pet => {
+                const petSection = document.createElement('div');
+                petSection.className = 'pet-services-section';
+                petSection.dataset.petId = pet.id;
+    
+                const header = document.createElement('div');
+                header.className = 'pet-services-header';
+                header.innerHTML = `
+                    ${pet.photo ? `<img src="${pet.photo}" alt="${pet.name}" class="w-12 h-12 rounded-full object-cover">` :
+                    `<div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
+                        <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                    </div>`}
+                    <h3 class="pet-services-title">Services for ${pet.name} (${pet.typeName})</h3>
+                `;
+                petSection.appendChild(header);
+    
+                const servicesList = document.createElement('div');
+    
+                // Regular services
+                const normalServices = services.filter(s => !s.is_vaccination);
+                if (normalServices.length > 0) {
+                    const normalHeader = document.createElement('h4');
+                    normalHeader.className = 'font-medium mb-2';
+                    normalHeader.textContent = 'Regular Services';
+                    servicesList.appendChild(normalHeader);
+    
+                    normalServices.forEach(service => {
+                        const isAvailable = service.pet_types.length === 0 || service.pet_types.some(pt => pt.id == pet.typeId);
+                        if (!isAvailable) return;
+    
+                        let price = service.base_price;
+                        const petTypePrice = service.pet_types.find(pt => pt.id == pet.typeId);
+                        if (petTypePrice) price = petTypePrice.pivot.price;
+    
+                        const serviceDiv = document.createElement('div');
+                        serviceDiv.className = 'service-checkbox-container';
+                        serviceDiv.innerHTML = `
+                            <input type="checkbox"
+                                   id="service-${service.id}-pet-${pet.id}"
+                                   class="service-checkbox"
+                                   data-service-id="${service.id}"
+                                   data-pet-id="${pet.id}"
+                                   data-price="${price}">
+                            <label for="service-${service.id}-pet-${pet.id}" class="font-medium cursor-pointer">
+                                ${service.name}
+                            </label>
+                            <span class="ml-auto font-medium">₱${parseFloat(price).toFixed(2)}</span>
+                        `;
+                        servicesList.appendChild(serviceDiv);
+                    });
+                }
+    
+                // Vaccination services
+                const vaccineServices = services.filter(s => s.is_vaccination);
+                if (vaccineServices.length > 0) {
+                    const vaccineHeader = document.createElement('h4');
+                    vaccineHeader.className = 'font-medium mb-2 mt-4';
+                    vaccineHeader.textContent = 'Vaccination Services';
+                    servicesList.appendChild(vaccineHeader);
+    
+                    vaccineServices.forEach(service => {
+                        const compatibleVaccines = service.vaccine_pricings.filter(vp =>
+                            !vp.pet_type_id || vp.pet_type_id == pet.typeId
+                        );
+    
+                        if (compatibleVaccines.length === 0) return;
+    
+                        const serviceDiv = document.createElement('div');
+                        serviceDiv.className = 'service-checkbox-container';
+                        serviceDiv.innerHTML = `
+                            <input type="checkbox"
+                                   id="service-${service.id}-pet-${pet.id}"
+                                   class="service-checkbox"
+                                   data-service-id="${service.id}"
+                                   data-pet-id="${pet.id}"
+                                   data-is-vaccination="true">
+                            <label for="service-${service.id}-pet-${pet.id}" class="font-medium cursor-pointer">
+                                ${service.name}
+                            </label>
+                        `;
+    
+                        const vaccineOptions = document.createElement('div');
+                        vaccineOptions.className = 'vaccine-checkboxes ml-6 mt-2';
+    
+                        compatibleVaccines.forEach(vaccine => {
+                            vaccineOptions.innerHTML += `
+                                <div class="vaccine-checkbox-item">
+                                    <input type="checkbox"
+                                           id="vaccine-${vaccine.vaccine_type_id}-pet-${pet.id}-service-${service.id}"
+                                           name="services[${service.id}][pets][${pet.id}][vaccine_ids][]"
+                                           value="${vaccine.vaccine_type_id}"
+                                           data-price="${vaccine.price}"
+                                           data-vaccine-name="${vaccine.vaccine_type.name}"
+                                           class="vaccine-checkbox"
+                                           disabled>
+                                    <label for="vaccine-${vaccine.vaccine_type_id}-pet-${pet.id}-service-${service.id}" class="ml-2 cursor-pointer">
+                                        ${vaccine.vaccine_type.name} - ₱${parseFloat(vaccine.price).toFixed(2)}
+                                    </label>
+                                </div>
+                            `;
+                        });
+    
+                        serviceDiv.appendChild(vaccineOptions);
+                        servicesList.appendChild(serviceDiv);
+                    });
+                }
+    
+                petSection.appendChild(servicesList);
+                container.appendChild(petSection);
+            });
+    
+            // Event Listeners
+            document.querySelectorAll('.service-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const isVaccination = this.dataset.isVaccination === 'true';
+                    const petId = this.dataset.petId;
+                    const serviceId = this.dataset.serviceId;
+    
+                    if (isVaccination) {
+                        document.querySelectorAll(
+                            `input[name="services[${serviceId}][pets][${petId}][vaccine_ids][]"]`
+                        ).forEach(cb => {
+                            cb.disabled = !this.checked;
+                            if (!this.checked) cb.checked = false;
+                        });
+                    }
+                    updateReviewSection();
+                });
+            });
+    
+            document.querySelectorAll('.vaccine-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    updateReviewSection();
+                });
+            });
+        }
+    
+        document.getElementById('appointment-date').addEventListener('change', function() {
+            const date = this.value;
+            const timeSelect = document.getElementById('appointment-time');
+    
+            if (!date) {
+                timeSelect.innerHTML = '<option value="">Select a date first</option>';
+                timeSelect.disabled = true;
+                return;
+            }
+    
+            const dateObj = new Date(date);
+            if (dateObj.getDay() === 0 || dateObj.getDay() === 6 || closedDays.includes(date)) {
+                timeSelect.innerHTML = '<option value="">No availability (closed)</option>';
+                timeSelect.disabled = true;
+                return;
+            }
+    
+            fetch(availabilityUrl + '?date=' + date)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    timeSelect.innerHTML = `<option value="">${data.error}</option>`;
+                    timeSelect.disabled = true;
+                } else {
+                    timeSelect.innerHTML = '<option value="">Select a time</option>';
+                    data.times.forEach(time => {
+                        const option = document.createElement('option');
+                        option.value = time;
+                        option.textContent = time;
+                        timeSelect.appendChild(option);
+                    });
+                    timeSelect.disabled = false;
+                }
+            })
+            .catch(() => {
+                timeSelect.innerHTML = '<option value="">Error loading times</option>';
+                timeSelect.disabled = true;
+            });
+        });
+    
+        function updateReviewSection() {
+            const petsSection = document.getElementById('review-pets');
+            petsSection.innerHTML = '';
+            selectedPets.forEach(pet => {
+                petsSection.innerHTML += `
+                    <div class="border rounded-lg p-3">
+                        <div class="flex items-center">
+                            ${pet.photo ? `<img src="${pet.photo}" alt="${pet.name}" class="w-12 h-12 rounded-full object-cover">` :
+                            `<div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
+                                <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                            </div>`}
+                            <div class="ml-3">
+                                <h4 class="font-medium">${pet.name}</h4>
+                                <p class="text-sm text-gray-600">${pet.typeName}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+    
+            const servicesSection = document.getElementById('review-services');
+            servicesSection.innerHTML = '';
+            let total = 0;
+    
+            document.querySelectorAll('.service-checkbox:checked').forEach(serviceCheckbox => {
+    const serviceId = serviceCheckbox.dataset.serviceId;
+    const petId = serviceCheckbox.dataset.petId;
+    const isVaccination = serviceCheckbox.dataset.isVaccination === 'true';
+    const service = services.find(s => s.id == serviceId);
+    const pet = selectedPets.find(p => p.id == petId);
+
+    if (!service || !pet) return;
+
+    let servicePrice = parseFloat(serviceCheckbox.dataset.price) || 0;
+    let serviceText = `<h4 class="font-medium">${service.name} (${pet.name})</h4>`;
+    let displayPrice = 0; // This will be used to show in the right-side price span
+
+    if (isVaccination) {
+        const vaccineCheckboxes = document.querySelectorAll(`input[name="services[${serviceId}][pets][${petId}][vaccine_ids][]"]:checked`);
+        vaccineCheckboxes.forEach(vaccineCheckbox => {
+            const vaccineName = vaccineCheckbox.dataset.vaccineName || '';
+            const vaccinePrice = parseFloat(vaccineCheckbox.dataset.price) || 0;
+            serviceText += `<p class="text-sm text-gray-600">Vaccine: ${vaccineName} (₱${vaccinePrice.toFixed(2)})</p>`;
+            total += vaccinePrice;
+            displayPrice += vaccinePrice;
+        });
+    } else {
+        total += servicePrice;
+        displayPrice = servicePrice;
+    }
+
+    servicesSection.innerHTML += `
+        <div class="border-b pb-3 mb-2">
+            <div class="flex justify-between">
+                <div>${serviceText}</div>
+                <span class="font-medium">₱${displayPrice.toFixed(2)}</span>
+            </div>
+        </div>
+    `;
+});
+
+document.getElementById('review-date').textContent = document.getElementById('appointment-date').value;
+document.getElementById('review-time').textContent = document.getElementById('appointment-time').value;
+document.getElementById('review-total').textContent = `₱${total.toFixed(2)}`;
+        }
+    });
+    
+    // Before submitting the form, transform the data
+    document.getElementById('appointment-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Collect all selected services and vaccines
+    const formData = new FormData(this);
+    const servicesData = [];
+    
+    // Get basic form data
+    const appointmentData = {
+        pet_ids: selectedPets.map(pet => pet.id),
+        appointment_date: formData.get('appointment_date'),
+        appointment_time: formData.get('appointment_time'),
+        services: servicesData
+    };
+    
+    // Process regular services
+    document.querySelectorAll('.service-checkbox:checked').forEach(checkbox => {
+        const serviceId = checkbox.dataset.serviceId;
+        const petId = checkbox.dataset.petId;
+        const isVaccination = checkbox.dataset.isVaccination === 'true';
+        
+        const service = {
+            id: parseInt(serviceId),
+            pet_id: parseInt(petId),
+            price: parseFloat(checkbox.dataset.price) || 0
+        };
+        
+        if (isVaccination) {
+            const vaccineIds = [];
+            document.querySelectorAll(`input[name="services[${serviceId}][pets][${petId}][vaccine_ids][]"]:checked`).forEach(vaccineCb => {
+                vaccineIds.push(parseInt(vaccineCb.value)); // Fixed this line - removed extra parenthesis
+            });
+            service.vaccine_type_ids = vaccineIds;
+        }
+        
+        servicesData.push(service);
+    });
+    
+    // Add the transformed data to a hidden input
+    const dataInput = document.createElement('input');
+    dataInput.type = 'hidden';
+    dataInput.name = 'appointment_data';
+    dataInput.value = JSON.stringify(appointmentData);
+    this.appendChild(dataInput);
+    
+    // Submit the form
+    this.submit();
+});
+    </script>
+    
 @endpush
 @endsection

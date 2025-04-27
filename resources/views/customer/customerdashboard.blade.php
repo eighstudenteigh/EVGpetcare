@@ -18,7 +18,7 @@
             </div>
         @else
             <a href="{{ route('customer.appointments.create') }}" 
-               class="px-6 bg-orange-400 text-white font-bold py-2 rounded hover:bg-gray-500 transition-colors">
+               class="px-6 bg-orange-500 text-white font-bold py-2 rounded hover:bg-gray-600 transition-colors">
                  Book New Appointment
             </a>
         @endif

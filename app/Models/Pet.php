@@ -41,10 +41,5 @@ class Pet extends Model
 {
     return $this->hasMany(AppointmentService::class);
 }
-   
-
-    
-
-   
 
 }

@@ -11,10 +11,15 @@ use App\Models\ClosedDay;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-
+use App\Models\ServiceVaccinePricing;
+use Illuminate\Support\Facades\Validator;
 
 class AppointmentController extends Controller
 {
+    protected function attachPets($appointment, $petIds)
+    {
+        $appointment->pets()->attach($petIds);
+    }
     // Show user's appointments
     public function index(Request $request)
 {
@@ -120,87 +125,225 @@ class AppointmentController extends Controller
     
         return response()->json(['times' => $timeSlots]);
     }
+    public function create(Request $request)
+{
+    $userId = Auth::id();
+    
+    $pets = Pet::where('customer_id', $userId)->with('petType')->get();
+    if ($pets->isEmpty()) {
+        return redirect()->route('customer.pets.create')
+            ->with('error', 'Please register at least one pet before booking.');
+    }
 
-    // Show appointment booking page
-    public function create()
+    // Get all pet types of the user's pets
+    $petTypeIds = $pets->pluck('pet_type_id')->unique();
+
+    // Load services with all petTypes (no filter) and vaccinePricings
+    $services = Service::with([
+        'petTypes', // <--- No more filtering here
+        'vaccinePricings' => function($query) {
+            $query->with(['vaccineType', 'petType']);
+        }
+    ])
+    ->where(function($query) use ($petTypeIds) {
+        $query->whereHas('petTypes', function($q) use ($petTypeIds) {
+            $q->whereIn('pet_types.id', $petTypeIds);
+        })
+        ->orWhereDoesntHave('petTypes');
+    })
+    ->get();
+
+    $closedDays = ClosedDay::pluck('date')->toArray();
+    
+    return view('customer.appointments.create', [
+        'pets' => $pets,
+        'services' => $services,
+        'closedDays' => $closedDays,
+        'selectedPetTypeIds' => $petTypeIds->toArray(),
+    ]);
+}
+
+    // Get services compatible with selected pets
+    public function getCompatibleServices(Request $request)
     {
-        $userId = Auth::id();
-    
-        $pets = Pet::where('customer_id', $userId)->with('services')->get();
-        $services = DB::table('services')
-            ->join('service_pet_type', 'services.id', '=', 'service_pet_type.service_id')
-            ->join('pet_types', 'service_pet_type.pet_type_id', '=', 'pet_types.id')
-            ->select('services.id', 'services.name', 'services.description', 'service_pet_type.price', 'pet_types.name as pet_type')
-            ->get();
-        $closedDays = ClosedDay::pluck('date')->toArray();
-    
-        $acceptedAppointmentsToday = Appointment::where('appointment_date', now()->toDateString())
-                                             ->where('status', 'approved')
-                                             ->count();
-    
-        $maxAppointments = 10;
-    
-        if ($pets->isEmpty()) {
-            return redirect()->route('customer.dashboard')
-                             ->with('error', 'You must add a pet before booking an appointment.');
+        $petTypeIds = Pet::whereIn('id', $request->pet_ids)
+            ->pluck('pet_type_id')
+            ->unique();
+
+        $services = Service::with(['petTypes', 'vaccinePricings' => function($query) use ($petTypeIds) {
+            $query->whereIn('pet_type_id', $petTypeIds)->orWhereNull('pet_type_id');
+        }])
+        ->whereHas('petTypes', function($query) use ($petTypeIds) {
+            $query->whereIn('pet_types.id', $petTypeIds);
+        })
+        ->get();
+
+        return response()->json([
+            'services' => $services,
+            'vaccine_prices' => ServiceVaccinePricing::whereIn('pet_type_id', $petTypeIds)
+                ->orWhereNull('pet_type_id')
+                ->get()
+        ]);
+    }
+
+    // Store new appointment
+    public function store(Request $request)
+{
+    try {
+        $validated = $this->validateRequest($request);
+        
+        if ($error = $this->checkAvailability($validated)) {
+            return back()->with('error', $error)->withInput();
+        }
+        
+        DB::beginTransaction();
+        
+        $appointment = $this->createAppointment($validated);
+        $this->attachPets($appointment, $validated['pet_ids']);
+        $this->attachServices($appointment, $validated['services']);
+        
+        DB::commit();
+        
+        return redirect()->route('customer.appointments.show', $appointment)
+            ->with('success', 'Appointment booked successfully!');
+            
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return back()
+            ->withErrors($e->validator)
+            ->withInput();
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Appointment booking failed: '.$e->getMessage());
+        return back()->with('error', 'Failed to book appointment. Please try again.')->withInput();
+    }
+}
+    // Validate request data
+    protected function validateRequest(Request $request)
+    {
+        $data = json_decode($request->appointment_data, true);
+        
+        // Convert 12-hour format to 24-hour format if needed
+        if (isset($data['appointment_time'])) {
+            try {
+                $time = Carbon::createFromFormat('h:i A', $data['appointment_time']);
+                $data['appointment_time'] = $time->format('H:i');
+            } catch (\Exception $e) {
+                // If conversion fails, let validation handle it
+            }
         }
     
-        return view('customer.appointments.create', compact('pets', 'services', 'acceptedAppointmentsToday', 'maxAppointments'));
+        $validator = Validator::make($data, [
+            'pet_ids' => 'required|array',
+            'pet_ids.*' => 'exists:pets,id',
+            'appointment_date' => 'required|date|after_or_equal:today',
+            'appointment_time' => 'required|date_format:H:i',
+            'services' => 'required|array',
+            'services.*.id' => 'required|exists:services,id',
+            'services.*.pet_id' => 'required|exists:pets,id',
+            'services.*.price' => 'required|numeric|min:0',
+            'services.*.vaccine_type_ids' => 'sometimes|array',
+            'services.*.vaccine_type_ids.*' => 'exists:vaccine_types,id',
+        ]);
+    
+        if ($validator->fails()) {
+            throw new \Illuminate\Validation\ValidationException($validator);
+        }
+    
+        return $validator->validated();
     }
     
-    // Store a new appointment
-    public function store(Request $request)
+    // Check time slot availability
+    protected function checkAvailability($validated)
     {
-        $request->validate([
-            'pet_ids' => 'required|array',
-            'pet_services' => 'required|array',
-            'appointment_date' => 'required|date|after:today',
-            'appointment_time' => 'required|string'
-        ]);
-
-        $userId = Auth::id();
-        $maxAppointmentsPerSlot = 3;
-
-        // Check if the selected time slot is already full
-        $timeSlotCount = Appointment::where('appointment_date', $request->appointment_date)
-            ->where('appointment_time', $request->appointment_time)
-            ->whereIn('status', ['pending', 'approved'])
-            ->count();
-
-        if ($timeSlotCount >= $maxAppointmentsPerSlot) {
-            return back()->with('error', 'This time slot is already fully booked. Please select another time.');
+        $date = $validated['appointment_date']; // ✅ instead of $request->input('date')
+        
+        $appointmentDate = Carbon::parse($date);
+        if ($appointmentDate->isWeekend()) {
+            return 'Appointments cannot be booked on weekends';
         }
-
-        // Check if the total for the day exceeds the max
-        $dailyCount = Appointment::where('appointment_date', $request->appointment_date)
-            ->whereIn('status', ['pending', 'approved'])
-            ->count();
-
+    
+        if (ClosedDay::where('date', $appointmentDate->format('Y-m-d'))->exists()) {
+            return 'This date is unavailable for appointments';
+        }
+    
         $maxAppointmentsPerDay = config('settings.max_appointments_per_day', 10);
+        $maxAppointmentsPerSlot = 3;
+    
+        $dailyCount = Appointment::where('appointment_date', $date)
+            ->whereIn('status', ['pending', 'approved'])
+            ->count();
+    
         if ($dailyCount >= $maxAppointmentsPerDay) {
-            return back()->with('error', 'Maximum appointments for the day reached. Please pick another day.');
+            return 'No available slots. The day is fully booked.';
         }
+    
+        $bookedSlots = Appointment::where('appointment_date', $date)
+            ->whereIn('status', ['pending', 'approved'])
+            ->selectRaw('appointment_time, COUNT(*) as total_booked')
+            ->groupBy('appointment_time')
+            ->pluck('total_booked', 'appointment_time');
+    
+        $time24 = sprintf('%02d:00:00', Carbon::parse($validated['appointment_time'])->hour);
+    
+        if (isset($bookedSlots[$time24]) && $bookedSlots[$time24] >= $maxAppointmentsPerSlot) {
+            return 'Selected time slot is full. Please choose a different time.';
+        }
+    
+        return null; // ✅ No error
+    }
+    
 
-        // Proceed with booking
-        $appointment = Appointment::create([
-            'user_id' => $userId,
-            'appointment_date' => $request->appointment_date,
-            'appointment_time' => $request->appointment_time,
-            'status' => 'pending'
+    // Create appointment record
+    protected function createAppointment($validated)
+    {
+        return Appointment::create([
+            'user_id' => Auth::id(),
+            'appointment_date' => $validated['appointment_date'],
+            'appointment_time' => $validated['appointment_time'],
+            'status' => 'pending',
+            'notes' => $validated['notes'] ?? null
         ]);
+    }
 
-        // Attach pets & services
-        $appointment->pets()->attach($request->pet_ids);
-        foreach ($request->pet_ids as $petId) {
-            if (isset($request->pet_services[$petId])) {
-                foreach ($request->pet_services[$petId] as $serviceId) {
-                    $appointment->services()->attach($serviceId, ['pet_id' => $petId]);
+    // Attach services and vaccines to appointment
+    protected function attachServices($appointment, $services)
+{
+    foreach ($services as $serviceData) {
+        // First attach the service to the appointment using the pivot table
+        $appointmentService = $appointment->services()->attach($serviceData['id'], [
+            'pet_id' => $serviceData['pet_id'],
+            'price' => $serviceData['price'],
+        ]);
+        
+        // If there are vaccine types, attach them through the appointmentServices relationship
+        if (!empty($serviceData['vaccine_type_ids']) && is_array($serviceData['vaccine_type_ids'])) {
+            // Get the pivot ID from the attachment
+            $pivotId = DB::table('appointment_service')
+                ->where('appointment_id', $appointment->id)
+                ->where('service_id', $serviceData['id'])
+                ->where('pet_id', $serviceData['pet_id'])
+                ->value('id');
+                
+            // If we found the pivot ID, attach the vaccines
+            if ($pivotId) {
+                foreach ($serviceData['vaccine_type_ids'] as $vaccineTypeId) {
+                    DB::table('appointment_service_vaccine')->insert([
+                        'appointment_service_id' => $pivotId,
+                        'vaccine_type_id' => $vaccineTypeId,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]);
                 }
             }
         }
+    }
+}
+    
 
-        return redirect()->route('customer.appointments.index')
-                         ->with('success', 'Appointment booked successfully!');
+    // Get primary pet ID for service (simplified - can be enhanced)
+    protected function getPrimaryPetId($petIds, $serviceId)
+    {
+        return $petIds[0]; // Default to first pet - adjust based on your logic
     }
 
     // Cancel an appointment

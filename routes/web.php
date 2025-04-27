@@ -20,51 +20,53 @@ use App\Http\Controllers\Admin\AdminPetTypeController;
 use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Admin\RecordsController;
 use App\Http\Controllers\Admin\RecordController;
+use App\Http\Controllers\Admin\VaccineTypeController;
 
 //  Public Pages (No Middleware)
 
-        Route::get('/', [PageController::class, 'home'])->name('home');
-        Route::get('/verify-email/{id}', [EmailVerificationController::class, 'verify'])->name('verify.email');
-   
-    //services
-        Route::get('/services', [GuestServiceController::class, 'index'])->name('services');
-        Route::get('/services/all', [GuestServiceController::class, 'getAllServices']);
-        Route::get('/services/by-animal', [GuestServiceController::class, 'getServicesByAnimal']);
-        Route::get('/about-us', [AboutController::class, 'index'])->name('about.us');
+Route::get('/', [PageController::class, 'home'])->name('home');
+Route::get('/verify-email/{id}', [EmailVerificationController::class, 'verify'])->name('verify.email');
 
-    //inquiry
-        Route::get('/inquiry', [InquiryController::class, 'create'])->name('customer.inquiry');
-        Route::post('/inquiry', [InquiryController::class, 'store'])->name('customer.inquiry.store');
+//services
+Route::get('/services', [GuestServiceController::class, 'index'])->name('services');
+Route::get('/services/all', [GuestServiceController::class, 'getAllServices']);
+Route::get('/services/by-animal', [GuestServiceController::class, 'getServicesByAnimal']);
+Route::get('/about-us', [AboutController::class, 'index'])->name('about.us');
 
-    //about-us
-    Route::get('/our-team', function () {
-        return view('team');})->name('team');    
+//inquiry
+Route::get('/inquiry', [InquiryController::class, 'create'])->name('customer.inquiry');
+Route::post('/inquiry', [InquiryController::class, 'store'])->name('customer.inquiry.store');
 
+//about-us
+Route::get('/our-team', function () {
+return view('team');})->name('team');    
 
+Route::get('/appointments/create', [AppointmentController::class, 'create'])->name('customer.appointments.create');
 // Authentication Routes
-    Route::middleware('guest')->group(function () {
+Route::middleware('guest')->group(function () {
         Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
         Route::post('/login', [LoginController::class, 'login']);
-         });
+});
 
-// Logout route
+    // Logout route
     Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth')->name('logout');
 
 // Authenticated Routes
 Route::middleware(['auth', 'verified'])->group(function () {
-        Route::get('/dashboard', [DashboardController::class, 'redirectToDashboard'])->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'redirectToDashboard'])->name('dashboard');
        
-        // Profile Routes - available to all authenticated users
-        Route::controller(ProfileController::class)->group(function () {
-        Route::get('/profile', 'edit')->name('profile.edit');
-        Route::patch('/profile', 'update')->name('profile.update');
-        Route::delete('/profile', 'destroy')->name('profile.destroy');
+    // Profile Routes - available to all authenticated users
+    Route::controller(ProfileController::class)->group(function () {
+    Route::get('/profile', 'edit')->name('profile.edit');
+    Route::patch('/profile', 'update')->name('profile.update');
+    Route::delete('/profile', 'destroy')->name('profile.destroy');
 
-        Route::get('/admin/closed-days', [ClosedDaysController::class, 'index'])->name('admin.closed-days.index');    
+    Route::get('/admin/closed-days', [ClosedDaysController::class, 'index'])->name('admin.closed-days.index');    
     });
 
     // Customer Routes
-    Route::middleware(['auth', 'role:customer'])->group(function () {
+    Route::get('/appointments/availability', [AppointmentController::class, 'getAvailability'])->name('customer.appointments.availability');
+    Route::middleware(['role:customer'])->group(function () {
         Route::get('/customer/dashboard', [CustomerDashboardController::class, 'index'])->name('customer.dashboard');
    
     // Pet routes
@@ -75,19 +77,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/customer/pets/{pet}/edit', [PetController::class, 'edit'])->name('customer.pets.edit');
         Route::put('/customer/pets/{pet}', [PetController::class, 'update'])->name('customer.pets.update');
         Route::delete('/customer/pets/{pet}', [PetController::class, 'destroy'])->name('customer.pets.destroy');
+        
         Route::get('/appointments/{appointment}', [AppointmentController::class, 'show'])
         ->name('customer.appointments.show');
         
-        Route::get('/customer/pets/appointments/{appointment}', [AppointmentController::class, 'show'])
-        ->name('customer.appointments.show');
+        
   
     //appointments
         Route::get('/appointments', [AppointmentController::class, 'index'])->name('customer.appointments.index');
-        Route::get('/appointments/create', [AppointmentController::class, 'create'])->name('customer.appointments.create');
+        
         Route::post('/appointments/store', [AppointmentController::class, 'store'])->name('customer.appointments.store');
         Route::delete('/appointments/{appointment}/cancel', [AppointmentController::class, 'cancel'])->name('customer.appointments.cancel');
 
-        Route::get('/appointments/availability', [AppointmentController::class, 'getAvailability'])->name('customer.appointments.availability');
+        
         Route::get('/appointments/closed-days', [AdminDashboardController::class, 'getClosedDays']);
         
     });
@@ -198,28 +200,46 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/admin/closed-days/{date}', [ClosedDaysController::class, 'destroy'])->name('admin.closed-days.destroy');
         
 
-        // Settings Routes
+            // Settings Routes
             Route::get('/admin/settings', [ClosedDaysController::class, 'settings'])->name('admin.settings');
             Route::post('/admin/settings/max-appointments', [ClosedDaysController::class, 'updateMaxAppointments'])->name('admin.settings.maxAppointments');
             
-        //admins   
+            //admins   
             Route::get('/admin', [AdminController::class, 'index'])->name('admins.index');
             Route::get('/admin/create', [AdminController::class, 'create'])->name('admins.create');
             Route::post('/admin/store', [AdminController::class, 'store'])->name('admins.store');
             Route::delete('/admin/{id}', [AdminController::class, 'destroy'])->name('admins.destroy');
 
         
-        //services
+            //services
+            
             Route::get('/admin/services', [AdminServiceController::class, 'index'])->name('admin.services.index');
             Route::get('/admin/services/create', [AdminServiceController::class, 'create'])->name('admin.services.create');
-            Route::post('/admin/services/store', [AdminServiceController::class, 'store'])->name('admin.services.store');
-            Route::put('/admin/services/{service}', [AdminServiceController::class, 'update'])->name('admin.services.update');  
-            Route::delete('/admin/services/{service}', [AdminServiceController::class, 'destroy'])->name('admin.services.delete');  
+            Route::post('/admin/services', [AdminServiceController::class, 'store'])->name('admin.services.store');
+            Route::get('/admin/services/{service}/edit', [AdminServiceController::class, 'edit'])->name('admin.services.edit');
             
-
+            // Update service
+            Route::put('/admin/services/{service}', [AdminServiceController::class, 'update'])->name('admin.services.update');
+            
+            // Delete service
+            Route::delete('/admin/services/{service}', [AdminServiceController::class, 'destroy'])->name('admin.services.destroy');
+            
+            // Vaccine assignment
+            Route::get('/admin/services/{service}/vaccines', [AdminServiceController::class, 'editVaccines'])->name('admin.services.vaccines.edit');
+            Route::post('/admin/services/{service}/vaccines', [AdminServiceController::class, 'updateVaccines'])->name('admin.services.vaccines.update');
+            
+            
+            //Vaccine types
+            Route::get('/admin/vaccine-types', [VaccineTypeController::class, 'index'])->name('admin.vaccine-types.index');
+            Route::get('/admin/vaccine-types/create', [VaccineTypeController::class, 'create'])->name('admin.vaccine-types.create');
+            Route::post('/admin/vaccine-types', [VaccineTypeController::class, 'store'])->name('admin.vaccine-types.store');
+            Route::get('/admin/vaccine-types/{vaccineType}/edit', [VaccineTypeController::class, 'edit'])->name('admin.vaccine-types.edit');
+            Route::put('/admin/vaccine-types/{vaccineType}', [VaccineTypeController::class, 'update'])->name('admin.vaccine-types.update');
+            Route::delete('/admin/vaccine-types/{vaccineType}', [VaccineTypeController::class, 'destroy'])->name('admin.vaccine-types.destroy');
+            
             Route::post('/admin/appointments/{appointment}/approve', [AdminAppointmentController::class, 'approve'])->name('admin.appointments.approve');
             Route::post('/admin/appointments/{appointment}/reject', [AdminAppointmentController::class, 'reject'])->name('admin.appointments.reject');
-        });
+    });
 });
 
 require __DIR__.'/auth.php';

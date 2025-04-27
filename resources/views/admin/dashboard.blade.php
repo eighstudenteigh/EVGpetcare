@@ -129,7 +129,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 10px;
+    font-size: 15px%;
     z-index: 10;
     padding: 0 2px;
     font-weight: bold;
@@ -145,7 +145,7 @@
     
     #adminCalendar {
         max-width: 100%;
-        height: 700px;
+        height: 600px;
         margin: 0 auto;
     }
     
@@ -203,149 +203,167 @@
 </style>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        var adminCalendarEl = document.getElementById('adminCalendar');
-        
-        function loadCalendarData() {
-            fetch("{{ route('admin.dashboard.calendar-data') }}")
-                .then(response => response.json())
-                .then(events => {
-                    renderCalendar(events);
-                })
-                .catch(error => {
-                    console.error('Error fetching calendar data:', error);
-                    alert('Failed to load calendar data. Please refresh and try again.');
-                });
-        }
+    var adminCalendarEl = document.getElementById('adminCalendar');
     
-        function renderCalendar(events) {
-            var adminCalendar = new FullCalendar.Calendar(adminCalendarEl, {
-                initialView: 'dayGridMonth',
-                selectable: true,
-                weekends: false,
-                validRange: { start: new Date() },
-                headerToolbar: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    
-                },
-                events: events,
-                dayCellClassNames: function(arg) {
-                    if (arg.date < new Date()) {
-                        return ['fc-day-past'];
-                    }
-                },
-                eventDidMount: function(info) {
-                    // For approved appointment counts
-                    if (info.event.extendedProps && info.event.extendedProps.count) {
-                        const dayEl = info.el.closest('.fc-daygrid-day');
-                        if (dayEl) {
-                            const badge = document.createElement('span');
-                            badge.className = 'appointment-count-badge';
-                            badge.innerText = info.event.extendedProps.count;
-                            dayEl.querySelector('.fc-daygrid-day-top').appendChild(badge);
-                        }
-                    }
-                    
-                    // For closed days
-                    if (info.event.title === 'Closed') {
-                        const dayEl = info.el.closest('.fc-daygrid-day');
-                        if (dayEl) {
-                            dayEl.classList.add('closed-day');
-                        }
-                    }
-                }, 
-                dateClick: function(info) {
-                    // Prevent actions on past dates
-                    if (info.date < new Date()) {
-                        return;
-                    }
-    
-                    const existingEvent = adminCalendar.getEvents().find(event => 
-                        event.startStr === info.dateStr && event.title.includes('Closed')
-                    );
-    
-                    if (existingEvent) {
-                        if (confirm('Re-enable this day?')) {
-                            fetch("{{ url('admin/closed-days') }}/" + info.dateStr, {
-                                method: "DELETE",
-                                headers: {
-                                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                                }
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                existingEvent.remove();
-                                info.dayEl.classList.remove('fc-day-disabled');
-                                alert('Day has been re-enabled.');
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
-                                alert('Failed to re-enable the day.');
-                            });
-                        }
-                    } else {
-                        if (confirm('Mark this day as unavailable?')) {
-                            fetch("{{ route('admin.closed-days.store') }}", {
-                                method: "POST",
-                                headers: {
-                                    "Content-Type": "application/json",
-                                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                                },
-                                body: JSON.stringify({ date: info.dateStr })
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                adminCalendar.addEvent({
-                                    title: 'Closed',
-                                    start: info.dateStr,
-                                    allDay: true,
-                                    backgroundColor: '#ff4d4d',
-                                    borderColor: '#ff4d4d'
-                                });
-                                info.dayEl.classList.add('fc-day-disabled');
-                                alert('Day has been marked as unavailable.');
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
-                                alert('Failed to mark the day as unavailable.');
-                            });
-                        }
-                    }
-                }
-            });
-    
-            adminCalendar.render();
-        }
-    
-        // Call the function to load calendar data
-        loadCalendarData();
-    
-        // Update Max Appointments Without Reload
-        document.getElementById("updateMaxAppointmentsBtn").addEventListener("click", function(e) {
-            e.preventDefault();
-            let newMax = document.getElementById("maxAppointmentsInput").value;
-            
-            fetch("{{ route('admin.updateMaxAppointments') }}", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                },
-                body: JSON.stringify({ max_appointments_per_day: newMax })
-            })
+    function loadCalendarData() {
+        fetch("{{ route('admin.dashboard.calendar-data') }}")
             .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert("Max Appointments Updated!");
-                } else {
-                    alert("Failed to update. Please try again.");
-                }
+            .then(events => {
+                renderCalendar(events);
             })
             .catch(error => {
-                console.error("Error updating max appointments:", error);
-                alert("Error updating max appointments.");
+                console.error('Error fetching calendar data:', error);
+                alert('Failed to load calendar data. Please refresh and try again.');
             });
+    }
+
+    function renderCalendar(events) {
+        var adminCalendar = new FullCalendar.Calendar(adminCalendarEl, {
+            initialView: 'dayGridMonth',
+            selectable: true,
+            weekends: false,
+            validRange: { start: new Date() },
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                
+            },
+            events: events,
+            dayCellClassNames: function(arg) {
+                if (arg.date < new Date()) {
+                    return ['fc-day-past'];
+                }
+            },
+            eventDidMount: function(info) {
+                // For approved appointment counts
+                if (info.event.extendedProps && info.event.extendedProps.count) {
+                    const dayEl = info.el.closest('.fc-daygrid-day');
+                    if (dayEl) {
+                        const badge = document.createElement('span');
+                        badge.className = 'appointment-count-badge';
+                        badge.innerText = info.event.extendedProps.count;
+                        dayEl.querySelector('.fc-daygrid-day-top').appendChild(badge);
+                    }
+                }
+                
+                // For closed days
+                if (info.event.title === 'Closed') {
+                    const dayEl = info.el.closest('.fc-daygrid-day');
+                    if (dayEl) {
+                        dayEl.classList.add('closed-day');
+                    }
+                }
+            }, 
+            dateClick: function(info) {
+                // Prevent actions on past dates
+                if (info.date < new Date()) {
+                    return;
+                }
+
+                const existingEvent = adminCalendar.getEvents().find(event => 
+                    event.startStr === info.dateStr && event.title.includes('Closed')
+                );
+
+                if (existingEvent) {
+                    if (confirm('Re-enable this day?')) {
+                        fetch("{{ url('admin/closed-days') }}/" + info.dateStr, {
+                            method: "DELETE",
+                            headers: {
+                                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            existingEvent.remove();
+                            // Remove all classes and styling related to closed days
+                            info.dayEl.classList.remove('closed-day');
+                            info.dayEl.classList.remove('fc-day-disabled');
+                            
+                            // Remove the lock emoji if it exists
+                            const lockEmoji = info.dayEl.querySelector('.fc-daygrid-day-frame::after');
+                            if (lockEmoji) {
+                                lockEmoji.remove();
+                            }
+                            
+                            // Reset the day number styling
+                            const dayNumber = info.dayEl.querySelector('.fc-daygrid-day-number');
+                            if (dayNumber) {
+                                dayNumber.style.color = '';
+                                dayNumber.style.textDecoration = '';
+                            }
+                            
+                            // Fully refresh the day's appearance
+                            adminCalendar.refetchEvents();
+                            
+                            alert('Day has been re-enabled.');
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('Failed to re-enable the day.');
+                        });
+                    }
+                } else {
+                    if (confirm('Mark this day as unavailable?')) {
+                        fetch("{{ route('admin.closed-days.store') }}", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                            },
+                            body: JSON.stringify({ date: info.dateStr })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            adminCalendar.addEvent({
+                                title: 'Closed',
+                                start: info.dateStr,
+                                allDay: true,
+                                backgroundColor: '#ff4d4d',
+                                borderColor: '#ff4d4d'
+                            });
+                            info.dayEl.classList.add('closed-day');
+                            alert('Day has been marked as unavailable.');
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('Failed to mark the day as unavailable.');
+                        });
+                    }
+                }
+            }
+        });
+
+        adminCalendar.render();
+    }
+
+    // Call the function to load calendar data
+    loadCalendarData();
+
+    // Update Max Appointments Without Reload
+    document.getElementById("updateMaxAppointmentsBtn").addEventListener("click", function(e) {
+        e.preventDefault();
+        let newMax = document.getElementById("maxAppointmentsInput").value;
+        
+        fetch("{{ route('admin.updateMaxAppointments') }}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+            },
+            body: JSON.stringify({ max_appointments_per_day: newMax })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("Max Appointments Updated!");
+            } else {
+                alert("Failed to update. Please try again.");
+            }
+        })
+        .catch(error => {
+            console.error("Error updating max appointments:", error);
+            alert("Error updating max appointments.");
         });
     });
-    </script>
+});</script>
 @endsection

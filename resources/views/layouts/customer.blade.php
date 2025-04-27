@@ -25,6 +25,6 @@
     <!-- Include Footer -->
     @include('partials.customer-footer')
     <script src="{{ asset('js/tooltip.js') }}"></script>
-
+    @stack('scripts')
 </body>
 </html>

@@ -16,4 +16,8 @@ class AppointmentService extends Pivot
     {
         return $this->belongsTo(Pet::class);
     }
+    public function vaccines()
+{
+    return $this->belongsToMany(VaccineType::class, 'appointment_service_vaccine');
+}
 }
