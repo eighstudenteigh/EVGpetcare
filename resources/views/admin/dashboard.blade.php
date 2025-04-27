@@ -4,7 +4,7 @@
 <div class="container">
     <!-- Header and Slots Tracking in a flex layout -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-        <h2 class="text-3xl font-bold text-gray-800 font-[Nunito] mb-4 md:mb-0">Admin Dashboard</h2>
+        <h2 class="text-3xl font-bold text-gray-800  mb-4 md:mb-0">Admin Dashboard</h2>
         
         <!-- Max Appointments Update Form -->
         <form action="{{ route('admin.updateMaxAppointments') }}" method="POST" class="bg-gray-100 p-4 rounded-lg shadow-md">
