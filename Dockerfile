@@ -32,10 +32,15 @@ RUN composer install --optimize-autoloader --no-dev
 # Install Node.js dependencies and build Vite assets (only if needed)
 RUN npm install && npm run build
 
+# Create pets directory and set permissions upfront
+RUN mkdir -p /var/www/html/public/pets && \
+    chown -R www-data:www-data /var/www/html/public/pets && \
+    chmod -R 775 /var/www/html/public/pets
+
 # Set Apache DocumentRoot to the public directory
 RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
 
-# Set the correct permissions
+# Set the correct permissions for Laravel
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Expose port 80 (default for Apache)
