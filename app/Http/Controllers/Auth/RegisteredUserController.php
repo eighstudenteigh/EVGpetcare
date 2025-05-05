@@ -47,7 +47,7 @@ class RegisteredUserController extends Controller
         ]);
     
         // Send custom verification email
-        $verificationUrl = URL::to('/verify-email/' . $user->id);
+        $verificationUrl = route('verify.email', ['id' => $user->id]);
     
         Mail::to($user->email)->send(new VerifyEmail($verificationUrl));
 
