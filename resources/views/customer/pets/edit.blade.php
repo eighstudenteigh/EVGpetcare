@@ -81,7 +81,9 @@
                                     <label for="image" class="block text-gray-700 text-sm font-bold mb-2">Pet Image (optional)</label>
                                     @if($pet->image)
                                         <div class="mb-2">
-                                            <img src="{{ asset('storage/' . $pet->image) }}" alt="{{ $pet->name }}" class="w-32 h-32 object-cover rounded">
+                                            @if($pet->image)
+    <img src="{{ asset($pet->image) }}" alt="Pet Image" style="max-width: 200px;">
+@endif    
                                         </div>
                                     @endif
                                     <input type="file" name="image" id="image" class="w-full">

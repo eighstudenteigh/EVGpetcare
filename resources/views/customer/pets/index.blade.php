@@ -1,3 +1,4 @@
+{{-- resources\views\customer\pets\index.blade.php --}}
 @extends('layouts.customer')
 @section('content')
     <div class="py-6">
@@ -20,15 +21,16 @@
                             <div class="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
                                 <div class="relative h-48 bg-gray-200">
                                     @if($pet->image)
-                                        <img src="{{ asset('storage/' . $pet->image) }}" alt="{{ $pet->name }}" class="w-full h-full object-cover">
-                                    @else
-                                        <div class="flex items-center justify-center h-full">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6c-2.209 0-4 1.791-4 4s1.791 4 4 4 4-1.791 4-4-1.791-4-4-4zm0 7c-1.654 0-3-1.346-3-3s1.346-3 3-3 3 1.346 3 3-1.346 3-3 3zm-7 4c.208-.005.4-.105.516-.264l.828-1.104c.135-.18.35-.272.566-.272h10.18c.216 0 .431.092.566.272l.828 1.104c.116.159.308.259.516.264h1v1H5v-1h1z"></path>
-                                                <path d="M9 10h1v1H9zm6 0h1v1h-1z"></path>
-                                            </svg>
-                                        </div>
-                                    @endif
+    <img src="{{ asset($pet->image) }}" alt="{{ $pet->name }}" class="w-full h-full object-cover">
+@else
+    <div class="flex items-center justify-center h-full">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6c-2.209 0-4 1.791-4 4s1.791 4 4 4 4-1.791 4-4-1.791-4-4-4zm0 7c-1.654 0-3-1.346-3-3s1.346-3 3-3 3 1.346 3 3-1.346 3-3 3zm-7 4c.208-.005.4-.105.516-.264l.828-1.104c.135-.18.35-.272.566-.272h10.18c.216 0 .431.092.566.272l.828 1.104c.116.159.308.259.516.264h1v1H5v-1h1z"></path>
+            <path d="M9 10h1v1H9zm6 0h1v1h-1z"></path>
+        </svg>
+    </div>
+@endif
+
                                     <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
                                         <h3 class="text-xl font-semibold text-white">{{ $pet->name }}</h3>
                                     </div>

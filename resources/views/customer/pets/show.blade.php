@@ -1,3 +1,4 @@
+{{-- resources\views\customer\pets\show.blade.php --}}
 @extends('layouts.customer')
 
 @section('content')
@@ -17,12 +18,13 @@
                         <div class="md:col-span-1">
                             <div class="bg-gray-100 p-4 rounded-lg">
                                 @if($pet->image)
-                                    <img src="{{ asset('storage/' . $pet->image) }}" alt="{{ $pet->name }}" class="w-full h-auto rounded">
-                                @else
-                                    <div class="w-full h-48 bg-gray-300 rounded flex items-center justify-center">
-                                        <span class="text-gray-500">No Image</span>
-                                    </div>
-                                @endif
+    <img src="{{ asset($pet->image) }}" alt="{{ $pet->name }}" class="w-full h-auto rounded">
+@else
+    <div class="w-full h-48 bg-gray-300 rounded flex items-center justify-center">
+        <span class="text-gray-500">No Image</span>
+    </div>
+@endif
+
                                 
                                 <div class="mt-4">
                                     <h3 class="text-lg font-semibold mb-2">Basic Information</h3>

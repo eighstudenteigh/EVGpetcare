@@ -1,3 +1,4 @@
+{{-- resources\views\customer\pets\create.blade.php --}}
 @extends('layouts.customer')
 
 @section('content')
