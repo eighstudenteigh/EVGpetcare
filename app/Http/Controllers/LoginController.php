@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash; // Add this for Hash
+use App\Models\User; // Add this for User model
 
 class LoginController extends Controller
 {
@@ -19,34 +21,34 @@ class LoginController extends Controller
      * Handle login request.
      */
     public function login(Request $request)
-{
-    $credentials = $request->validate([
-        'email' => ['required', 'email'],
-        'password' => ['required'],
-    ]);
-
-    if (Auth::attempt($credentials)) {
-        $user = Auth::user();
-
-        // ✅ Check if email is verified
+    {
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required'],
+        ]);
+    
+        // Check if user exists and is verified BEFORE attempting login
+        $user = User::where('email', $credentials['email'])->first();
+    
+        if (!$user || !Hash::check($credentials['password'], $user->password)) {
+            return back()->withErrors(['email' => 'Invalid credentials.'])->withInput();
+        }
+    
+        // ✅ Check verification status
         if ($user->email_verified_at === null) {
-            Auth::logout();
-
             return back()->withErrors([
                 'email' => 'Your email is not verified. Please check your inbox.',
             ])->withInput();
         }
-
+    
+        // Manually log in the user
+        Auth::login($user);
+    
         // Redirect based on role
         return $user->role === 'admin'
             ? redirect()->route('admin.dashboard')
             : redirect()->route('customer.dashboard');
     }
-
-    return back()->withErrors([
-        'email' => 'Invalid credentials.',
-    ])->withInput();
-}
 
     public function logout(Request $request)
     {
