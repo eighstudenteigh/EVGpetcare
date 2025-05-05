@@ -43,9 +43,10 @@ class PetController extends Controller
     $validated['customer_id'] = Auth::id();
 
     if ($request->hasFile('image')) {
-        // Store in public/pets instead of storage/app/public/pets
-        $imagePath = $request->file('image')->store('pets', 'public_direct');
-        $validated['image'] = $imagePath; // Saves as 'pets/filename.jpg'
+        $image = $request->file('image');
+        $filename = $image->hashName(); // Unique filename (e.g., "abc123.jpg")
+        $image->move(public_path('pets'), $filename); // Save to `public/pets/abc123.jpg`
+        $validated['image'] = 'pets/' . $filename; // Store "pets/abc123.jpg" in DB
     }
 
     Pet::create($validated);
@@ -98,35 +99,33 @@ class PetController extends Controller
     
         if ($request->hasFile('image')) {
             // Delete old image if it exists
-            if ($pet->image && file_exists(public_path('pets/' . basename($pet->image)))) {
-                unlink(public_path('pets/' . basename($pet->image)));
+            if ($pet->image && file_exists(public_path($pet->image))) {
+                unlink(public_path($pet->image));
             }
     
-            // Store new image in public/pets
-            $imagePath = $request->file('image')->store('pets', 'public_direct');
-            $validated['image'] = $imagePath; // 'pets/filename.jpg'
+            // Save new image
+            $image = $request->file('image');
+            $filename = $image->hashName();
+            $image->move(public_path('pets'), $filename);
+            $validated['image'] = 'pets/' . $filename;
         }
     
         $pet->update($validated);
         return redirect()->route('customer.pets.index')->with('success', 'Pet updated successfully.');
     }
-    public function destroy(Request $request, Pet $pet)
-    {
-        if ($pet->customer_id !== Auth::id()) {
-            abort(403, 'Unauthorized action.');
-        }
-    
-        if ($pet->image && file_exists(public_path($pet->image))) {
-            unlink(public_path($pet->image));
-        }
-    
-        $pet->delete();
-    
-        if ($request->ajax()) {
-            return response()->json(['success' => true]);
-        }
-    
-        return redirect()->route('customer.pets.index')->with('success', 'Pet deleted successfully.');
+    public function destroy(Pet $pet)
+{
+    if ($pet->customer_id !== Auth::id()) {
+        abort(403, 'Unauthorized action.');
     }
+
+    // Delete image file if it exists
+    if ($pet->image && file_exists(public_path($pet->image))) {
+        unlink(public_path($pet->image));
+    }
+
+    $pet->delete();
+    return redirect()->route('customer.pets.index')->with('success', 'Pet deleted successfully.');
+}
     
 }
