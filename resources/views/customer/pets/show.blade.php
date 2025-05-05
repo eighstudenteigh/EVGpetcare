@@ -18,8 +18,8 @@
                         <div class="md:col-span-1">
                             <div class="bg-gray-100 p-4 rounded-lg">
                                 @if($pet->image)
-    <img src="{{ asset($pet->image) }}" alt="{{ $pet->name }}" class="w-full h-auto rounded">
-@else
+                                <img src="{{ asset('pets/' . basename($pet->image)) }}" alt="Pet Image">
+                            @else
     <div class="w-full h-48 bg-gray-300 rounded flex items-center justify-center">
         <span class="text-gray-500">No Image</span>
     </div>

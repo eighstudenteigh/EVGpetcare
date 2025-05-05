@@ -82,8 +82,8 @@
                                     @if($pet->image)
                                         <div class="mb-2">
                                             @if($pet->image)
-    <img src="{{ asset($pet->image) }}" alt="Pet Image" style="max-width: 200px;">
-@endif    
+                                            <img src="{{ asset('pets/' . basename($pet->image)) }}" alt="Pet Image">
+                                            @endif
                                         </div>
                                     @endif
                                     <input type="file" name="image" id="image" class="w-full">

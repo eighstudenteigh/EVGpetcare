@@ -21,7 +21,7 @@
                             <div class="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
                                 <div class="relative h-48 bg-gray-200">
                                     @if($pet->image)
-    <img src="{{ asset($pet->image) }}" alt="{{ $pet->name }}" class="w-full h-full object-cover">
+    <img src="{{ asset('pets/' . basename($pet->image)) }}" alt="Pet Image">
 @else
     <div class="flex items-center justify-center h-full">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">

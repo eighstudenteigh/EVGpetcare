@@ -43,12 +43,12 @@ class PetController extends Controller
     $validated['customer_id'] = Auth::id();
 
     if ($request->hasFile('image')) {
-        $imagePath = $request->file('image')->store('pets', 'public');
-        $validated['image'] = 'storage/' . $imagePath;
+        // Store in public/pets instead of storage/app/public/pets
+        $imagePath = $request->file('image')->store('pets', 'public_direct');
+        $validated['image'] = $imagePath; // Saves as 'pets/filename.jpg'
     }
 
     Pet::create($validated);
-
     return redirect()->route('customer.pets.index')->with('success', 'Pet added successfully.');
 }
 
@@ -97,23 +97,19 @@ class PetController extends Controller
         ]);
     
         if ($request->hasFile('image')) {
-            if ($pet->image && file_exists(public_path($pet->image))) {
-                unlink(public_path($pet->image));
+            // Delete old image if it exists
+            if ($pet->image && file_exists(public_path('pets/' . basename($pet->image)))) {
+                unlink(public_path('pets/' . basename($pet->image)));
             }
-            $imagePath = $request->file('image')->store('pets', 'public');
-            $validated['image'] = 'storage/' . $imagePath;
+    
+            // Store new image in public/pets
+            $imagePath = $request->file('image')->store('pets', 'public_direct');
+            $validated['image'] = $imagePath; // 'pets/filename.jpg'
         }
     
         $pet->update($validated);
-    
-        if ($request->ajax()) {
-            return response()->json(['success' => 'Pet updated successfully.']);
-        }
-    
         return redirect()->route('customer.pets.index')->with('success', 'Pet updated successfully.');
     }
-    
-    
     public function destroy(Request $request, Pet $pet)
     {
         if ($pet->customer_id !== Auth::id()) {
