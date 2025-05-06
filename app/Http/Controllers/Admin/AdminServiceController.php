@@ -118,12 +118,12 @@ class AdminServiceController extends Controller
     public function update(Request $request, Service $service)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:services,name',
+            'name' => 'required|string|max:255|unique:services,name,' . $service->id,
             'description' => 'required|string',
             'is_vaccination' => 'required|boolean',
             'animal_types' => $request->is_vaccination ? 'sometimes|array|min:0' : 'required|array|min:1',
             'animal_types.*' => 'integer|exists:pet_types,id',
-            'prices' => 'sometimes|array', // Changed from 'required'
+            'prices' => 'sometimes|array',
             'prices.*' => 'nullable|numeric|min:0',
             'vaccine_types' => 'required_if:is_vaccination,true|array',
             'vaccine_types.*' => 'integer|exists:vaccine_types,id',
@@ -136,75 +136,67 @@ class AdminServiceController extends Controller
             'vaccine_pet_types' => 'sometimes|array',
             'vaccine_pet_types.*' => 'sometimes|array',
             'vaccine_pet_types.*.*' => 'integer|exists:pet_types,id',
-            
-            'vaccine_prices.*' => 'sometimes|array',
-           
         ]);
-    
-        $service = Service::create([
+        
+        // Update the service instead of creating a new one
+        $service->update([
             'name' => $validated['name'],
             'description' => $validated['description'],
             'is_vaccination' => $validated['is_vaccination']
         ]);
-    
+        
         // Sync pet types and prices
-$petSyncData = [];
-if (isset($validated['animal_types'])) {
-    foreach ($validated['animal_types'] as $petTypeId) {
-        $petSyncData[$petTypeId] = ['price' => $validated['prices'][$petTypeId] ?? null];
-    }
-    $service->petTypes()->sync($petSyncData);
-}
-        // Handle vaccine pricing
-if ($service->is_vaccination) {
-    $vaccinePricingData = [];
-    
-    // Universal vaccines
-    foreach ($validated['universal_vaccines'] ?? [] as $vaccineId) {
-        if (isset($validated['universal_prices'][$vaccineId])) {
-            $vaccinePricingData[] = [
-                'service_id' => $service->id,
-                'vaccine_type_id' => $vaccineId,
-                'pet_type_id' => null,
-                'price' => $validated['universal_prices'][$vaccineId],
-                'created_at' => now(),
-                'updated_at' => now()
-            ];
+        $petSyncData = [];
+        if (isset($validated['animal_types'])) {
+            foreach ($validated['animal_types'] as $petTypeId) {
+                $petSyncData[$petTypeId] = ['price' => $validated['prices'][$petTypeId] ?? null];
+            }
+            $service->petTypes()->sync($petSyncData);
         }
-    }
-    
-    // Pet-specific vaccines
-    foreach ($validated['vaccine_prices'] ?? [] as $vaccineId => $petPrices) {
-        foreach ($petPrices as $petTypeId => $price) {
-            if (in_array($petTypeId, $validated['vaccine_pet_types'][$vaccineId] ?? [])) {
-                $vaccinePricingData[] = [
-                    'service_id' => $service->id,
-                    'vaccine_type_id' => $vaccineId,
-                    'pet_type_id' => $petTypeId,
-                    'price' => $price,
-                    'created_at' => now(),
-                    'updated_at' => now()
-                ];
+        
+        // Handle vaccine pricing
+        if ($service->is_vaccination) {
+            $vaccinePricingData = [];
+            
+            // Universal vaccines
+            foreach ($validated['universal_vaccines'] ?? [] as $vaccineId) {
+                if (isset($validated['universal_prices'][$vaccineId])) {
+                    $vaccinePricingData[] = [
+                        'service_id' => $service->id,
+                        'vaccine_type_id' => $vaccineId,
+                        'pet_type_id' => null,
+                        'price' => $validated['universal_prices'][$vaccineId],
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ];
+                }
+            }
+            
+            // Pet-specific vaccines
+            foreach ($validated['vaccine_prices'] ?? [] as $vaccineId => $petPrices) {
+                foreach ($petPrices as $petTypeId => $price) {
+                    if (in_array($petTypeId, $validated['vaccine_pet_types'][$vaccineId] ?? [])) {
+                        $vaccinePricingData[] = [
+                            'service_id' => $service->id,
+                            'vaccine_type_id' => $vaccineId,
+                            'pet_type_id' => $petTypeId,
+                            'price' => $price,
+                            'created_at' => now(),
+                            'updated_at' => now()
+                        ];
+                    }
+                }
+            }
+            
+            ServiceVaccinePricing::where('service_id', $service->id)->delete();
+            if (!empty($vaccinePricingData)) {
+                ServiceVaccinePricing::insert($vaccinePricingData);
             }
         }
-    }
-    
-    ServiceVaccinePricing::where('service_id', $service->id)->delete();
-    if (!empty($vaccinePricingData)) {
-        ServiceVaccinePricing::insert($vaccinePricingData);
-    }
-}
-$service->update([
-    'name' => $validated['name'],
-    'description' => $validated['description'],
-    'is_vaccination' => $validated['is_vaccination']
-]);
-    
+        
         return redirect()->route('admin.services.index')
                ->with('success', 'Service updated successfully!');
     }
-
-
     public function edit(Service $service)
     {
         $vaccinePrices = [];

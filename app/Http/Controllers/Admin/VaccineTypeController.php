@@ -36,5 +36,21 @@ class VaccineTypeController extends Controller
                ->with('success', 'Vaccine type created!');
     }
 
-    // ... edit(), update(), destroy() methods ...
+    public function edit(VaccineType $vaccineType)
+{
+    return view('admin.vaccine-types.edit', compact('vaccineType'));
+}
+
+public function update(Request $request, VaccineType $vaccineType)
+{
+    $request->validate([
+        'name' => 'required|string|max:255|unique:vaccine_types,name,' . $vaccineType->id,
+        'description' => 'nullable|string'
+    ]);
+
+    $vaccineType->update($request->all());
+
+    return redirect()->route('admin.vaccine-types.index')
+           ->with('success', 'Vaccine type updated successfully!');
+}
 }
